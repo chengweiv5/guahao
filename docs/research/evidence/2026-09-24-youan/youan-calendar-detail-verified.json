@@ -1,0 +1,42 @@
+[
+  {
+    "time": "2026-09-24T14:22:52.975558+00:00",
+    "method": "GET",
+    "url": "https://aceso.bjhsyuntai.com/api/mobile/source/dept/calendar?deptCode=1308",
+    "protocol": "official youan appv2; no login ticket",
+    "http_status": 200,
+    "response": {
+      "code": 103,
+      "message": "未登录",
+      "data": null
+    }
+  },
+  {
+    "time": "2026-09-24T14:22:53.244521+00:00",
+    "method": "GET",
+    "url": "https://aceso.bjhsyuntai.com/api/mobile/department/detail?deptCode=1308",
+    "protocol": "official youan appv2; no login ticket",
+    "http_status": 200,
+    "response": {
+      "code": 0,
+      "message": "SUCCESS",
+      "data": {
+        "deptName": "眼科",
+        "deptIntro": null,
+        "deptImg": null,
+        "deptCode": "1308",
+        "deptIcon": {
+          "selected": null,
+          "unselected": null,
+          "highlight": null
+        },
+        "parentDeptCode": "1037$",
+        "parentDeptName": "五官中心（眼科、耳鼻喉、口腔）",
+        "deptSimpleIntro": "擅长疾病：白内障精准手术；翼状胬肉微创手术；眼底病感染性眼病个性化诊疗。温馨提示：周末不进行干眼睑板腺按摩以及复杂眼科检查。",
+        "deptExpertiseList": [],
+        "popular": false,
+        "recommend": false
+      }
+    }
+  }
+]

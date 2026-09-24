@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-24T22:47:32.826677+08:00",
+  "method": "POST",
+  "path": "/user-login/login/check",
+  "httpStatus": 200,
+  "code": 0,
+  "login": false,
+  "ticketHeaderSent": false,
+  "cookiesSent": false
+}

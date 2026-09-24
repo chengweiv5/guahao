@@ -1,0 +1,27 @@
+# Local agent sessions and temporary publishing workspaces
+/.superpowers/
+/.codex/
+/draft_*_folder/
+
+# Local backups, credentials, and operating-system files
+*.bak
+*.tmp
+.DS_Store
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+
+# Feishu delivery snapshots and notification receipts stay local
+/docs/research/*-feishu-delivery.json
+/docs/research/evidence/**/feishu-*.json
+/docs/research/evidence/**/*notification*.json
+
+# Android local configuration and generated build output
+/.gradle/
+/.kotlin/
+/.idea/
+**/build/
+local.properties
+*.iml

@@ -1,0 +1,102 @@
+{
+  "verifiedAt": "2026-09-24T22:59:44.768039+08:00",
+  "method": "GET",
+  "path": "/regis/initRegis",
+  "httpStatus": 200,
+  "departmentCode": "1308",
+  "visitDate": "2026-09-26",
+  "purposeValue": "2, page default, not a confirmed patient appointment preference",
+  "dateStateCount": 16,
+  "rows": [
+    {
+      "title": "主治医师",
+      "doctor": "张薇",
+      "doctor_code": "001804",
+      "fee": "50",
+      "reg_half": "1",
+      "count": "10",
+      "regHourList": [
+        [
+          "08:00-08:30",
+          "3"
+        ],
+        [
+          "08:30-09:00",
+          "0"
+        ],
+        [
+          "09:00-09:30",
+          "2"
+        ],
+        [
+          "09:30-10:00",
+          "0"
+        ],
+        [
+          "10:00-10:30",
+          "1"
+        ],
+        [
+          "10:30-11:00",
+          "4"
+        ]
+      ],
+      "iscanceled": "0"
+    },
+    {
+      "title": "主治医师",
+      "doctor": "张薇",
+      "doctor_code": "001804",
+      "fee": "50",
+      "reg_half": "2",
+      "count": "22",
+      "regHourList": [
+        [
+          "13:00-13:30",
+          "5"
+        ],
+        [
+          "13:30-14:00",
+          "4"
+        ],
+        [
+          "14:00-14:30",
+          "3"
+        ],
+        [
+          "14:30-15:00",
+          "3"
+        ],
+        [
+          "15:00-15:30",
+          "4"
+        ],
+        [
+          "15:30-16:00",
+          "3"
+        ]
+      ],
+      "iscanceled": "0"
+    }
+  ],
+  "comparisonToAppSnapshot": {
+    "appVerifiedAt": "2026-09-24T22:49:35+08:00",
+    "checks": [
+      {
+        "period": "AM",
+        "sameDoctor": true,
+        "samePrice": true,
+        "sameRemaining": true
+      },
+      {
+        "period": "PM",
+        "sameDoctor": true,
+        "samePrice": true,
+        "sameRemaining": true
+      }
+    ],
+    "note": "Agreement for sampled doctor/date only. Does not prove shared inventory or identical release windows."
+  },
+  "credentials": "Original user-supplied credential reused after same-current-patient session validation; values omitted",
+  "lockOrOrderSubmitted": false
+}

@@ -1,0 +1,965 @@
+{
+  "source": "https://psc.hkinfo.net/regis/initDept",
+  "captureDate": "2026-09-24",
+  "groupCount": 22,
+  "mappedDepartmentCount": 137,
+  "notes": "Mapped entries include special clinics and repeated mappings; not a unique department count. Patient data omitted.",
+  "groups": [
+    {
+      "code": "0000-@ZZZB@-",
+      "name": "专病专症门诊"
+    },
+    {
+      "code": "DXLH",
+      "name": "多学科知名专家联合门诊"
+    },
+    {
+      "code": "TX",
+      "name": "特需门诊"
+    },
+    {
+      "code": "1016",
+      "name": "肝病中心"
+    },
+    {
+      "code": "1020",
+      "name": "肝病消化中心"
+    },
+    {
+      "code": "1023",
+      "name": "中西医结合中心"
+    },
+    {
+      "code": "1026",
+      "name": "感染中心"
+    },
+    {
+      "code": "1028",
+      "name": "内科系统一（肿瘤、心内、神内、呼吸）"
+    },
+    {
+      "code": "1021",
+      "name": "内科系统二（血液净化、风湿免疫、心理、营养、戒烟）"
+    },
+    {
+      "code": "1027",
+      "name": "肝病与肿瘤介入中心"
+    },
+    {
+      "code": "1031",
+      "name": "普外中心"
+    },
+    {
+      "code": "1032",
+      "name": "外科系统（泌尿、神外）"
+    },
+    {
+      "code": "PK",
+      "name": "皮肤、美容"
+    },
+    {
+      "code": "1035",
+      "name": "妇儿中心（妇、产、儿科）"
+    },
+    {
+      "code": "1445",
+      "name": "早孕门诊"
+    },
+    {
+      "code": "1446",
+      "name": "HPV感染相关肛周门诊"
+    },
+    {
+      "code": "1037",
+      "name": "五官中心（眼科、耳鼻喉、口腔）"
+    },
+    {
+      "code": "FSK1",
+      "name": "影像中心（放射、超声、病理）"
+    },
+    {
+      "code": "1034",
+      "name": "麻醉手术中心(评估、疼痛、睡眠)"
+    },
+    {
+      "code": "1444",
+      "name": "减重中心"
+    },
+    {
+      "code": "YXB",
+      "name": "药学门诊"
+    },
+    {
+      "code": "HLMZ",
+      "name": "护理门诊"
+    }
+  ],
+  "departmentMappings": {
+    "YXB": [
+      {
+        "code": "YXZX",
+        "name": "肝病药学门诊(药物重整)",
+        "pcode": "YXB",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "YYGL",
+        "name": "感染中心药学门诊(药物重整)",
+        "pcode": "YXB",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1314",
+        "name": "丙肝药学门诊",
+        "pcode": "YXB",
+        "oriDeptTwo": null
+      }
+    ],
+    "TX": [
+      {
+        "code": "TXGN",
+        "name": "肝病内科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXGX",
+        "name": "肝病消化科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXZX",
+        "name": "中西医结合门诊(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXGR",
+        "name": "感染科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXZN",
+        "name": "肿瘤内科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXJR",
+        "name": "肝病与肿瘤介入科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXWK",
+        "name": "外科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXHX",
+        "name": "呼吸内科(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXBL",
+        "name": "病理门诊(特需)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1456",
+        "name": "性病艾滋病门诊(特需G楼)",
+        "pcode": "TX",
+        "oriDeptTwo": null
+      }
+    ],
+    "0000-@ZZZB@-": [
+      {
+        "code": "0000-@ZZZB@-17",
+        "name": "肝硬化消化道出血专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-95",
+        "name": "肝癌专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-93",
+        "name": "重型肝炎肝衰竭专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-94",
+        "name": "肝移植专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-36",
+        "name": "自身免疫性肝病专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-70",
+        "name": "乙肝临床治愈专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-34",
+        "name": "脂肪肝与酒精肝专病门诊（优势特色）",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-24",
+        "name": "尖锐湿疣（HPV感染）专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-29",
+        "name": "梅毒专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-10",
+        "name": "艾滋病梅毒母婴阻断专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-63",
+        "name": "中医肝病专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-4",
+        "name": "高危HPV感染/宫颈病变/宫颈癌专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-72",
+        "name": "高尿酸血症与肾病专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-74",
+        "name": "心理及酒药依赖专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-83",
+        "name": "胃幽门螺旋杆菌根治专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-9",
+        "name": "肺小结节专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-85",
+        "name": "生育咨询专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-8",
+        "name": "静脉血栓专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-96",
+        "name": "肝移植内科",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-97",
+        "name": "心肝代谢门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "0000-@ZZZB@-98",
+        "name": "肝病瘙痒专病门诊",
+        "pcode": "0000-@ZZZB@-",
+        "oriDeptTwo": null
+      }
+    ],
+    "1021": [
+      {
+        "code": "1052",
+        "name": "血液净化中心",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1448",
+        "name": "肾内科、肾移植",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "FSMY",
+        "name": "风湿免疫门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1449",
+        "name": "心理门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1470",
+        "name": "睡眠门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "YYK",
+        "name": "营养门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1450",
+        "name": "肝病营养门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "YQYY",
+        "name": "孕期及脂肪肝营养门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "JYK",
+        "name": "戒烟门诊",
+        "pcode": "1021",
+        "oriDeptTwo": null
+      }
+    ],
+    "1032": [
+      {
+        "code": "1077",
+        "name": "泌尿外科",
+        "pcode": "1032",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1496",
+        "name": "神经外科",
+        "pcode": "1032",
+        "oriDeptTwo": null
+      }
+    ],
+    "1020": [
+      {
+        "code": "1301",
+        "name": "肝病消化中心",
+        "pcode": "1020",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1328",
+        "name": "胃肠胆胰门诊(肝病消化)",
+        "pcode": "1020",
+        "oriDeptTwo": null
+      }
+    ],
+    "1031": [
+      {
+        "code": "1302",
+        "name": "普通外科中心",
+        "pcode": "1031",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1469",
+        "name": "PICC门诊（限PICC患者）",
+        "pcode": "1031",
+        "oriDeptTwo": null
+      }
+    ],
+    "DXLH": [
+      {
+        "code": "DXGA",
+        "name": "肝癌多学科知名专家联合门诊",
+        "pcode": "DXLH",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1327",
+        "name": "免疫相关性肝病多学科门诊",
+        "pcode": "DXLH",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1492",
+        "name": "睡眠多学科诊疗门诊",
+        "pcode": "DXLH",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1497",
+        "name": "复杂罕见肝病联合门诊",
+        "pcode": "DXLH",
+        "oriDeptTwo": null
+      }
+    ],
+    "HLMZ": [
+      {
+        "code": "HLJR",
+        "name": "肿瘤微创介入护理咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLTN",
+        "name": "糖尿病健康管理护理门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLYZ",
+        "name": "肝移植术后护理咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLPI",
+        "name": "PICC专科护理门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLMR",
+        "name": "母乳喂养咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLZK",
+        "name": "造口伤口护理咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLSM",
+        "name": "麻醉专科护理门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLTZ",
+        "name": "脂肪肝与体重管理护理门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLXA",
+        "name": "艾滋病咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLXY",
+        "name": "血液净化护理咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLZC",
+        "name": "助产士咨询门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "HLZY",
+        "name": "中医适宜技术护理门诊",
+        "pcode": "HLMZ",
+        "oriDeptTwo": null
+      }
+    ],
+    "1028": [
+      {
+        "code": "1069",
+        "name": "肿瘤内科",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1221",
+        "name": "心血管内科",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1480",
+        "name": "高血压门诊（心内科）",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1481",
+        "name": "心肝共病门诊（心内科）",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1309",
+        "name": "神经内科",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1240",
+        "name": "脑血管病门诊",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1324",
+        "name": "记忆与心理专病门诊",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1307",
+        "name": "呼吸内科",
+        "pcode": "1028",
+        "oriDeptTwo": null
+      }
+    ],
+    "1446": [
+      {
+        "code": "1461",
+        "name": "HPV感染相关肛周门诊",
+        "pcode": "1446",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1331",
+        "name": "HPV感染相关肛周门诊（特需）",
+        "pcode": "1446",
+        "oriDeptTwo": null
+      }
+    ],
+    "FSK1": [
+      {
+        "code": "FSK",
+        "name": "放射科",
+        "pcode": "FSK1",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "FSTX",
+        "name": "放射科(特需)",
+        "pcode": "FSK1",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1465",
+        "name": "超声与功能诊断中心",
+        "pcode": "FSK1",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1464",
+        "name": "超声与功能诊断中心(特需)",
+        "pcode": "FSK1",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "BLK",
+        "name": "病理门诊",
+        "pcode": "FSK1",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1494",
+        "name": "病理补费",
+        "pcode": "FSK1",
+        "oriDeptTwo": null
+      }
+    ],
+    "1016": [
+      {
+        "code": "1044",
+        "name": "肝病中心一科",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1322",
+        "name": "乙肝临床治愈门诊",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1045",
+        "name": "肝病中心二科",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1482",
+        "name": "自身免疫性肝病门诊（肝二科）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1483",
+        "name": "糖肝共病门诊（肝二科）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1484",
+        "name": "药物性肝损伤：自身免疫样药物性肝损伤（肝二科）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1046",
+        "name": "肝病中心三科",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1472",
+        "name": "脂肪肝与酒精性肝病门诊（肝三科）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1485",
+        "name": "药物性肝损伤，丙型肝炎（肝三科）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1486",
+        "name": "心肝肾代谢，肌少症门诊（肝三科）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1047",
+        "name": "肝病中心四科",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1466",
+        "name": "肝功能异常、肝衰竭",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1454",
+        "name": "中西医结合肝病门诊",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1088",
+        "name": "肝病诊疗（门诊部）",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "JRZJ",
+        "name": "节假日肝病内科门诊",
+        "pcode": "1016",
+        "oriDeptTwo": null
+      }
+    ],
+    "1027": [
+      {
+        "code": "1068",
+        "name": "肝病与肿瘤介入治疗中心",
+        "pcode": "1027",
+        "oriDeptTwo": null
+      }
+    ],
+    "1445": [
+      {
+        "code": "1443",
+        "name": "早孕门诊",
+        "pcode": "1445",
+        "oriDeptTwo": null
+      }
+    ],
+    "1026": [
+      {
+        "code": "1455",
+        "name": "性病艾滋病门诊",
+        "pcode": "1026",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1306",
+        "name": "感染与免疫医学科",
+        "pcode": "1026",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1332",
+        "name": "感染综合科（含肝病）",
+        "pcode": "1026",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1457",
+        "name": "旅行门诊",
+        "pcode": "1026",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "YMMY",
+        "name": "成人疫苗免疫",
+        "pcode": "1026",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1498",
+        "name": "流感疫苗接种门诊",
+        "pcode": "1026",
+        "oriDeptTwo": null
+      }
+    ],
+    "1037": [
+      {
+        "code": "1308",
+        "name": "眼科",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1304",
+        "name": "耳鼻咽喉头颈外科",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXEB",
+        "name": "耳鼻喉科(特需)",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1487",
+        "name": "变态反应（过敏）门诊（耳鼻咽喉头颈外科）",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1489",
+        "name": "睡眠呼吸暂停（睡眠打鼾）（耳鼻咽喉头颈外科）",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1490",
+        "name": "眩晕耳鸣（耳鼻咽喉头颈外科）",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1491",
+        "name": "儿童扁桃体腺样体肥大（耳鼻咽喉头颈外科）",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1303",
+        "name": "口腔科",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1441",
+        "name": "口腔正畸（自费）",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1321",
+        "name": "口腔种植（自费）",
+        "pcode": "1037",
+        "oriDeptTwo": null
+      }
+    ],
+    "1444": [
+      {
+        "code": "JKGL",
+        "name": "健康管理门诊",
+        "pcode": "1444",
+        "oriDeptTwo": null
+      }
+    ],
+    "1035": [
+      {
+        "code": "1080",
+        "name": "妇科",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXFK",
+        "name": "妇科(特需)",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1488",
+        "name": "计划生育（限上环取环）",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1459",
+        "name": "产科与生育咨询",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "TXCK",
+        "name": "产科(特需)",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "CQSC",
+        "name": "产前筛查",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1312",
+        "name": "儿科",
+        "pcode": "1035",
+        "oriDeptTwo": null
+      }
+    ],
+    "1023": [
+      {
+        "code": "1056",
+        "name": "生物物理治疗科",
+        "pcode": "1023",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1278",
+        "name": "中医内科",
+        "pcode": "1023",
+        "oriDeptTwo": null
+      }
+    ],
+    "1034": [
+      {
+        "code": "1462",
+        "name": "麻醉评估门诊",
+        "pcode": "1034",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1463",
+        "name": "疼痛与睡眠门诊",
+        "pcode": "1034",
+        "oriDeptTwo": null
+      }
+    ],
+    "PK": [
+      {
+        "code": "1319",
+        "name": "医疗美容门诊(自费)",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1493",
+        "name": "色素痣及皮肤小肿物美容治疗（自费）",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1067",
+        "name": "皮肤科",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "PKPV",
+        "name": "HPV(尖锐湿疣/寻常疣/扁平疣)",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "PKCC",
+        "name": "痤疮与玫瑰痤疮门诊",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "PKYX",
+        "name": "银屑病门诊",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1458",
+        "name": "毛发/脱发门诊",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1318",
+        "name": "荨麻疹与过敏性皮肤病门诊",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "BDF",
+        "name": "白癜风与外阴白斑门诊",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "1339",
+        "name": "化脓性汗腺炎与毛囊炎",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      },
+      {
+        "code": "PKTX",
+        "name": "皮肤科(特需)",
+        "pcode": "PK",
+        "oriDeptTwo": null
+      }
+    ]
+  }
+}

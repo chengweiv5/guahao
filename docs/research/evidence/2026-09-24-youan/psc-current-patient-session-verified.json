@@ -1,0 +1,47 @@
+{
+  "verifiedAt": "2026-09-24T22:59:09.792289+08:00",
+  "method": "POST",
+  "path": "/patient/changePatient",
+  "requestSummary": {
+    "id": "current already registered patient identity",
+    "oldId": "same current identity",
+    "userIdKey": "original provided credential, value omitted"
+  },
+  "httpStatus": 200,
+  "code": 2,
+  "responseShape": {
+    "name": "str",
+    "code": "int",
+    "data": {
+      "id_card": "NoneType",
+      "name": "str",
+      "sex": "str",
+      "birthday": "NoneType",
+      "country_info": "NoneType",
+      "areacode": "NoneType",
+      "people": "NoneType",
+      "addressmsg": "NoneType",
+      "bi": "NoneType",
+      "cpno": "NoneType",
+      "telphone": "NoneType",
+      "ptno": "str",
+      "updFlg": "NoneType",
+      "cardtype": "NoneType",
+      "id": "int",
+      "userIdKey": "str",
+      "ptnoKey": "str",
+      "isHiv": "str",
+      "pageid": "NoneType",
+      "age": "str",
+      "systemTime": "NoneType",
+      "secretKey": "NoneType",
+      "oldTelPhone": "NoneType",
+      "oldId": "str"
+    }
+  },
+  "note": "Selected the existing current identity with id == oldId. No new patient and no alternate person was selected. Official UI normally skips the request for identical selections; cross-patient switching was not tested.",
+  "sameUserReturned": true,
+  "samePatientReturned": true,
+  "ptnoKeyPresent": true,
+  "userIdKeyPresent": true
+}

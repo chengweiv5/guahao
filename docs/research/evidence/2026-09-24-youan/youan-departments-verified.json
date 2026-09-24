@@ -1,0 +1,1548 @@
+{
+  "time": "2026-09-24T14:22:36.565801+00:00",
+  "method": "GET",
+  "url": "https://aceso.bjhsyuntai.com/api/mobile/department/list",
+  "protocol": "official youan appv2 device timestamp encoding; no login ticket",
+  "http_status": 200,
+  "response": {
+    "code": 0,
+    "message": "SUCCESS",
+    "data": {
+      "list": [
+        {
+          "deptName": "多学科知名专家联合门诊",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "DXLH$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肝癌多学科知名专家联合门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "DXGA",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "免疫相关性肝病多学科门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1327",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "睡眠多学科诊疗门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1492",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "复杂罕见肝病联合门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1497",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "特需门诊",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "TX$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "性病艾滋病门诊(特需G楼)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1456",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病内科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXGN",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病消化科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXGX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "中西医结合门诊(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXZX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "感染科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXGR",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肿瘤内科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXZN",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病与肿瘤介入科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXJR",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "外科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXWK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "呼吸内科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXHX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "病理门诊(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXBL",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "肝病中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1016$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肝病中心一科",
+              "deptIntro": "擅长疾病：乙肝临床治愈；遗传代谢及罕见/复杂肝病；肝炎肝硬化及相关并发症",
+              "deptImg": null,
+              "deptCode": "1044",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "中西医结合肝病门诊",
+              "deptIntro": "擅长疾病：中西医结合诊治肝胆肿瘤、肝衰竭、肝硬化并发症",
+              "deptImg": null,
+              "deptCode": "1454",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "乙肝临床治愈门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1322",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病中心二科",
+              "deptIntro": "擅长疾病：免疫相关性肝病；老年肝病；肝硬化腹水；肝病合并代谢性疾病",
+              "deptImg": null,
+              "deptCode": "1045",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "自身免疫性肝病门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1467",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病中心三科",
+              "deptIntro": "擅长疾病：乙肝、丙肝、肝功能异常、药物性肝损伤、肝硬化、肝癌、脂肪肝。",
+              "deptImg": null,
+              "deptCode": "1046",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病中心四科",
+              "deptIntro": "擅长疾病：乙肝抗病毒治疗、疑难及重症肝病、肝衰竭；胆汁淤积性肝病；肝病合并肾病；",
+              "deptImg": null,
+              "deptCode": "1047",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝功能异常、肝衰竭",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1466",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病诊疗（门诊部）",
+              "deptIntro": "擅长疾病：病毒性肝炎综合诊治；肝硬化、肝癌及其并发症的内科诊治",
+              "deptImg": null,
+              "deptCode": "1088",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "节假日肝病内科门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "JRZJ",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "肝病消化中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1020$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肝病消化中心",
+              "deptIntro": "擅长疾病：急慢性肝炎；早期及中晚期肝硬化；肝癌；消化道出血；门静脉高压及食管胃静脉曲张；肝脏血管疾病。",
+              "deptImg": null,
+              "deptCode": "1301",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "胃肠胆胰门诊(肝病消化)",
+              "deptIntro": "擅长疾病：胃肠炎，胰腺炎，胆石症，胆道梗阻，幽门螺杆菌感染，消化内镜诊疗，胃肠息肉及恶性肿瘤，内痔。",
+              "deptImg": null,
+              "deptCode": "1328",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "中西医结合中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1023$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "生物物理治疗科",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1056",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "中医内科",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1278",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "感染中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1026$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "性病艾滋病门诊",
+              "deptIntro": "擅长疾病：艾滋病及各种性病诊治；HIV母婴传播阻断； HIV暴露前、后预防",
+              "deptImg": null,
+              "deptCode": "1455",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "感染与免疫医学科",
+              "deptIntro": "擅长疾病：艾滋病及相关合并症；不明原因发热",
+              "deptImg": null,
+              "deptCode": "1306",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "感染综合科（含肝病）",
+              "deptIntro": "擅长疾病：各类成人及儿童感染及传染相关疾病",
+              "deptImg": null,
+              "deptCode": "1332",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "旅行门诊",
+              "deptIntro": "擅长疾病：旅行相关感染性疾病；旅行前后的检测、预防（疫苗接种）及治疗",
+              "deptImg": null,
+              "deptCode": "1457",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "成人疫苗免疫",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "YMMY",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "流感疫苗接种门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1498",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "内科系统一（肿瘤、心内、神内、呼吸）",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1028$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肿瘤内科",
+              "deptIntro": "擅长疾病：精准靶向治疗肝癌、胰腺癌、各种消化道转移癌",
+              "deptImg": null,
+              "deptCode": "1069",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "心血管内科",
+              "deptIntro": "擅长疾病：冠心病介入；心律失常射频消融治疗；心衰、心肌病、心包疾病",
+              "deptImg": null,
+              "deptCode": "1221",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "神经内科",
+              "deptIntro": "擅长疾病：脑血管病；神经介入治疗；神经系统感染免疫性疾病",
+              "deptImg": null,
+              "deptCode": "1309",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "脑血管病门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1240",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "记忆与心理专病门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1324",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "呼吸内科",
+              "deptIntro": "擅长疾病：真菌及不明原因肺炎；哮喘与支气管炎；难治性肺纤维化，肺小结节",
+              "deptImg": null,
+              "deptCode": "1307",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "内科系统二（血液净化、风湿免疫、心理、营养、戒烟）",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1021$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "血液净化中心",
+              "deptIntro": "擅长疾病：尿毒症合并感染与传染性疾病；肾移植术后内科并发症",
+              "deptImg": null,
+              "deptCode": "1052",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肾内科、肾移植",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1448",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "风湿免疫门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "FSMY",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "心理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1449",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "睡眠门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1470",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "营养门诊",
+              "deptIntro": "擅长疾病：急慢性肝炎、肝硬化合并营养不良、脂肪肝合并肥胖的营养",
+              "deptImg": null,
+              "deptCode": "YYK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝病营养门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1450",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "孕期及脂肪肝营养门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "YQYY",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "戒烟门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "JYK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "肝病与肿瘤介入中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1027$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肝病与肿瘤介入治疗中心",
+              "deptIntro": "擅长疾病：肝癌等实体肿瘤介入、微创消融；肝病微创介入；外周血管介入",
+              "deptImg": null,
+              "deptCode": "1068",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "普外中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1031$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "普通外科中心",
+              "deptIntro": "擅长疾病：肝胆胰脾、胃肠、阑尾、腹壁疝、甲状腺疾病的诊治，肝移植，门静脉高压症的外科治疗。",
+              "deptImg": null,
+              "deptCode": "1302",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "PICC门诊（限PICC患者）",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1469",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "外科系统（泌尿、神外）",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1032$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "泌尿外科",
+              "deptIntro": "擅长疾病：肾癌、膀胱癌、前列腺癌、泌尿系结石微创手术；动静脉瘘手术和腹膜透析",
+              "deptImg": null,
+              "deptCode": "1077",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "神经外科",
+              "deptIntro": "擅长疾病：脑肿瘤、脑动脉瘤、脑血管狭窄、脑鸣、脑出血、三叉神经痛、面肌痉挛",
+              "deptImg": null,
+              "deptCode": "1496",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "皮肤、美容",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "PK$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "医疗美容门诊(自费)",
+              "deptIntro": "擅长疾病：不同类型色斑；痤疮后瘢痕；敏感肌治疗；面部年轻化、皱纹、皮肤松弛、多毛、红血丝及浅表肿物美容切除。",
+              "deptImg": null,
+              "deptCode": "1319",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "色素痣及皮肤小肿物美容治疗（自费）",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1493",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "皮肤科",
+              "deptIntro": "擅长疾病：各种皮肤病、性病如梅毒、尖锐湿疣等。",
+              "deptImg": null,
+              "deptCode": "1067",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "HPV(尖锐湿疣/寻常疣/扁平疣)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "PKPV",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "痤疮与玫瑰痤疮门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "PKCC",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "银屑病门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "PKYX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "毛发/脱发门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1458",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "荨麻疹与过敏性皮肤病门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1318",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "白癜风与外阴白斑门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "BDF",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "化脓性汗腺炎与毛囊炎",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1339",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "皮肤科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "PKTX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "妇儿中心（妇、产、儿科）",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1035$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "妇科",
+              "deptIntro": "擅长疾病：女性生殖道感染；妇科肿瘤；生殖内分泌；盆底功能障碍；女性不孕；",
+              "deptImg": null,
+              "deptCode": "1080",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "妇科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXFK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "产科与生育咨询",
+              "deptIntro": "擅长疾病：产科疾病；妊娠合并症及并发症；妊娠期肝损害；防治艾梅乙母婴传播",
+              "deptImg": null,
+              "deptCode": "1459",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "产科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXCK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "产前筛查",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "CQSC",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "计划生育（限上环取环）",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1488",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "儿科",
+              "deptIntro": "擅长疾病：儿童发热，呼吸道疾病，儿童消化道疾病，儿童感染性疾病，过敏性鼻炎，儿童肝病，儿童乙肝，儿童肥胖减重肝病门诊，新生儿疾病，儿童生长发育随访及评估，儿童艾梅乙母婴阻断及评估",
+              "deptImg": null,
+              "deptCode": "1312",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "早孕门诊",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1445$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "早孕门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1443",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "HPV感染相关肛周门诊",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1446$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "HPV感染相关肛周门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1461",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "HPV感染相关肛周门诊（特需）",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1331",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "五官中心（眼科、耳鼻喉、口腔）",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1037$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "眼科",
+              "deptIntro": "擅长疾病：白内障精准手术；翼状胬肉微创手术；眼底病感染性眼病个性化诊疗。温馨提示：周末不进行干眼睑板腺按摩以及复杂眼科检查。",
+              "deptImg": null,
+              "deptCode": "1308",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "耳鼻咽喉头颈外科",
+              "deptIntro": "擅长疾病：擅长睡眠打鼾、过敏性鼻炎、急慢性鼻窦炎、鼻息肉、听力下降、耳鸣、眩晕、中耳炎、咽炎、扁桃体炎、声嘶、耳鼻咽喉头颈良恶性肿瘤，肝病及感染相关耳鼻咽喉疾病综合治疗。",
+              "deptImg": null,
+              "deptCode": "1304",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "耳鼻喉科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "TXEB",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "口腔科",
+              "deptIntro": "擅长疾病：口腔内科、修复、正畸及齿槽外科，擅长HIV、肝病相关口腔诊治；就诊提示：口腔有创治疗前需提供艾梅乙丙传染病筛查结果。",
+              "deptImg": null,
+              "deptCode": "1303",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "口腔正畸（自费）",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1441",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "口腔种植（自费）",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1321",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "影像中心（放射、超声、病理）",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "FSK1$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "放射科",
+              "deptIntro": "擅长疾病：病毒性肝炎、肝癌影像诊断；艾滋病等传染病影像评估及分级诊断",
+              "deptImg": null,
+              "deptCode": "FSK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "放射科(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "FSTX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "超声与功能诊断中心",
+              "deptIntro": "擅长疾病：超声评估肝纤维化程度；肝脏肿瘤超声诊断；超声介入及造影",
+              "deptImg": null,
+              "deptCode": "1465",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "超声与功能诊断中心(特需)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1464",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "病理门诊",
+              "deptIntro": "擅长疾病：传染及感染性疾病病理；肝脏肿瘤；肝脏非肿瘤性疾病；肝移植病理（适用于病理结果解读、切白片及病理补费等，无开药权限）",
+              "deptImg": null,
+              "deptCode": "BLK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "病理补费",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1494",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "麻醉手术中心(评估、疼痛、睡眠)",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1034$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "麻醉评估门诊",
+              "deptIntro": "术前麻醉评估筛查：无痛胃肠镜、无痛人流、无痛介入、无痛肛门镜、无痛支气管镜、日间手术等。",
+              "deptImg": null,
+              "deptCode": "1462",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "疼痛与睡眠门诊",
+              "deptIntro": "各种急慢性疼痛诊疗：头面痛、颈肩腰腿痛、软组织疼痛、带状疱疹后神经痛、癌痛等。<br>非痛性诊疗：顽固性失眠、睡眠障碍、过敏性鼻炎、呃逆、突发性耳聋等。",
+              "deptImg": null,
+              "deptCode": "1463",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "减重中心",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "1444$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "健康管理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "JKGL",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "药学门诊",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "YXB$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肝病药学门诊(药物重整)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "YXZX",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "感染中心药学门诊(药物重整)",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "YYGL",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "丙肝药学门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "1314",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        },
+        {
+          "deptName": "护理门诊",
+          "deptIntro": "",
+          "deptImg": null,
+          "deptCode": "HLMZ$",
+          "deptIcon": {
+            "selected": null,
+            "unselected": null,
+            "highlight": null
+          },
+          "subList": [
+            {
+              "deptName": "肿瘤微创介入护理咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLJR",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "糖尿病健康管理护理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLTN",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "肝移植术后护理咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLYZ",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "PICC专科护理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLPI",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "母乳喂养咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLMR",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "造口伤口护理咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLZK",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "麻醉专科护理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLSM",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "脂肪肝与体重管理护理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLTZ",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "艾滋病咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLXA",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "血液净化护理咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLXY",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "助产士咨询门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLZC",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            },
+            {
+              "deptName": "中医适宜技术护理门诊",
+              "deptIntro": "",
+              "deptImg": null,
+              "deptCode": "HLZY",
+              "deptIcon": {
+                "selected": null,
+                "unselected": null,
+                "highlight": null
+              },
+              "subList": []
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

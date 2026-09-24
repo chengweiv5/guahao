@@ -1,0 +1,85 @@
+{
+  "evidenceType": "redacted_public_technical_summary",
+  "verificationDate": "2026-09-24",
+  "channel": "psc.hkinfo.net service account",
+  "singleSubmission": true,
+  "lockResponseCode": 0,
+  "asyncResultCode": 0,
+  "orderListResponseCode": 200,
+  "sameOrderReadback": true,
+  "approvedPatientMatched": true,
+  "approvedDepartmentMatched": true,
+  "approvedDoctorMatched": true,
+  "approvedDateMatched": true,
+  "approvedFeeMatched": true,
+  "initialOrderStatus": "1",
+  "initialOrderStatusView": "锁号成功",
+  "observedPaymentWindow": "about 30 minutes, for this order only",
+  "latestOrderStatusView": "已预约",
+  "userConfirmedPhoneOrderVisibility": true,
+  "paymentReceiptIndependentlyFetched": false,
+  "personalValuesPersisted": false,
+  "credentialsPersisted": false,
+  "orderNumberPersisted": false,
+  "latestOrder": {
+    "status": "2",
+    "invalidtime": null
+  },
+  "redactionNote": "Exact operation times, appointment preferences, fee and insurance fields, personal statements, credentials, and order identifiers are omitted. HTTP response codes and status transitions are preserved.",
+  "events": [
+    {
+      "sequence": 1,
+      "method": "POST",
+      "path": "/patient/changePatient",
+      "http": 200
+    },
+    {
+      "sequence": 2,
+      "method": "GET",
+      "path": "/regis/initRegis",
+      "http": 200
+    },
+    {
+      "sequence": 3,
+      "method": "POST",
+      "path": "/function/functionControl",
+      "http": 200
+    },
+    {
+      "sequence": 4,
+      "method": "POST",
+      "path": "/regis/getRegisList",
+      "http": 200
+    },
+    {
+      "sequence": 5,
+      "method": "POST",
+      "path": "/regis/lockRegis",
+      "http": 200
+    },
+    {
+      "sequence": 6,
+      "method": "POST",
+      "path": "/regis/queryRegisStat",
+      "http": 200
+    },
+    {
+      "sequence": 7,
+      "method": "POST",
+      "path": "/regis/queryRegisStat",
+      "http": 200
+    },
+    {
+      "sequence": 8,
+      "method": "POST",
+      "path": "/regis/queryRegisStat",
+      "http": 200
+    },
+    {
+      "sequence": 9,
+      "method": "POST",
+      "path": "/regis/getRegisList",
+      "http": 200
+    }
+  ]
+}

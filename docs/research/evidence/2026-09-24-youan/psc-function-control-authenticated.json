@@ -1,0 +1,16 @@
+{
+  "verifiedAt": "2026-09-24T22:59:10.022499+08:00",
+  "method": "POST",
+  "path": "/function/functionControl",
+  "functionid": "002",
+  "httpStatus": 200,
+  "code": 0,
+  "message": "功能开放",
+  "responseShape": {
+    "name": "str",
+    "code": "int",
+    "data": "NoneType"
+  },
+  "credentialSource": "Authenticated same-current-patient response, matching original user and patient",
+  "lockOrOrderSubmitted": false
+}

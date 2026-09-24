@@ -1,0 +1,87 @@
+{
+  "evidenceType": "static analysis of official frontend JavaScript; no business endpoint called",
+  "observedOn": "2026-09-24",
+  "assets": [
+    {
+      "url": "https://aceso.bjhsyuntai.com/youan/appv2/js/chunk-18940f3a.f935a8e2.js",
+      "sha256": "7fd89ca04d3cec6427b54d6f159ed245f0bc4c10d1a9fc1051cdcefcb684a0ca",
+      "bytes": 19698
+    },
+    {
+      "url": "https://aceso.bjhsyuntai.com/youan/appv2/js/chunk-12058653.ca38e671.js",
+      "sha256": "67c5971917cd74bff2a8d3d9f17506e26ad16e05a36fb0d4cc6a07aca4887187",
+      "bytes": 5434
+    },
+    {
+      "url": "https://aceso.bjhsyuntai.com/youan/appv2/js/chunk-5ca25856.e1e63557.js",
+      "sha256": "b280faa67bf1d9c1f377f3445bddc639f995cd27e03d980c8a416c8437a02827",
+      "bytes": 9136
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/order/page",
+      "query": [
+        "patientCode",
+        "pageSize",
+        "pageNo"
+      ],
+      "purpose": "appointment record list"
+    },
+    {
+      "method": "GET",
+      "path": "/order/detail",
+      "query": [
+        "orderNo"
+      ],
+      "purpose": "order state and controls"
+    },
+    {
+      "method": "GET",
+      "path": "/cash/pay/info",
+      "query": [
+        "transactionNo"
+      ],
+      "purpose": "payment state and available methods"
+    },
+    {
+      "method": "GET",
+      "path": "/cash/pay/form",
+      "query": [
+        "transactionNo",
+        "payOption"
+      ],
+      "purpose": "obtain payment payload before platform pay operation; potentially consequential, not treated as a generic safe GET"
+    }
+  ],
+  "orderStatusesSeen": [
+    "PROCESSING",
+    "WAIT_PAY",
+    "BOOKING_SUCCESS",
+    "TAKE",
+    "NO_SHOW",
+    "STOPPED",
+    "CANCELLING",
+    "REFUNDING"
+  ],
+  "orderControlFields": [
+    "payable",
+    "cancellable",
+    "deletable",
+    "needPolling"
+  ],
+  "paymentFields": [
+    "payStatus",
+    "payRemainSeconds",
+    "transactionNo",
+    "payOptionList"
+  ],
+  "conclusions": [
+    "Order state is separate from payment state.",
+    "The official UI obtains a payment payload then delegates to a platform pay module.",
+    "No server-side idempotency guarantee has been established.",
+    "Order-list reconciliation by patient and appointment fields remains untested."
+  ],
+  "businessRequestsExecuted": false
+}

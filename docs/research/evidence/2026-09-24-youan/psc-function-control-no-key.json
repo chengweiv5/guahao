@@ -1,0 +1,30 @@
+{
+  "verifiedAt": "2026-09-24T22:55:47.758821+08:00",
+  "method": "POST",
+  "path": "/function/functionControl",
+  "purpose": "Read-only function availability/authentication check used by official page before appointment submission",
+  "requestSummary": {
+    "patientId": "user-provided patient, value omitted",
+    "ptnoKey": null,
+    "functionid": "002",
+    "cookieJar": "previous original-origin session"
+  },
+  "httpStatus": 200,
+  "code": -200,
+  "message": "参数不正确或缺少参数",
+  "responseFields": [
+    "name",
+    "code",
+    "data"
+  ],
+  "note": "This reproduces missing local-storage credential in copied-link context; no credentials were guessed or generated. No lock, order, payment or patient mutations executed.",
+  "diagnosticReadbackAt": "2026-09-24T22:56:24.632241+08:00",
+  "repeatResponse": {
+    "httpStatus": 200,
+    "code": -200,
+    "name": "参数不正确或缺少参数",
+    "msg": "",
+    "dataType": "NoneType"
+  },
+  "responseLabelField": "name"
+}

@@ -1,0 +1,363 @@
+{
+  "stage": "checks_complete",
+  "events": [
+    {
+      "method": "POST",
+      "path": "/user-login/verify-code/send",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:13.082539+08:00"
+    },
+    {
+      "method": "POST",
+      "path": "/user-login/verify-code/login",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:34.499379+08:00"
+    },
+    {
+      "method": "POST",
+      "path": "/user-login/login/check",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:34.716320+08:00"
+    },
+    {
+      "method": "GET",
+      "path": "/patient/list",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:34.964924+08:00"
+    },
+    {
+      "method": "GET",
+      "path": "/source/dept/calendar",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:35.576779+08:00"
+    },
+    {
+      "method": "GET",
+      "path": "/source/dept/detail",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:35.871532+08:00"
+    },
+    {
+      "method": "GET",
+      "path": "/source/time/intervals",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:36.122571+08:00"
+    },
+    {
+      "method": "POST",
+      "path": "/user-login/login/check",
+      "httpStatus": 200,
+      "code": 0,
+      "at": "2026-09-24T22:49:36.364255+08:00"
+    }
+  ],
+  "results": {
+    "login": {
+      "code": 0,
+      "ticketPresent": true,
+      "responseShape": {
+        "ticket": "str"
+      },
+      "ticketPersisted": false
+    },
+    "loginCheck": {
+      "code": 0,
+      "login": true,
+      "dataShape": {
+        "login": "bool"
+      }
+    },
+    "patients": {
+      "code": 0,
+      "count": 1,
+      "dataShape": {
+        "list": {
+          "count": 1,
+          "firstShape": {
+            "patientCode": "str",
+            "patientName": "str",
+            "idCardType": "str",
+            "idCardTypeView": "str",
+            "idCardNo": "NoneType",
+            "mosaicIdCardNo": "str",
+            "mosaicPhone": "str",
+            "patientRelation": "str",
+            "patientRelationView": "str",
+            "defaultPatient": "bool",
+            "archivalPayType": "str",
+            "archivalPayTypeView": "str",
+            "gender": "str"
+          }
+        },
+        "allowBind": "bool",
+        "maxAllowBind": "int"
+      },
+      "identifierFieldsPresent": [
+        "patientCode",
+        "patientName"
+      ],
+      "valuesPersisted": false
+    },
+    "calendar": {
+      "code": 0,
+      "departmentCode": "1308",
+      "dataShape": {
+        "list": {
+          "count": 15,
+          "firstShape": {
+            "weekView": "str",
+            "visitDate": "str",
+            "visitDateView": "str",
+            "sourceStatus": "str",
+            "sourceStatusView": "str",
+            "releaseTimeView": "NoneType",
+            "releaseCountdownMillis": "NoneType"
+          }
+        },
+        "releaseTips": "str"
+      },
+      "dates": [
+        {
+          "visitDate": "2026-09-24",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "今日",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-09-25",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期五",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-09-26",
+          "sourceStatus": "HAVE_INVENTORY",
+          "weekView": "星期六",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-09-27",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期日",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-09-28",
+          "sourceStatus": "HAVE_INVENTORY",
+          "weekView": "星期一",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-09-29",
+          "sourceStatus": "HAVE_INVENTORY",
+          "weekView": "星期二",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-09-30",
+          "sourceStatus": "HAVE_INVENTORY",
+          "weekView": "星期三",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-01",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期四",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-02",
+          "sourceStatus": "HAVE_INVENTORY",
+          "weekView": "星期五",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-03",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期六",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-04",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期日",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-05",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期一",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-06",
+          "sourceStatus": "HAVE_INVENTORY",
+          "weekView": "星期二",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-07",
+          "sourceStatus": "NO_INVENTORY",
+          "weekView": "星期三",
+          "releaseTimeView": null
+        },
+        {
+          "visitDate": "2026-10-08",
+          "sourceStatus": "SOON_RELEASE",
+          "weekView": "星期四",
+          "releaseTimeView": "09月25日15:00"
+        }
+      ]
+    },
+    "detail-2026-09-26": {
+      "code": 0,
+      "query": {
+        "deptCode": "1308",
+        "visitDate": "2026-09-26"
+      },
+      "dataShape": {
+        "list": {
+          "count": 2,
+          "firstShape": {
+            "periodType": "str",
+            "periodTypeView": "str",
+            "sourceList": {
+              "count": 1,
+              "firstShape": {
+                "deptCode": "str",
+                "doctorCode": "str",
+                "doctorName": "str",
+                "doctorImg": "str",
+                "doctorTitle": "str",
+                "doctorTitleView": "str",
+                "doctorTagList": "list",
+                "doctorOnlineReceptionTotalCount": "NoneType",
+                "doctorOnlineReceptionDuration": "NoneType",
+                "sourceCode": "str",
+                "sourceName": "str",
+                "introduction": "str",
+                "sourceLevel": "str",
+                "sourceLevelView": "str",
+                "price": "str",
+                "count": "int",
+                "sourceStatus": "str",
+                "sourceStatusView": "str",
+                "supportTimeInterval": "bool"
+              }
+            },
+            "displayNumber": "int",
+            "deadlineTakeTipsTimestamp": "NoneType",
+            "deadlineTakeTips": "NoneType"
+          }
+        },
+        "refreshTimestamp": "int",
+        "isPreDiagnosisDept": "NoneType"
+      },
+      "periods": [
+        {
+          "periodType": "AM",
+          "periodTypeView": "上午号源",
+          "sources": [
+            {
+              "deptCode": "1308",
+              "doctorCode": "001804",
+              "doctorName": "张薇",
+              "doctorTitleView": "主治医师",
+              "sourceCode": "001804",
+              "sourceName": "主治医师-张薇",
+              "sourceStatus": "HAVE_INVENTORY",
+              "count": 10,
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "periodType": "PM",
+          "periodTypeView": "下午号源",
+          "sources": [
+            {
+              "deptCode": "1308",
+              "doctorCode": "001804",
+              "doctorName": "张薇",
+              "doctorTitleView": "主治医师",
+              "sourceCode": "001804",
+              "sourceName": "主治医师-张薇",
+              "sourceStatus": "HAVE_INVENTORY",
+              "count": 22,
+              "price": "50.00"
+            }
+          ]
+        }
+      ]
+    },
+    "intervals": {
+      "code": 0,
+      "query": {
+        "deptCode": "1308",
+        "doctorCode": "001804",
+        "sourceCode": "001804",
+        "visitDate": "2026-09-26",
+        "periodType": "AM"
+      },
+      "dataShape": {
+        "list": {
+          "count": 6,
+          "firstShape": {
+            "timeIntervalCode": "str",
+            "timeFrom": "str",
+            "timeTo": "str",
+            "timeIntervalView": "str",
+            "count": "int"
+          }
+        }
+      },
+      "list": [
+        {
+          "timeIntervalCode": "001804-08:00:00-08:30:00",
+          "timeIntervalView": "08:00~08:30",
+          "count": 3
+        },
+        {
+          "timeIntervalCode": "001804-08:30:00-09:00:00",
+          "timeIntervalView": "08:30~09:00",
+          "count": 0
+        },
+        {
+          "timeIntervalCode": "001804-09:00:00-09:30:00",
+          "timeIntervalView": "09:00~09:30",
+          "count": 2
+        },
+        {
+          "timeIntervalCode": "001804-09:30:00-10:00:00",
+          "timeIntervalView": "09:30~10:00",
+          "count": 0
+        },
+        {
+          "timeIntervalCode": "001804-10:00:00-10:30:00",
+          "timeIntervalView": "10:00~10:30",
+          "count": 1
+        },
+        {
+          "timeIntervalCode": "001804-10:30:00-11:00:00",
+          "timeIntervalView": "10:30~11:00",
+          "count": 4
+        }
+      ]
+    },
+    "noTicketCheck": {
+      "code": 0,
+      "login": false,
+      "note": "No ticket header; this is not a time-expiry test."
+    }
+  },
+  "warnings": [],
+  "complete": true,
+  "credentialsInMemory": false
+}

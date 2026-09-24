@@ -1,0 +1,30 @@
+{
+  "verificationDate": "2026-09-24",
+  "timezone": "Asia/Shanghai",
+  "evidenceType": "curated observation from IAB accessibility tool output, not raw API response",
+  "source": "https://aceso.bjhsyuntai.com/youan/appv2/resource/list/department?deptCode=1044&visitType=OFFLINE",
+  "departmentCode": "1044",
+  "departmentName": "肝病中心一科",
+  "authentication": "User completed normal login in official web UI; no ticket extracted",
+  "observations": [
+    {
+      "visitDate": "2026-09-28",
+      "calendarLabel": "有号",
+      "detailText": "该日期下暂无可预约号源",
+      "cause": "not investigated"
+    },
+    {
+      "visitDate": "2026-09-29",
+      "calendarLabel": "有号",
+      "sources": [
+        {"doctorName": "陈新月", "title": "主任医师", "period": "上午", "feeCny": 100, "statusText": "约满", "buttonDisabled": true},
+        {"doctorName": "马丽娜", "title": "主任医师", "period": "上午", "feeCny": 100, "statusText": "约满", "buttonDisabled": true},
+        {"doctorName": "任姗", "title": "主任医师", "period": "下午", "feeCny": 80, "remaining": 17, "buttonDisabled": false},
+        {"doctorName": "张维", "title": "副主任医师", "period": "下午", "feeCny": 60, "remaining": 24, "buttonDisabled": false}
+      ]
+    }
+  ],
+  "appointmentButtonsClicked": false,
+  "lockOrOrderSubmitted": false,
+  "patientPreferenceInferred": false
+}
