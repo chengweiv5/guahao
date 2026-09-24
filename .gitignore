@@ -2,6 +2,7 @@
 /.superpowers/
 /.codex/
 /draft_*_folder/
+/graphify-out/
 
 # Local backups, credentials, and operating-system files
 *.bak
