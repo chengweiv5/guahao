@@ -1,0 +1,45 @@
+{
+  "verifiedOn": "2026-09-25",
+  "scope": "One authorized service-account booking with insurance initialization and subsequent payment by user",
+  "lockSubmissionCount": 1,
+  "insuranceInitializationByAgentCount": 1,
+  "lockCode": 0,
+  "queryRegisStatCode": 0,
+  "conditionChecks": {
+    "patient": true,
+    "date": true,
+    "doctor": true,
+    "dept": true,
+    "fee": true,
+    "pending": true
+  },
+  "insuranceInitCode": 0,
+  "statusTransition": [
+    "1",
+    "7",
+    "6"
+  ],
+  "insurancePaymentQuery": {
+    "code": 0,
+    "message": "支付成功"
+  },
+  "finalStatus": "6",
+  "isyb": "1",
+  "deadlineRemovedAfterPayment": true,
+  "paymentDeadlineUnchangedByInsuranceInitialization": true,
+  "serverPaymentWindowApproxMinutes": 30,
+  "finalSettlementFieldsPresent": true,
+  "amountsOmitted": true,
+  "agentPerformedPayment": false,
+  "agentPerformedCancellationOrRefund": false,
+  "phoneScreenDirectlyObserved": false,
+  "resultsRoutingConfirmedFromOfficialHtml": true,
+  "redaction": "No patient name, identifiers, exact appointment, exact deadline, order number or authorization values",
+  "userConfirmedMobileFlow": true,
+  "userConfirmedPaymentWindows": {
+    "insuranceMinutes": 30,
+    "fullAmountMinutes": 30,
+    "scope": "verified examples; still read server expiry per order"
+  },
+  "userConfirmedOn": "2026-09-25"
+}

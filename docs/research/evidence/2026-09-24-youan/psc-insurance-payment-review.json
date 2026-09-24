@@ -43,7 +43,8 @@
   "resultsPageSendPay": {
     "target": "/order/regisOrderSend",
     "hasInsuranceChoice": false,
-    "checksIsyb": false
+    "checksIsyb": false,
+    "scope": "source=2,status=1 only"
   },
   "insuranceFeatureCode": 0,
   "insuranceEligibilityVerified": false,
@@ -55,12 +56,28 @@
     "refund": 0
   },
   "limitations": [
-    "No pending order to initialize insurance payment",
-    "Independent payment ledger and insurance settlement not verified",
-    "Results page continuation after sxPayCN not verified",
-    "Insurance state template without order was unavailable"
+    "At the historical static-review stage, mobile insurance payment was not yet verified; see superseding evidence psc-insurance-live-verified.json",
+    "Insurance eligibility is not implied by feature availability"
   ],
   "checkedOn": "2026-09-24",
   "pendingOrderAvailableForValidation": false,
-  "redactionNote": "Public technical summary omits precise check time, personal order counts and unrelated order statuses."
+  "redactionNote": "Public technical summary omits precise check time, personal order counts and unrelated order statuses.",
+  "reviewPhase": "Historical static review corrected with full status routing",
+  "resultsPageRouting": {
+    "1": {
+      "label": "缴费",
+      "function": "sendPay",
+      "path": "/order/regisOrderSend"
+    },
+    "7": {
+      "label": "医保缴费",
+      "function": "sendYbPay",
+      "initializationPath": "/order/sxPayCN"
+    },
+    "6": {
+      "label": "医保已支付",
+      "meaning": "appointment booked; insurance-paid branch"
+    }
+  },
+  "supersededBy": "psc-insurance-live-verified.json"
 }
