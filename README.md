@@ -21,6 +21,7 @@
 - [项目规则](AGENTS.md)：飞书目录和直接推送 `origin/main` 的约定。
 - [领域术语](CONTEXT.md)：就诊人、号源、预约任务和付款时限等概念。
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
+- [后续开发计划候选](docs/development-candidates.md)：医院扩展、北京通用挂号平台、接口来源选择及其他城市平台，均未排期。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。
 - [服务号单笔预约验证摘要](docs/research/2026-09-24-youan-service-account-booking-result.md)。
 - [医保支付分支核对](docs/research/2026-09-24-youan-medical-insurance-payment.md)。
