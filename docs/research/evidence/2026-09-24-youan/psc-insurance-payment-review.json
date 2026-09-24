@@ -1,0 +1,66 @@
+{
+  "sourceOrigin": "https://psc.hkinfo.net",
+  "sourcePages": [
+    {
+      "path": "/regis/initRegis",
+      "sha256": "c38e3ff6d39deb7558dc8a3444cc0eb29df34479d0085655c1d8041b238e5802"
+    },
+    {
+      "path": "/regis/initRegisList",
+      "sha256": "5853b81636d18095fb4697ffcba4d88380c02a3df0c86ad6b638930a64b79032"
+    }
+  ],
+  "lockPayloadFields": [
+    "userId",
+    "userIdKey",
+    "dept_code1",
+    "dept_code2",
+    "purpose",
+    "dept_nm1",
+    "dept_nm2",
+    "reg_date",
+    "reg_half",
+    "reg_hour",
+    "doctor_code",
+    "title_type",
+    "iscanceled",
+    "doctor",
+    "dept_code2_from"
+  ],
+  "paymentChoicePhase": "after queryRegisStat success",
+  "insuranceInitialization": {
+    "method": "POST",
+    "path": "/order/sxPayCN",
+    "fields": [
+      "userId",
+      "userIdKey",
+      "orderNo"
+    ],
+    "nextPage": "/regis/regisYbPayState",
+    "paytype": "1",
+    "handoff": "response data saved as sessionStorage.pathUrl; actual mini-program handoff unverified"
+  },
+  "resultsPageSendPay": {
+    "target": "/order/regisOrderSend",
+    "hasInsuranceChoice": false,
+    "checksIsyb": false
+  },
+  "insuranceFeatureCode": 0,
+  "insuranceEligibilityVerified": false,
+  "mutations": {
+    "lock": 0,
+    "paymentInitialization": 0,
+    "payment": 0,
+    "cancellation": 0,
+    "refund": 0
+  },
+  "limitations": [
+    "No pending order to initialize insurance payment",
+    "Independent payment ledger and insurance settlement not verified",
+    "Results page continuation after sxPayCN not verified",
+    "Insurance state template without order was unavailable"
+  ],
+  "checkedOn": "2026-09-24",
+  "pendingOrderAvailableForValidation": false,
+  "redactionNote": "Public technical summary omits precise check time, personal order counts and unrelated order statuses."
+}
