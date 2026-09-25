@@ -1,5 +1,14 @@
 {
   "status": "design_verified",
+  "design_approval": {
+    "status": "approved",
+    "date": "2026-09-25",
+    "source": "user_message",
+    "statement": "好，确认设计",
+    "scope": "v0.2 UI and existing UI improvements",
+    "approved_commit": "081d22c6f6ddcc62fdddce265e2c7216c7d11482",
+    "implementation_gate": "WAITING_FOR_V01_HANDOFF"
+  },
   "implementation_changed": false,
   "base_commit": "3d58fb0d0a108fd5169a3fd9add34ded27d28ce5",
   "checks": [
