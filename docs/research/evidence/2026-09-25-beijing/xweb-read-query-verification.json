@@ -1,0 +1,1233 @@
+{
+  "recorded_at": "2026-09-25T04:22:30.728024+00:00",
+  "publication": "local_only",
+  "status": "official_mobile_page_read_queries_verified_independent_client_unverified",
+  "transport": "ADB-forwarded WebView CDP Network.enable/getResponseBody",
+  "proxy_enabled": false,
+  "test_ca_used": false,
+  "tls_verification_changed": false,
+  "login_credentials_exported": false,
+  "private_storage_read": false,
+  "raw_flow_saved": false,
+  "user_session_observation": {
+    "beijing_114": "not_logged_in_user_report",
+    "jingtong": "logged_in_user_report",
+    "authentication_api_validated": false
+  },
+  "debug_entry": {
+    "link": "http://debugxweb.qq.com/?inspector=true",
+    "user_result": "ERR_NAME_NOT_RESOLVED",
+    "host_dns": "lookup_failed",
+    "socket_before_attempt": "none observed at 12:07",
+    "socket_after_attempt": "observed",
+    "causality": "unknown; page attachment and Network events independently verified",
+    "screenshot": {
+      "source_sha256": "a0e01606b46bfb487a7b4d8aba0b2232b16e77c218d806896e8bc2ef8d014301",
+      "error": "ERR_NAME_NOT_RESOLVED",
+      "domain": "debugxweb.qq.com",
+      "meaning": "DNS failure; XWeb debugging not established by screenshot",
+      "source_copied": false
+    }
+  },
+  "hospitals": [
+    {
+      "source_entry": "beijing_114_official_account",
+      "name": "北京大学人民医院",
+      "department_1": "内科",
+      "department_2": "风湿免疫科门诊",
+      "calendar_entries": 9,
+      "doctor_entries": 9,
+      "verified_at": "2026-09-25T04:16:55+00:00"
+    },
+    {
+      "source_entry": "beijing_114_official_account",
+      "name": "医科院肿瘤医院",
+      "department_1": "头颈及脑肿瘤",
+      "department_2": "头外门诊",
+      "verified_at": "2026-09-25T04:18:13+00:00",
+      "calendar_entries": 8,
+      "doctor_entries": 2
+    },
+    {
+      "source_entry": "jingtong_miniprogram",
+      "name": "北京大学人民医院",
+      "department_1": "内科",
+      "department_2": "风湿免疫科门诊",
+      "calendar_entries": 9,
+      "doctor_entries": 9,
+      "verified_at": "2026-09-25T04:20:12+00:00"
+    }
+  ],
+  "shared_query_protocol": {
+    "host": "www.114yygh.com",
+    "page": "/newhlwyl/mobile/appointmentRegister",
+    "base_path": "/jtjk/mobile-service",
+    "comparisons": [
+      {
+        "path": "/jtjk/mobile-service/department/productDepartmentDetail",
+        "method_matches": true,
+        "response_schema_matches_ignoring_array_counts": true,
+        "code_both": "0000"
+      },
+      {
+        "path": "/jtjk/mobile-service/product/calendar",
+        "method_matches": true,
+        "response_schema_matches_ignoring_array_counts": true,
+        "code_both": "0000"
+      },
+      {
+        "path": "/jtjk/mobile-service/product/doctor/detail",
+        "method_matches": true,
+        "response_schema_matches_ignoring_array_counts": true,
+        "code_both": "0000"
+      }
+    ],
+    "same_backend_internal_implementation": "not_proven",
+    "credential_scope_reuse": "not_allowed_without_further_evidence"
+  },
+  "unique_core_query_endpoints": 7,
+  "sanitized_success_responses": [
+    {
+      "event": "response",
+      "at": "2026-09-25T04:16:55.767Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/department/productDepartmentDetail",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "bookRange": "<number>",
+          "deptInformation": "<boolean>",
+          "firstDeptName": "<string>",
+          "hosName": "<string>",
+          "nationalKeyDept": "<boolean>",
+          "openTimeView": "<string>",
+          "referOtherHosp": "<boolean>",
+          "sameDayOpenTimeView": "<string>",
+          "searchType": "<number>",
+          "secondDeptName": "<string>",
+          "showAvatarType": "<string>"
+        }
+      },
+      "public_department": {
+        "hosName": "北京大学人民医院",
+        "firstDeptName": "内科",
+        "secondDeptName": "风湿免疫科门诊"
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:16:55.837Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/product/calendar",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_schema": {
+        "hosCode": "<string>",
+        "firstDeptCode": "<string>",
+        "secondDeptCode": "<string>"
+      },
+      "request_content_type": "application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "calendars": {
+            "type": "array",
+            "count": 9,
+            "items": {
+              "dutyDate": "<string>",
+              "status": "<number>",
+              "statusView": "<string>",
+              "weekDesc": "<string>"
+            }
+          },
+          "fhTimestamp": "<number>",
+          "refreshMilliseconds": "<number>",
+          "remindCalendars": {
+            "type": "array",
+            "count": 0,
+            "items": null
+          },
+          "supportRemind": "<number>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:16:56.129Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/product/doctor/detail",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_body_kind": "non_json",
+      "request_content_type": "application/json",
+      "request_body_encoding": "opaque_or_other",
+      "request_body_length": 300,
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "autoSubmit": "<boolean>",
+          "dept2Name": "<string>",
+          "doctors": {
+            "type": "array",
+            "count": 9,
+            "items": {
+              "detail": {
+                "type": "array",
+                "count": 2,
+                "items": {
+                  "alternate": "<boolean>",
+                  "dutyCode": "<number>",
+                  "dutyCodeView": "<string>",
+                  "fcode": "<string>",
+                  "ncode": "<string>",
+                  "period": {
+                    "type": "array",
+                    "count": 2,
+                    "items": {
+                      "create": "<depth-limit>",
+                      "dutyTime": "<depth-limit>",
+                      "dutyTimeView": "<depth-limit>",
+                      "ncode": "<depth-limit>",
+                      "nncode": "<depth-limit>",
+                      "uniqProductKey": "<depth-limit>"
+                    }
+                  },
+                  "productStatus": "<number>",
+                  "productStatusView": "<string>",
+                  "uniqueProductKey": "<string>"
+                }
+              },
+              "doctorAvatar": "<string>",
+              "doctorCode": "<string>",
+              "doctorName": "<string>",
+              "firstDeptCode": "<string>",
+              "remark": "<string>",
+              "secondDeptCode": "<string>",
+              "skill": "<string>",
+              "titleType": "<number>",
+              "titleTypeView": "<string>",
+              "titleView": "<string>"
+            }
+          },
+          "dutyCodes": {
+            "type": "array",
+            "count": 2,
+            "items": "<number>"
+          },
+          "dutyDate": "<string>",
+          "dutyImgUrl": "<null>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:17:56.391Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/hospital/detail/{value}",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "address": "<redacted>",
+          "alternate": "<boolean>",
+          "bookingRange": "<number>",
+          "freeBloodDonationDiscount": "<boolean>",
+          "hosCode": "<string>",
+          "hosName": "<string>",
+          "hosShortName": "<string>",
+          "hosShowSameDay": "<boolean>",
+          "hospitalLevel": "<number>",
+          "hospitalLevelView": "<string>",
+          "location": {
+            "latitude": "<string>",
+            "longitude": "<string>"
+          },
+          "logo": "<string>",
+          "mcd": "<boolean>",
+          "onlinePayable": "<boolean>",
+          "openTimeView": "<string>",
+          "otherHosInfos": "<null>",
+          "sameDayOpenTimeView": "<string>",
+          "smallLogo": "<string>",
+          "waitQueue": "<boolean>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:17:56.731Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/department/list/{value}",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "type": "array",
+          "count": 7,
+          "items": {
+            "advanceDay": "<number>",
+            "code": "<string>",
+            "iconCode": "<null>",
+            "iconUrl": "<null>",
+            "integratedFlag": "<number>",
+            "mapDepartmentGroupId": "<null>",
+            "mapDepartmentId": "<null>",
+            "name": "<string>",
+            "nationalKeyDept": "<boolean>",
+            "parentCode": "<null>",
+            "priority": "<number>",
+            "searchType": "<null>",
+            "subList": {
+              "type": "array",
+              "count": 27,
+              "items": {
+                "advanceDay": "<number>",
+                "code": "<string>",
+                "iconCode": "<null>",
+                "iconUrl": "<null>",
+                "integratedFlag": "<null>",
+                "mapDepartmentGroupId": "<null>",
+                "mapDepartmentId": "<null>",
+                "name": "<string>",
+                "nationalKeyDept": "<boolean>",
+                "parentCode": "<string>",
+                "priority": "<number>",
+                "searchType": "<number>",
+                "subList": "<null>",
+                "takeAddress": "<redacted>"
+              }
+            },
+            "takeAddress": "<redacted>"
+          }
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:17:58.571Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/hospital/list",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_schema": {
+        "hospitalTypeList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "releaseTimeList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "areaInfo": "<number>",
+        "sortType": "<number>",
+        "levelList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "serviceInfoList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "longitude": "<string>",
+        "latitude": "<string>",
+        "pageNo": "<number>",
+        "pageSize": "<number>"
+      },
+      "request_content_type": "application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "branchCount": "<number>",
+          "count": "<number>",
+          "list": {
+            "type": "array",
+            "count": 15,
+            "items": {
+              "address": "<redacted>",
+              "affiliationType": "<null>",
+              "areaName": "<string>",
+              "branchHospitalList": "<null>",
+              "code": "<string>",
+              "contentInfo": "<null>",
+              "distance": "<number>",
+              "freeBloodDonationDiscount": "<boolean>",
+              "hosShortName": "<string>",
+              "hospitalTypeCode": "<string>",
+              "hospitalTypeText": "<string>",
+              "levelCode": "<string>",
+              "levelText": "<string>",
+              "location": {
+                "latitude": "<string>",
+                "longitude": "<string>"
+              },
+              "mainHospitalKeyDeptList": "<null>",
+              "mcd": "<boolean>",
+              "name": "<string>",
+              "nationalKeyDeptList": {
+                "type": "array",
+                "count": 2,
+                "items": "<string>"
+              },
+              "onlinePayable": "<boolean>",
+              "openTimeText": "<string>",
+              "picture": "<string>",
+              "priority": "<number>",
+              "showAlternate": "<boolean>",
+              "showCollected": "<boolean>",
+              "showContentInfo": "<boolean>",
+              "showPay": "<boolean>",
+              "showQuery": "<boolean>",
+              "showRegister": "<boolean>",
+              "showReportApproval": "<boolean>",
+              "waitQueue": "<boolean>"
+            }
+          }
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:18:03.984Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/search/query",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "healthServicelist": {
+            "type": "array",
+            "count": 0,
+            "items": null
+          },
+          "list": {
+            "type": "array",
+            "count": 8,
+            "items": {
+              "code": "<string>",
+              "name": "<string>"
+            }
+          }
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:18:07.251Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/hospital/detail/{value}",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "address": "<redacted>",
+          "alternate": "<boolean>",
+          "bookingRange": "<number>",
+          "freeBloodDonationDiscount": "<boolean>",
+          "hosCode": "<string>",
+          "hosName": "<string>",
+          "hosShortName": "<string>",
+          "hosShowSameDay": "<boolean>",
+          "hospitalLevel": "<number>",
+          "hospitalLevelView": "<string>",
+          "location": {
+            "latitude": "<string>",
+            "longitude": "<string>"
+          },
+          "logo": "<string>",
+          "mcd": "<boolean>",
+          "onlinePayable": "<boolean>",
+          "openTimeView": "<string>",
+          "otherHosInfos": "<null>",
+          "sameDayOpenTimeView": "<null>",
+          "smallLogo": "<string>",
+          "waitQueue": "<boolean>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:18:07.554Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/department/list/{value}",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "type": "array",
+          "count": 20,
+          "items": {
+            "advanceDay": "<number>",
+            "code": "<string>",
+            "iconCode": "<null>",
+            "iconUrl": "<null>",
+            "integratedFlag": "<number>",
+            "mapDepartmentGroupId": "<null>",
+            "mapDepartmentId": "<null>",
+            "name": "<string>",
+            "nationalKeyDept": "<boolean>",
+            "parentCode": "<null>",
+            "priority": "<number>",
+            "searchType": "<null>",
+            "subList": {
+              "type": "array",
+              "count": 2,
+              "items": {
+                "advanceDay": "<number>",
+                "code": "<string>",
+                "iconCode": "<null>",
+                "iconUrl": "<null>",
+                "integratedFlag": "<null>",
+                "mapDepartmentGroupId": "<null>",
+                "mapDepartmentId": "<null>",
+                "name": "<string>",
+                "nationalKeyDept": "<boolean>",
+                "parentCode": "<string>",
+                "priority": "<number>",
+                "searchType": "<number>",
+                "subList": "<null>",
+                "takeAddress": "<redacted>"
+              }
+            },
+            "takeAddress": "<redacted>"
+          }
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:18:13.029Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/department/productDepartmentDetail",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "bookRange": "<number>",
+          "deptInformation": "<boolean>",
+          "firstDeptName": "<string>",
+          "hosName": "<string>",
+          "nationalKeyDept": "<boolean>",
+          "openTimeView": "<string>",
+          "referOtherHosp": "<boolean>",
+          "sameDayOpenTimeView": "<null>",
+          "searchType": "<number>",
+          "secondDeptName": "<string>",
+          "showAvatarType": "<string>"
+        }
+      },
+      "public_department": {
+        "hosName": "医科院肿瘤医院",
+        "firstDeptName": "头颈及脑肿瘤",
+        "secondDeptName": "头外门诊"
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:18:13.072Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/product/calendar",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_schema": {
+        "hosCode": "<string>",
+        "firstDeptCode": "<string>",
+        "secondDeptCode": "<string>"
+      },
+      "request_content_type": "application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "calendars": {
+            "type": "array",
+            "count": 8,
+            "items": {
+              "dutyDate": "<string>",
+              "status": "<number>",
+              "statusView": "<string>",
+              "weekDesc": "<string>"
+            }
+          },
+          "fhTimestamp": "<number>",
+          "refreshMilliseconds": "<number>",
+          "remindCalendars": {
+            "type": "array",
+            "count": 0,
+            "items": null
+          },
+          "supportRemind": "<number>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:18:13.620Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/product/doctor/detail",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_body_kind": "non_json",
+      "request_content_type": "application/json",
+      "request_body_encoding": "opaque_or_other",
+      "request_body_length": 300,
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "autoSubmit": "<boolean>",
+          "dept2Name": "<string>",
+          "doctors": {
+            "type": "array",
+            "count": 2,
+            "items": {
+              "detail": {
+                "type": "array",
+                "count": 2,
+                "items": {
+                  "alternate": "<boolean>",
+                  "dutyCode": "<number>",
+                  "dutyCodeView": "<string>",
+                  "fcode": "<string>",
+                  "ncode": "<string>",
+                  "period": {
+                    "type": "array",
+                    "count": 2,
+                    "items": {
+                      "create": "<depth-limit>",
+                      "dutyTime": "<depth-limit>",
+                      "dutyTimeView": "<depth-limit>",
+                      "ncode": "<depth-limit>",
+                      "nncode": "<depth-limit>",
+                      "uniqProductKey": "<depth-limit>"
+                    }
+                  },
+                  "productStatus": "<number>",
+                  "productStatusView": "<string>",
+                  "uniqueProductKey": "<string>"
+                }
+              },
+              "doctorAvatar": "<string>",
+              "doctorCode": "<string>",
+              "doctorName": "<string>",
+              "firstDeptCode": "<string>",
+              "remark": "<string>",
+              "secondDeptCode": "<string>",
+              "skill": "<string>",
+              "titleType": "<number>",
+              "titleTypeView": "<string>",
+              "titleView": "<string>"
+            }
+          },
+          "dutyCodes": {
+            "type": "array",
+            "count": 2,
+            "items": "<number>"
+          },
+          "dutyDate": "<string>",
+          "dutyImgUrl": "<null>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:19:02.107Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/hospital/list",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_schema": {
+        "hospitalTypeList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "releaseTimeList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "areaInfo": "<number>",
+        "sortType": "<number>",
+        "levelList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "serviceInfoList": {
+          "type": "array",
+          "count": 0,
+          "items": null
+        },
+        "longitude": "<string>",
+        "latitude": "<string>",
+        "pageNo": "<number>",
+        "pageSize": "<number>",
+        "total": "<number>"
+      },
+      "request_content_type": "application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "branchCount": "<number>",
+          "count": "<number>",
+          "list": {
+            "type": "array",
+            "count": 15,
+            "items": {
+              "address": "<redacted>",
+              "affiliationType": "<null>",
+              "areaName": "<string>",
+              "branchHospitalList": "<null>",
+              "code": "<string>",
+              "contentInfo": "<null>",
+              "distance": "<number>",
+              "freeBloodDonationDiscount": "<boolean>",
+              "hosShortName": "<string>",
+              "hospitalTypeCode": "<string>",
+              "hospitalTypeText": "<string>",
+              "levelCode": "<string>",
+              "levelText": "<string>",
+              "location": {
+                "latitude": "<string>",
+                "longitude": "<string>"
+              },
+              "mainHospitalKeyDeptList": "<null>",
+              "mcd": "<boolean>",
+              "name": "<string>",
+              "nationalKeyDeptList": {
+                "type": "array",
+                "count": 2,
+                "items": "<string>"
+              },
+              "onlinePayable": "<boolean>",
+              "openTimeText": "<string>",
+              "picture": "<string>",
+              "priority": "<number>",
+              "showAlternate": "<boolean>",
+              "showCollected": "<boolean>",
+              "showContentInfo": "<boolean>",
+              "showPay": "<boolean>",
+              "showQuery": "<boolean>",
+              "showRegister": "<boolean>",
+              "showReportApproval": "<boolean>",
+              "waitQueue": "<boolean>"
+            }
+          }
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "beijing_114_official_account"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:20:11.967Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/department/productDepartmentDetail",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "GET",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "bookRange": "<number>",
+          "deptInformation": "<boolean>",
+          "firstDeptName": "<string>",
+          "hosName": "<string>",
+          "nationalKeyDept": "<boolean>",
+          "openTimeView": "<string>",
+          "referOtherHosp": "<boolean>",
+          "sameDayOpenTimeView": "<string>",
+          "searchType": "<number>",
+          "secondDeptName": "<string>",
+          "showAvatarType": "<string>"
+        }
+      },
+      "public_department": {
+        "hosName": "北京大学人民医院",
+        "firstDeptName": "内科",
+        "secondDeptName": "风湿免疫科门诊"
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "jingtong_miniprogram"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:20:12.006Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/product/calendar",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_schema": {
+        "hosCode": "<string>",
+        "firstDeptCode": "<string>",
+        "secondDeptCode": "<string>"
+      },
+      "request_content_type": "application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "calendars": {
+            "type": "array",
+            "count": 9,
+            "items": {
+              "dutyDate": "<string>",
+              "status": "<number>",
+              "statusView": "<string>",
+              "weekDesc": "<string>"
+            }
+          },
+          "fhTimestamp": "<number>",
+          "refreshMilliseconds": "<number>",
+          "remindCalendars": {
+            "type": "array",
+            "count": 0,
+            "items": null
+          },
+          "supportRemind": "<number>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "jingtong_miniprogram"
+    },
+    {
+      "event": "response",
+      "at": "2026-09-25T04:20:12.287Z",
+      "host": "www.114yygh.com",
+      "path_template": "/jtjk/mobile-service/product/doctor/detail",
+      "query_fields": [
+        "HKNCYzbu"
+      ],
+      "method": "POST",
+      "resource_type": "XHR",
+      "request_header_fields": [
+        "Accept",
+        "Content-Type",
+        "HKNCYzbu",
+        "Referer",
+        "Request-Source",
+        "User-Agent",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform"
+      ],
+      "request_body_kind": "non_json",
+      "request_content_type": "application/json",
+      "request_body_encoding": "opaque_or_other",
+      "request_body_length": 300,
+      "status": 200,
+      "content_type": "application/json",
+      "response_schema": {
+        "code": "<string>",
+        "message": "<string>",
+        "data": {
+          "autoSubmit": "<boolean>",
+          "dept2Name": "<string>",
+          "doctors": {
+            "type": "array",
+            "count": 9,
+            "items": {
+              "detail": {
+                "type": "array",
+                "count": 2,
+                "items": {
+                  "alternate": "<boolean>",
+                  "dutyCode": "<number>",
+                  "dutyCodeView": "<string>",
+                  "fcode": "<string>",
+                  "ncode": "<string>",
+                  "period": {
+                    "type": "array",
+                    "count": 2,
+                    "items": {
+                      "create": "<depth-limit>",
+                      "dutyTime": "<depth-limit>",
+                      "dutyTimeView": "<depth-limit>",
+                      "ncode": "<depth-limit>",
+                      "nncode": "<depth-limit>",
+                      "uniqProductKey": "<depth-limit>"
+                    }
+                  },
+                  "productStatus": "<number>",
+                  "productStatusView": "<string>",
+                  "uniqueProductKey": "<string>"
+                }
+              },
+              "doctorAvatar": "<string>",
+              "doctorCode": "<string>",
+              "doctorName": "<string>",
+              "firstDeptCode": "<string>",
+              "remark": "<string>",
+              "secondDeptCode": "<string>",
+              "skill": "<string>",
+              "titleType": "<number>",
+              "titleTypeView": "<string>",
+              "titleView": "<string>"
+            }
+          },
+          "dutyCodes": {
+            "type": "array",
+            "count": 2,
+            "items": "<number>"
+          },
+          "dutyDate": "<string>",
+          "dutyImgUrl": "<null>"
+        }
+      },
+      "business_status": {
+        "code": "0000"
+      },
+      "source_entry": "jingtong_miniprogram"
+    }
+  ],
+  "independent_client_limitations": [
+    "No standalone API request replay performed",
+    "Request-Source and extra dynamic header/query values were not retained or reproduced",
+    "doctor/detail request body was opaque to JSON parsing, transformation not identified",
+    "CDP requestWillBeSent does not establish presence or absence of network cookies; ExtraInfo was not collected",
+    "Server-side identity, session expiry, patient bindings, booking and order semantics remain unverified"
+  ],
+  "cleanup": {
+    "capture_processes_stopped": true,
+    "forward": {
+      "removed": [
+        "tcp:61019",
+        "tcp:61899"
+      ],
+      "task_forward_absent": true,
+      "baseline_restored": true
+    },
+    "debug_flag_restoration": "close requested; user confirmation pending; last observed two sockets, no ADB forwarding",
+    "debug_socket_readback": {
+      "at": "2026-09-25T04:24:53.652841+00:00",
+      "debug_socket_count": 2,
+      "forward_empty": true
+    },
+    "capture_process_count_verified": 0
+  },
+  "references": [
+    {
+      "url": "https://developers.weixin.qq.com/community/develop/doc/0000c64a19c7983bd422391d261c00",
+      "evidence": "search_index_excerpt; direct reader did not provide body"
+    },
+    {
+      "url": "https://img.114yygh.com/staticjtjk/mobile/assets/index.3a6153fa.js",
+      "sha256": "ca85b90af7be820a01b50388fe3562dec2e50a3e05b2a54e0c06e8f6475ac14c",
+      "evidence": "public script read; endpoint methods confirmed"
+    },
+    {
+      "url": "https://img.114yygh.com/staticjtjk/mobile/assets/AppointmentRegister.3a6153fa.js",
+      "sha256": "45c5431afeb46fc3de591c7f10b16c7f02aeb8524457eeb6bad3ca51cb1b4b07",
+      "evidence": "public script read; current schedule call confirmed"
+    }
+  ]
+}

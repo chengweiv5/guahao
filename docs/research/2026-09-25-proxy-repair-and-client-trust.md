@@ -4,6 +4,8 @@
 
 机器可读结果：[proxy-repair-and-client-trust.json](evidence/2026-09-25-beijing/proxy-repair-and-client-trust.json)。此前尝试见 [114 首次采样](2026-09-25-114-scoped-https-verification.md)。
 
+后续更新：手机内置 WebView 调试已成功取得114两院查询，并验证京通共用相同查询端点，无需代理或 CA。[后续只读核验](2026-09-25-xweb-read-query-verification.md)覆盖本页“业务接口成功数为0”的历史状态；独立客户端认证与请求构造仍未通过。
+
 ## 范围与最新用户观察
 
 用户要求继续北京 114 和京通官方渠道，先解决抓包代理问题，不转向其它平台。采样仅限本人手机中的首页、医院、科室和排班；不操作患者、订单、报告、挂号提交或付款。资料不推送，不发送本轮飞书通知。

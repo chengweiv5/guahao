@@ -19,7 +19,7 @@
     "design_self_review": "reviewed platform evidence, entry credential isolation, identity scope, order semantics, unknown submission, migration, rollback and acceptance"
   },
   "limitations": [
-    "114 business API, authentication, Android integration and real bookings not verified",
+    "114 official-page core queries verified for two hospitals; standalone request construction, authentication, Android integration and real bookings not verified",
     "Government coverage reports are not live hospital or app capability counts",
     "Research S12 remains search-index-only after origin 418; not a verified current API",
     "v0.1 code and database must be rechecked against its final delivery before v0.2 implementation",
@@ -165,6 +165,47 @@
       "local_links": "passed",
       "evidence_consistency": "passed",
       "controller_regression": "old_fails_fixed_passes"
+    }
+  },
+  "latest_xweb_read_query_verification": {
+    "date": "2026-09-25",
+    "publication": "local_only",
+    "record": "../../research/2026-09-25-xweb-read-query-verification.md",
+    "evidence": "../../research/evidence/2026-09-25-beijing/xweb-read-query-verification.json",
+    "status": "official_mobile_page_read_queries_verified_independent_client_unverified",
+    "distinct_core_query_endpoints": 7,
+    "114_hospitals_verified": 2,
+    "jingtong_hospitals_compared": 1,
+    "business_success_code": "0000",
+    "same_query_protocol_verified": true,
+    "credential_scope_shared": false,
+    "user_ca_required": false,
+    "independent_api_client_verified": false,
+    "booking_verified": false,
+    "checks": {
+      "json": "passed",
+      "links": "passed",
+      "schema_comparison": "passed",
+      "business_codes": "all_selected_0000",
+      "private_endpoints_excluded": "passed"
+    },
+    "cleanup": {
+      "capture_processes_stopped": true,
+      "forward": {
+        "removed": [
+          "tcp:61019",
+          "tcp:61899"
+        ],
+        "task_forward_absent": true,
+        "baseline_restored": true
+      },
+      "debug_flag_restoration": "close requested; user confirmation pending; last observed two sockets, no ADB forwarding",
+      "debug_socket_readback": {
+        "at": "2026-09-25T04:24:53.652841+00:00",
+        "debug_socket_count": 2,
+        "forward_empty": true
+      },
+      "capture_process_count_verified": 0
     }
   }
 }
