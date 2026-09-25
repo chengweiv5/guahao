@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>挂号 v0.2 · 交互设计</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="review-panel" aria-label="设计评审工具">
+    <a class="wordmark" href="index.html"><span class="brand-mark">＋</span> 挂号 <span>DESIGN / 02</span></a>
+    <div class="review-intro"><span class="eyebrow">2026 · 北京</span><h1>每一次就诊，<br>安排得更清楚。</h1><p>沿用青绿，精简任务信息。<br>把医院、渠道、日期和结果放在正确的位置。</p></div>
+    <div class="review-mode"><label for="mode">评审模式</label><select id="mode"><option value="target">目标体验 · 合成数据</option><option value="current">当前能力边界</option></select><p id="mode-help">本页是 UI 原型。人物、日期、费用、订单均为示例，不连接医院，也不会发起挂号。</p></div>
+    <nav id="scene-nav" aria-label="设计页面"></nav>
+    <div class="review-links"><a href="gallery.html">查看全部页面 ↗</a><a href="../../docs/design/ui/2026-09-25-v0.2-ui-design.md" id="spec-link">设计说明 ↗</a></div>
+    <p class="review-foot">设计基线 3d58fb0 · Android 实现另行交付<br>114 / 京通独立请求、认证和预约仍待验证</p>
+  </aside>
+  <main class="stage"><div class="stage-caption"><span id="scene-name">任务首页</span><span>412 dp / 青绿</span></div><section id="phone" class="phone" aria-label="挂号手机界面"><div class="statusbar"><span>09:41</span><span id="system-icons" aria-hidden="true"></span></div><div id="app" aria-live="polite"></div></section><div class="scenario-tools" id="scenario-tools" aria-label="设计情境切换"></div><p class="stage-note">可点击操作 · 所有外部操作均为本地演示</p></main>
+  <dialog id="dialog"><div id="dialog-content"></div></dialog>
+  <div id="toast" role="status"></div>
+  <script src="prototype.js"></script>
+</body>
+</html>

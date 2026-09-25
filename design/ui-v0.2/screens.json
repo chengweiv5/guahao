@@ -1,0 +1,170 @@
+[
+  {
+    "id": "01-home",
+    "title": "任务首页",
+    "scene": "home",
+    "query": "",
+    "note": "待付款入口前置；按医院、渠道和就诊安排扫读任务。"
+  },
+  {
+    "id": "02-hospitals",
+    "title": "选择医院",
+    "scene": "hospitals",
+    "query": "",
+    "note": "名称搜索、区县筛选；目录收录与自动挂号能力分开。"
+  },
+  {
+    "id": "03-channels",
+    "title": "医院与渠道",
+    "scene": "channels",
+    "query": "",
+    "note": "京通与114分别显示连接；选择后固定本次渠道。"
+  },
+  {
+    "id": "04-connect",
+    "title": "连接平台",
+    "scene": "connect",
+    "query": "",
+    "note": "正常官方验证与回传的目标状态；具体接入待验证。"
+  },
+  {
+    "id": "05-conditions",
+    "title": "核对就诊人",
+    "scene": "conditions",
+    "query": "",
+    "note": "账号不等于就诊人；切换渠道重新选择。"
+  },
+  {
+    "id": "06-schedule",
+    "title": "日期、医生与时段",
+    "scene": "schedule",
+    "query": "",
+    "note": "按日期查排班，医生与时段组合选择。"
+  },
+  {
+    "id": "07-execution",
+    "title": "执行设置",
+    "scene": "execution",
+    "query": "",
+    "note": "放号时间、运行时长和费用上限分开。"
+  },
+  {
+    "id": "08-confirm",
+    "title": "确认启用",
+    "scene": "confirm",
+    "query": "",
+    "note": "完整复核条件；阻塞项给出恢复入口。"
+  },
+  {
+    "id": "09-task",
+    "title": "等待放号",
+    "scene": "task",
+    "query": "",
+    "note": "单个时间重点；条件与运行进度分层。"
+  },
+  {
+    "id": "10-order",
+    "title": "待付款订单",
+    "scene": "order",
+    "query": "",
+    "note": "显示原渠道和医院期限，返回后以医院结果为准。"
+  },
+  {
+    "id": "11-records",
+    "title": "挂号记录",
+    "scene": "records",
+    "query": "",
+    "note": "按结果筛选；每条记录保留原医院与渠道。"
+  },
+  {
+    "id": "12-connections",
+    "title": "平台连接",
+    "scene": "connections",
+    "query": "",
+    "note": "独立管理京通、114与医院服务号连接。"
+  },
+  {
+    "id": "13-settings",
+    "title": "设置",
+    "scene": "settings",
+    "query": "",
+    "note": "运行准备、连接和默认值分组；减少长篇说明。"
+  },
+  {
+    "id": "14-no-stock",
+    "title": "当日无号",
+    "scene": "schedule",
+    "query": "&status=none",
+    "note": "不将预选医生误记为当日有号。"
+  },
+  {
+    "id": "15-not-released",
+    "title": "尚未放号",
+    "scene": "schedule",
+    "query": "&status=pending",
+    "note": "可预选指定医生，目标日排班仍待确认。"
+  },
+  {
+    "id": "16-preselected",
+    "title": "预选医生",
+    "scene": "schedule",
+    "query": "&status=pending&preselect=true",
+    "note": "没有当天排班时仅固定意向，执行前重新核实。"
+  },
+  {
+    "id": "17-query-error",
+    "title": "排班读取失败",
+    "scene": "schedule",
+    "query": "&status=error",
+    "note": "未知状态不转为无号，可重新查询。"
+  },
+  {
+    "id": "18-reconciling",
+    "title": "提交结果待核对",
+    "scene": "task",
+    "query": "&status=reconciling",
+    "note": "先核对同一订单，不开放重复提交。"
+  },
+  {
+    "id": "19-conflict",
+    "title": "同账号暂缓提交",
+    "scene": "task",
+    "query": "&status=blocked",
+    "note": "仅提示受影响任务，其他独立任务继续。"
+  },
+  {
+    "id": "20-auth-expired",
+    "title": "连接失效",
+    "scene": "task",
+    "query": "&status=attention",
+    "note": "更新原渠道连接不自动恢复执行。"
+  },
+  {
+    "id": "21-paid",
+    "title": "挂号完成",
+    "scene": "order",
+    "query": "&status=paid",
+    "note": "医院确认后显示完成，提示就诊准备。"
+  },
+  {
+    "id": "22-stopped",
+    "title": "停止任务",
+    "scene": "task",
+    "query": "&status=stopped",
+    "note": "停止查号与取消医院订单严格分开。"
+  },
+  {
+    "id": "23-empty",
+    "title": "首页空状态",
+    "scene": "home",
+    "query": "&empty=true",
+    "note": "引导创建首个任务。"
+  },
+  {
+    "id": "24-gated",
+    "title": "当前能力边界",
+    "scene": "channels",
+    "query": "&mode=current",
+    "note": "114/京通自动任务入口禁用；真实能力须独立验证。"
+  }
+]

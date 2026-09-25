@@ -1,0 +1,448 @@
+{
+  "status": "design_verified",
+  "implementation_changed": false,
+  "base_commit": "3d58fb0d0a108fd5169a3fd9add34ded27d28ce5",
+  "checks": [
+    "hospital_search",
+    "channel_switch_clears_dependent_selection",
+    "unconnected_channel_requires_connection",
+    "verified_connection_enters_patient_selection",
+    "date_change_clears_doctor_and_slot",
+    "doctor_and_slot_selected_together",
+    "unreleased_not_reported_no_stock",
+    "preselect_preserves_unreleased_status",
+    "preselect_can_continue",
+    "invalid_fee_blocks_continue",
+    "confirmation_required",
+    "missing_readiness_blocks_enable",
+    "local_demo_task_enabled",
+    "stop_affects_current_task_only",
+    "preselect_preserves_no_stock_status",
+    "department_change_invalidates_schedule",
+    "history_preserves_original_hospital_and_channel",
+    "refresh_does_not_mark_paid",
+    "unknown_payment_deadline_explicit",
+    "unverified_platform_disables_automatic_task",
+    "current_app_login_not_inferred_from_official_login",
+    "catalog_error_not_empty_result",
+    "catalog_retry_recovers",
+    "24_screens_no_horizontal_overflow_at_360_and_412",
+    "no_external_network_requests",
+    "no_javascript_errors"
+  ],
+  "screens": [
+    {
+      "id": "01-home",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 946
+    },
+    {
+      "id": "02-hospitals",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "03-channels",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "04-connect",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "05-conditions",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 880
+    },
+    {
+      "id": "06-schedule",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 1069
+    },
+    {
+      "id": "07-execution",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 1097
+    },
+    {
+      "id": "08-confirm",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 1129
+    },
+    {
+      "id": "09-task",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 1056
+    },
+    {
+      "id": "10-order",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 1022
+    },
+    {
+      "id": "11-records",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 915
+    },
+    {
+      "id": "12-connections",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "13-settings",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "14-no-stock",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "15-not-released",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "16-preselected",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 1216
+    },
+    {
+      "id": "17-query-error",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "18-reconciling",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 982
+    },
+    {
+      "id": "19-conflict",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 982
+    },
+    {
+      "id": "20-auth-expired",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 934
+    },
+    {
+      "id": "21-paid",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 896
+    },
+    {
+      "id": "22-stopped",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 912
+    },
+    {
+      "id": "23-empty",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 868
+    },
+    {
+      "id": "24-gated",
+      "layouts": [
+        {
+          "width": 360,
+          "horizontal_overflow": []
+        },
+        {
+          "width": 412,
+          "horizontal_overflow": []
+        }
+      ],
+      "height": 978
+    }
+  ],
+  "errors": [],
+  "external_requests": [],
+  "fixed_action_and_touch_checks": [
+    {
+      "scene": "home",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    },
+    {
+      "scene": "channels",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    },
+    {
+      "scene": "conditions",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    },
+    {
+      "scene": "schedule",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    },
+    {
+      "scene": "execution",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    },
+    {
+      "scene": "confirm",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    },
+    {
+      "scene": "order",
+      "main_action_fully_visible": true,
+      "footer_before_nav": true,
+      "small_targets": []
+    }
+  ],
+  "gallery_verified": {
+    "images": 24,
+    "broken": []
+  },
+  "editable_source_verified": {
+    "html_reopened": true,
+    "css_tokens_readable": true,
+    "js_state_handlers_readable": true,
+    "source_format": "HTML/CSS/JS",
+    "pencil_delivered": false
+  },
+  "visual_review": "24 final screens reviewed via three contact sheets plus main phone view",
+  "ocr": {
+    "screens": 24,
+    "recognized_lines": 599,
+    "provider": "macOS Vision, local only",
+    "key_states_checked": [
+      "当日无号",
+      "尚未放号",
+      "结果待核对",
+      "连接需要更新",
+      "挂号已完成"
+    ]
+  },
+  "limits": [
+    "Design prototype only; no Android UI implementation",
+    "Pencil nested render was blank; import timed out; verified HTML source delivered",
+    "No real authentication, booking or payment verification",
+    "Screen reader and large Android system fonts require device verification"
+  ],
+  "local_document_links_verified": true
+}
