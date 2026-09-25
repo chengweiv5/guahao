@@ -248,3 +248,7 @@ adb -s <serial> shell am instrument -w -r -e class cn.guahao.NotificationAlertTe
 保留数据升级已安装真机与模拟器，真机 APK SHA-256 回读一致：`7084ebf1c2cf3a1b77dee4f49fef05682b080094ff05971bc947d102ac7f9a51`。未停止/删除用户任务，未使用真实身份链接，未发真实医院请求、锁号或付款。本次证明任务门禁修复，不代表真实首次连接或多医院并行已通过。
 
 证据：[结构化结果](evidence/v0.1/hospital-import-guard-verification.json)、[修复前](evidence/v0.1/hospital-import-guard-before.txt)、[真机复验](evidence/v0.1/hospital-import-guard-physical.txt)、[模拟器](evidence/v0.1/hospital-import-guard-emulator.txt)。设计：[多医院连接与并行任务](../design/2026-09-25-multi-hospital-connections.md)。回滚：反向提交本轮变更；前版 APK 在 `/tmp/guahao-import-guard-before/app/build/outputs/apk/debug/app-debug.apk`，确认没有任务执行后可保留数据安装，不清空数据。
+
+## 2026-09-25 医生加载失败修复
+
+肝病中心一科的空排班日期返回 `registryList: null`，已修复对整个医生列表的影响。真机同科室查询返回 14 位医生/113 个时段，实际医生选择 UI 通过且未创建任务；修复包已保留数据安装。详细红绿回归、安装哈希、数据保留边界见[专项验收](2026-09-25-doctor-loading.md)。

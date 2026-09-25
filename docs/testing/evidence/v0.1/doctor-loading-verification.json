@@ -1,0 +1,72 @@
+{
+  "hospital": "北京佑安医院",
+  "department": "肝病中心一科",
+  "failure": "IllegalArgumentException at PscPageParser.schedule:58 on explicit registryList null",
+  "fixed_behavior": "Treat explicit JSON null as no schedules for that date; keep other dates and reject invalid/missing registryList",
+  "device_repro_before": {
+    "tests": 1,
+    "failures": 1,
+    "seconds": 2.298
+  },
+  "minimal_unit_before": {
+    "tests": 1,
+    "failures": 1
+  },
+  "device_query_after": {
+    "tests": 1,
+    "failures": 0,
+    "seconds": 1.331,
+    "doctor_count": 14,
+    "candidate_count": 113
+  },
+  "device_ui_after": {
+    "tests": 1,
+    "failures": 0,
+    "seconds": 9.518,
+    "task_records_before_after_equal": true,
+    "initial_test_timeout": "Waited for department dialog before async connection initialization; test now waits for loaded patient and enabled button"
+  },
+  "core": {
+    "tests": 37,
+    "failures": 0,
+    "errors": 0
+  },
+  "debug_unit": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0
+  },
+  "release_unit": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings_per_variant": 13,
+    "warning_id": "UseKtx"
+  },
+  "live_tests_default": {
+    "skipped": 2,
+    "failures": 0,
+    "explicit_flag_required": true
+  },
+  "installed_debug_sha256": "95c9c19bf91553ff52ac41020526b69f0667118a0a7864eb3ba10cb9d9f8585b",
+  "installed_matches_build": true,
+  "main_activity_foreground": true,
+  "active_booking_service": false,
+  "app_data_cleared": false,
+  "task_created_or_enabled": false,
+  "booking_or_payment_submitted": false,
+  "git_push": false,
+  "storage_check": {
+    "task_count": 28,
+    "added": 0,
+    "deleted": 0,
+    "phase_generation_hospital_provider_unchanged": true,
+    "encrypted_credentials_equal": true,
+    "submission_scopes_equal": true,
+    "payload_ciphertexts_changed_count": 7,
+    "payload_caveat": "MainActivity onResume normally refreshes existing orders and re-encrypts payload; ciphertext equality is not claimed. UI test separately verifies semantic records unchanged across selecting department/doctors."
+  }
+}

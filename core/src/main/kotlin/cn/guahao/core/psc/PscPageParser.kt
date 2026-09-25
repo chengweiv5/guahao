@@ -55,7 +55,13 @@ object PscPageParser {
         variable(html, "regisInfo").jsonObject.getValue("dayViews").jsonArray.map { item ->
             val day = item.jsonObject
             val date = parseDate(day.text("day"))
-            val candidates = day.getValue("registryList").jsonArray.flatMap { registry ->
+            // The official page returns JSON null for dates with no published schedules.
+            val registries = when (val value = day["registryList"]) {
+                JsonNull -> emptyList()
+                is JsonArray -> value
+                else -> throw HospitalException("医院排班列表格式变化，请稍后刷新或在官方页面核对")
+            }
+            val candidates = registries.flatMap { registry ->
                 val r = registry.jsonObject
                 val count = r.text("count").toInt().also { require(it >= 0) }
                 r.getValue("regHourList").jsonArray.map { itemHour ->

@@ -56,6 +56,28 @@ class PscParserTest {
         assertEquals(10, morning.sumOf { it.remaining })
         assertEquals(1, day.availability)
     }
+    @Test fun nullScheduleDayDoesNotHideDoctorsOnOtherDays() {
+        val html = javaClass.getResource("/psc/schedule-null-day.html")!!.readText()
+        val days = PscPageParser.schedule(html, fixtureTask().condition.department)
+        assertEquals(2, days.size)
+        assertTrue(days.first().candidates.isEmpty())
+        assertEquals("测试医生", days.last().candidates.single().doctorName)
+        assertEquals("08:00-08:30", days.last().candidates.single().hour)
+        assertEquals(0, days.last().candidates.single().remaining)
+    }
+    @Test fun explicitNullAndEmptySchedulesAreEmptyButInvalidShapesAreRejected() {
+        fun page(registry: String) = """<script>var regisInfo = {"dayViews":[{"day":"2026-09-25","syqty":"0",$registry}]};</script>"""
+        for (value in listOf("null", "[]")) {
+            val days = PscPageParser.schedule(page("\"registryList\":$value"), fixtureTask().condition.department)
+            assertTrue(days.single().candidates.isEmpty())
+        }
+        for (registry in listOf("\"registryList\":{}", "\"registryList\":42", "\"unexpected\":[]")) {
+            val error = assertThrows(HospitalException::class.java) {
+                PscPageParser.schedule(page(registry), fixtureTask().condition.department)
+            }
+            assertEquals("医院排班列表格式变化，请稍后刷新或在官方页面核对", error.safeMessage)
+        }
+    }
     @Test fun endpointCodesStayDistinct() {
         assertEquals(LockReply.Accepted, decodeLockCode("0"))
         assertTrue(decodeAsync(responseObject("""{"code":0,"data":[]}""")) is AsyncReply.Unknown)
