@@ -19,20 +19,26 @@ class GuahaoApplication : Application() {
 }
 val Context.graph: AppGraph get() = (applicationContext as GuahaoApplication).graph
 
-class AppGraph(val context: Context) {
+class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val vault = EncryptedVault(context)
     val store = BookingDatabase(context, vault).apply { recoverProcessOwnership() }
     val sessions = SessionRepository(vault, Mutex())
     val hospital = PscClient(sessions)
-    val demo = DemoGateway(store)
+    private val demo by lazy { DemoGateway(store) }
     val gateway: BookingGateway = object : BookingGateway {
-        fun forPatient(p: PatientRef) = if (p.sessionId == "demo") demo else hospital
+        fun forPatient(p: PatientRef): BookingGateway {
+            mode.requireAllowed(p)
+            return if (p.sessionId == "demo") demo else hospital
+        }
         override suspend fun departments(patient: PatientRef) = forPatient(patient).departments(patient)
         override suspend fun candidates(condition: VisitCondition) = forPatient(condition.patient).candidates(condition)
         override suspend fun validateBookingAccess(patient: PatientRef) = forPatient(patient).validateBookingAccess(patient)
         override suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate) = forPatient(patient).orders(patient, from, to)
-        override suspend fun lock(task: BookingTask, candidate: Candidate) = forPatient(task.condition.patient).lock(task, candidate)
+        override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply {
+            mode.requireAllowed(task)
+            return forPatient(task.condition.patient).lock(task, candidate)
+        }
         override suspend fun querySubmission(patient: PatientRef) = forPatient(patient).querySubmission(patient)
         override suspend fun insuranceAvailable(patient: PatientRef) = forPatient(patient).insuranceAvailable(patient)
         override suspend fun initializeInsurance(patient: PatientRef, orderNo: String) = forPatient(patient).initializeInsurance(patient, orderNo)
@@ -42,9 +48,11 @@ class AppGraph(val context: Context) {
     val engine = BookingEngine(gateway, store, clock)
     private val paymentGate = Mutex()
     val payment = PaymentCoordinator(gateway, store, clock)
-    val scheduler = AlarmScheduler(context)
-    val notifications = BookingNotifications(context)
-    fun hasUnresolvedOrActive(excluding: String? = null) = store.all().any { it.task.id != excluding &&
+    val scheduler = AlarmScheduler(context, mode)
+    val notifications = BookingNotifications(context, mode)
+    fun visibleRecords() = mode.visible(store.all())
+    fun saveDraft(task: BookingTask) { mode.requireAllowed(task); store.save(TaskRecord(task)) }
+    fun hasUnresolvedOrActive(excluding: String? = null) = visibleRecords().any { it.task.id != excluding &&
         (it.phase in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING) ||
             (it.attempt != null && it.order == null && !it.manuallyResolved)) }
     suspend fun importSession(raw: String): PscSession {
@@ -54,6 +62,7 @@ class AppGraph(val context: Context) {
     suspend fun enable(id: String) {
         check(!hasUnresolvedOrActive(id)) { "已有任务正在等待、执行或核对，请先处理" }
         val r = store.get(id)
+        mode.requireAllowed(r.task)
         check(r.phase == TaskPhase.DRAFT && r.attempt == null)
         check(r.task.releaseAt.isAfter(clock.now())) { "放号时间已过，请调整后重新启用" }
         val sessionValid = r.task.demo || runCatching { sessions.load(r.task.condition.patient) }.isSuccess
@@ -69,12 +78,17 @@ class AppGraph(val context: Context) {
     }
     fun stop(id: String) { engine.stop(id); scheduler.cancel(store.get(id).task) }
     suspend fun preparePayment(id: String) = paymentGate.withLock {
+        mode.requireAllowed(store.get(id).task)
         try { payment.prepare(id) }
         catch (_: HospitalException) { store.update(id) { it.copy(phase = TaskPhase.NEEDS_ATTENTION, note = "已锁号，付款信息未取得，请刷新或到服务号核对") } }
     }
-    suspend fun refreshPayment(id: String) = paymentGate.withLock { payment.refresh(id) }
+    suspend fun refreshPayment(id: String) = paymentGate.withLock {
+        mode.requireAllowed(store.get(id).task)
+        payment.refresh(id)
+    }
     suspend fun manualReconcile(id: String) = paymentGate.withLock {
         val r = store.get(id)
+        mode.requireAllowed(r.task)
         val attempt = r.attempt ?: return@withLock
         if (r.order != null || r.manuallyResolved) return@withLock
         val number = attempt.orderNo ?: (gateway.querySubmission(r.task.condition.patient) as? AsyncReply.OrderFound)?.orderNo
@@ -101,6 +115,11 @@ class AppGraph(val context: Context) {
         val lastWall = context.getSharedPreferences("runtime", Context.MODE_PRIVATE).getLong("lastWall", 0)
         context.getSharedPreferences("runtime", Context.MODE_PRIVATE).edit().putLong("lastWall", maxOf(lastWall, now.toEpochMilli())).apply()
         for (r in store.all()) {
+            if (!mode.allows(r.task)) {
+                scheduler.cancel(r.task)
+                notifications.cancelResult(r.task.id)
+                continue
+            }
             if (r.manuallyResolved) continue
             if (r.order != null) {
                 val preparationUntil = r.insuranceStartedAt?.plusSeconds(120)

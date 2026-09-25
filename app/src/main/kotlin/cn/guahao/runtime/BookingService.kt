@@ -24,6 +24,11 @@ class BookingService : Service() {
             try {
                 if (id == null) { graph.recover(); return@launch }
                 val r = graph.store.get(id)
+                if (!graph.mode.allows(r.task)) {
+                    graph.scheduler.cancel(r.task)
+                    graph.notifications.cancelResult(id)
+                    return@launch
+                }
                 val generation = intent.getLongExtra("generation", -1)
                 if (r.task.generation != generation || !readiness(this@BookingService, true).ready) return@launch
                 val limit = if (r.order != null) (r.insuranceStartedAt ?: graph.clock.now()).plusSeconds(120)

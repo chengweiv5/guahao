@@ -1,0 +1,75 @@
+{
+  "date": "2026-09-25",
+  "scope": "Debug-only demo mode; release UI, persistence entry points, execution and recovery reject or ignore demo tasks.",
+  "configuration": {
+    "debugDemoEnabled": true,
+    "releaseDemoEnabled": false,
+    "runtimeToggle": false,
+    "sameApplicationId": "cn.guahao",
+    "releaseDistributionSigningConfigured": false
+  },
+  "implementation": [
+    "Release creates real tasks only, with empty department/doctor until hospital connection and selection.",
+    "Both demo=true and patient.sessionId=demo records are excluded from release lists and activity blocking.",
+    "Draft creation, enabling, gateway calls, scheduling and payment entry points enforce build mode.",
+    "Release recovery cancels old demo alarm tokens and result notifications; stored records remain intact.",
+    "Broadcast and service execution reject old demo tasks."
+  ],
+  "builds": {
+    "debug": {
+      "unitTests": 9,
+      "failures": 0,
+      "lintErrors": 0,
+      "lintWarnings": 9
+    },
+    "release": {
+      "unitTests": 9,
+      "failures": 0,
+      "lintErrors": 0,
+      "lintWarnings": 9
+    }
+  },
+  "devices": {
+    "emulatorRelease": {
+      "cases": 2,
+      "elapsedSeconds": 5.509,
+      "apk": "release artifact signed locally using debug certificate for testing only"
+    },
+    "emulatorDebug": {
+      "cases": 4,
+      "elapsedSeconds": 21.413,
+      "coverage": [
+        "mode UI and gateway",
+        "custom one-hour draft",
+        "real AlarmManager/BookingService demo result"
+      ]
+    },
+    "mate60Debug": {
+      "cases": 2,
+      "elapsedSeconds": 6.995,
+      "installedApkHashVerified": true
+    }
+  },
+  "sha256": {
+    "debug": "6f044cb3b1fae0a9b456e8356b9433e675689da533d5aa1a78bac80f480b1eda",
+    "releaseUnsigned": "c2eb94942157af4a8d35af4c0a9ba13d1e090fa4de46886130136258d1b84dca",
+    "releaseTestSigned": "3d2ea0cc0d321a858878c04be01a24192f7f0d3d533144a3d1f1d5bf32e8dc7b"
+  },
+  "visualInspection": {
+    "file": "build-mode-release.jpeg",
+    "result": "Actual release editor shows hospital connection and empty department/doctor; no demo selector or synthetic doctor."
+  },
+  "evidence": [
+    "build-mode-release.txt",
+    "build-mode-debug.txt",
+    "build-mode-phone.txt"
+  ],
+  "limits": [
+    "Release was tested on emulator; Mate 60 remains on debug for ongoing acceptance.",
+    "No production release signing, distribution or push performed.",
+    "No hospital requests, real bookings, payments or existing-record deletion.",
+    "Demo deletion UI was not part of this build-mode change.",
+    "Earlier long-lockscreen and hospital-network acceptance gaps remain."
+  ],
+  "rollback": "Reverse this change commit; previous debug APK and source backed up at /tmp/guahao-build-mode-before/."
+}

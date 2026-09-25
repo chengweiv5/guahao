@@ -69,7 +69,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         var resolveTask by remember { mutableStateOf<String?>(null) }
         var now by remember { mutableStateOf(Instant.now()) }
         val snackbar = remember { SnackbarHostState() }
-        suspend fun reload() = withContext(Dispatchers.IO) { graph.store.all() to graph.sessions.current() }.let { records = it.first; session = it.second }
+        suspend fun reload() = withContext(Dispatchers.IO) { graph.visibleRecords() to graph.sessions.current() }.let { records = it.first; session = it.second }
         fun work(block: suspend () -> Unit) {
             if (busy) return
             busy = true
@@ -107,7 +107,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                             Text("◷", fontSize = 54.sp, color = Teal)
                             Text(if (page == "home") "把守候放号交给任务" else "暂时没有挂号记录", fontSize = 21.sp, fontWeight = FontWeight.Bold)
                             Text("设置就诊条件和放号时间，锁号成功后通知你去微信付款。", color = Muted)
-                            if (page == "home") Text("首次使用可选择演示模式，体验完整流程。演示不会连接医院。", color = Muted)
+                            if (page == "home" && graph.mode.demoEnabled) Text("首次使用可选择演示模式，体验完整流程。演示不会连接医院。", color = Muted)
                         }
                         display.forEach { r ->
                             Panel(onClick = { selected = r.task.id; page = "detail" }) {
@@ -124,7 +124,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         }
                         if (page == "home") Panel {
                             Text("执行准备", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                            Text(if (session == null) "医院尚未连接，可先体验演示" else "已连接 · ${session!!.patientName}")
+                            Text(if (session == null) { if (graph.mode.demoEnabled) "医院尚未连接，可先体验演示" else "请先连接医院并确认就诊人" } else "已连接 · ${session!!.patientName}")
                             Text("通知、精确定时和华为后台管理需提前准备。", color = Muted)
                             TextButton(onClick = { page = "settings" }) { Text("检查运行设置 →") }
                         }
@@ -149,7 +149,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         TaskEditorScreen(graph, session, reuse, busy, onBack = { page = "home" },
                             onConnect = { page = "session" },
                             onSave = { task, enable -> work {
-                                    withContext(Dispatchers.IO) { graph.store.save(TaskRecord(task)) }
+                                    withContext(Dispatchers.IO) { graph.saveDraft(task) }
                                 selected = task.id; page = "detail"
                                 if (enable) withContext(Dispatchers.IO) { graph.enable(task.id) }
                             } })
@@ -158,7 +158,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         val r = records.find { it.task.id == selected }
                         Content {
                             BackTitle("任务详情") { page = "home" }
-                            if (r == null) Text("正在读取任务…") else {
+                            if (r == null) Text("任务不存在或此版本不可用，请返回任务列表。") else {
                                 TaskStatus(r, now)
                                 if (r.phase == TaskPhase.DRAFT) {
                                     Primary("确认开启自动挂号", !busy) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
@@ -310,18 +310,19 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     val scope = rememberCoroutineScope()
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     var step by rememberSaveable { mutableIntStateOf(1) }
-    var demo by remember { mutableStateOf(reuse?.demo ?: true) }
-    var department by remember { mutableStateOf(reuse?.condition?.department ?: DemoGateway.department) }
-    var doctorCode by remember { mutableStateOf(reuse?.condition?.doctorCode ?: "demo-doctor") }
-    var doctorName by remember { mutableStateOf(reuse?.condition?.doctorName ?: "林医生（虚构）") }
-    var date by remember { mutableStateOf(reuse?.condition?.visitDate?.takeIf { !it.isBefore(LocalDate.now(zone)) } ?: LocalDate.now(zone).plusDays(7)) }
+    val reusable = reuse?.takeIf { graph.mode.allows(it) }
+    var demo by remember { mutableStateOf(graph.mode.demoEnabled && (reusable?.demo ?: true)) }
+    var department by remember { mutableStateOf(reusable?.condition?.department ?: if (demo) DemoGateway.department else DepartmentRef("", "", "", "请选择科室", "")) }
+    var doctorCode by remember { mutableStateOf(reusable?.condition?.doctorCode ?: if (demo) "demo-doctor" else "") }
+    var doctorName by remember { mutableStateOf(reusable?.condition?.doctorName ?: if (demo) "林医生（虚构）" else "") }
+    var date by remember { mutableStateOf(reusable?.condition?.visitDate?.takeIf { !it.isBefore(LocalDate.now(zone)) } ?: LocalDate.now(zone).plusDays(7)) }
     var release by remember { mutableStateOf(Instant.now().plusSeconds(120).atZone(zone).withNano(0)) }
-    var minutes by rememberSaveable { mutableStateOf((reuse?.maxRuntimeMinutes ?: prefs.getInt("defaultMinutes", 30)).toString()) }
-    var fee by rememberSaveable { mutableStateOf(reuse?.condition?.maxFeeFen?.let { java.math.BigDecimal.valueOf(it, 2).toPlainString() } ?: "80") }
-    var start by rememberSaveable { mutableIntStateOf(reuse?.condition?.startMinute ?: 0) }
-    var end by rememberSaveable { mutableIntStateOf(reuse?.condition?.endMinute ?: 1440) }
-    var purpose by rememberSaveable { mutableStateOf(reuse?.condition?.purpose ?: "") }
-    var insurance by rememberSaveable { mutableStateOf(reuse?.paymentPreference?.let { it == PaymentPreference.INSURANCE_FIRST } ?: prefs.getBoolean("defaultInsurance", true)) }
+    var minutes by rememberSaveable { mutableStateOf((reusable?.maxRuntimeMinutes ?: prefs.getInt("defaultMinutes", 30)).toString()) }
+    var fee by rememberSaveable { mutableStateOf(reusable?.condition?.maxFeeFen?.let { java.math.BigDecimal.valueOf(it, 2).toPlainString() } ?: "80") }
+    var start by rememberSaveable { mutableIntStateOf(reusable?.condition?.startMinute ?: 0) }
+    var end by rememberSaveable { mutableIntStateOf(reusable?.condition?.endMinute ?: 1440) }
+    var purpose by rememberSaveable { mutableStateOf(reusable?.condition?.purpose ?: "") }
+    var insurance by rememberSaveable { mutableStateOf(reusable?.paymentPreference?.let { it == PaymentPreference.INSURANCE_FIRST } ?: prefs.getBoolean("defaultInsurance", true)) }
     var accepted by rememberSaveable { mutableStateOf(false) }
     var departments by remember { mutableStateOf(emptyList<DepartmentRef>()) }
     var candidates by remember { mutableStateOf(emptyList<Candidate>()) }
@@ -354,9 +355,11 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
         loadError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (step == 1) {
             Panel {
-                Text("运行模式", fontWeight = FontWeight.SemiBold)
-                Choice("演示模式 · 不连接医院", demo) { demo = true; department = DemoGateway.department; doctorCode = "demo-doctor"; doctorName = "林医生（虚构）" }
-                Choice("真实挂号 · 使用本人服务号", !demo) { demo = false; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = "" }
+                Text(if (graph.mode.demoEnabled) "运行模式" else "就诊人", fontWeight = FontWeight.SemiBold)
+                if (graph.mode.demoEnabled) {
+                    Choice("演示模式 · 不连接医院", demo) { demo = true; department = DemoGateway.department; doctorCode = "demo-doctor"; doctorName = "林医生（虚构）" }
+                    Choice("真实挂号 · 使用本人服务号", !demo) { demo = false; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = "" }
+                }
                 if (demo) Text("演示使用眼科虚构人物和 50 元示例号源。", color = Muted)
                 else if (session == null) Primary("先连接医院", !busy, onConnect)
                 else Value("就诊人（请核对）", session.patientName)

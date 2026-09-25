@@ -10,10 +10,15 @@ class TaskReceiver : BroadcastReceiver() {
         val pending = goAsync()
         context.graph.scope.launch {
             try {
+                val r = context.graph.store.get(id)
+                if (!context.graph.mode.allows(r.task)) {
+                    context.graph.scheduler.cancel(r.task)
+                    context.graph.notifications.cancelResult(id)
+                    return@launch
+                }
                 if (intent.action == "cn.guahao.STOP") context.graph.stop(id)
                 else {
                     val generation = intent.getLongExtra("generation", -1)
-                    val r = context.graph.store.get(id)
                     if (r.task.generation != generation) return@launch
                     if (!readiness(context, true).ready) {
                         context.graph.store.update(id) { it.copy(phase = cn.guahao.core.TaskPhase.NEEDS_ATTENTION,

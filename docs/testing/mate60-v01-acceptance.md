@@ -6,8 +6,10 @@
 
 - 应用：挂号，`cn.guahao`，`0.1.0`（versionCode 1）。
 - APK：`app/build/outputs/apk/debug/app-debug.apk`，约 11 MB，Android Debug 签名，v2 签名验证通过。
-- 当前演示时间按钮修复版 SHA-256：`b1fd148a0e65a64d3993e7bfa4be84a1b76952859dd1b9c46a93a68561cd004e`；本机与手机已安装 APK 哈希一致。
-- 通知修复验收使用 SHA-256：`879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818`；随后仅修改演示时间快捷按钮的外观及说明，未重跑通知验收。
+- 当前构建模式隔离版 debug SHA-256：`6f044cb3b1fae0a9b456e8356b9433e675689da533d5aa1a78bac80f480b1eda`；本机与手机已安装 APK 哈希一致。
+- 正式构建未签名 APK SHA-256：`c2eb94942157af4a8d35af4c0a9ba13d1e090fa4de46886130136258d1b84dca`；仅本地测试签名后在模拟器验收，未发布。
+- 演示时间按钮验收使用 SHA-256：`b1fd148a0e65a64d3993e7bfa4be84a1b76952859dd1b9c46a93a68561cd004e`。
+- 通知修复验收使用 SHA-256：`879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818`；实际听感确认属于该轮，本轮只回归演示服务产生结果的生命周期。
 - 下方首轮与 10:15–10:16 锁屏验收使用原版 SHA-256：`5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e`。通知复验单独记载，不将旧测试结果记为新包重跑。
 - minSdk 26 / targetSdk 36 / compileSdk 36；不依赖 Google 服务。目标手机已实测 Android API 31，详见下方真机首轮记录。
 - 构建环境：macOS arm64，JDK 21.0.7（编译目标 17），Gradle 8.13，AGP 8.13.2，Kotlin 2.0.21。
@@ -175,6 +177,24 @@ adb -s <serial> shell am instrument -w -r -e class cn.guahao.NotificationAlertTe
 新增界面回归在模拟器（6.181s）和 Mate 60 Pro（5.398s）均通过：设置约一小时后，保存后与选择的时间完全一致，仍为演示草稿、未产生提交；快捷按钮具有点击语义。[真机预览](evidence/v0.1/mate60-demo-release-settings.jpeg)已目视确认边框与文字清晰，无重叠。构建通过，lint 0 errors、9 个既有 UseKtx 建议；修复版已覆盖安装，APK 哈希回读一致，服务未运行。没有启用新任务、访问医院或清除本机数据。
 
 结构化记录：[demo-release-settings-verification.json](evidence/v0.1/demo-release-settings-verification.json)。回滚可对本次提交创建反向提交；原 APK、源码和文档备份位于 `/tmp/guahao-demo-release-fix-before/`，需要覆盖安装回退时先确认无运行任务。
+
+## 测试包与正式包隔离（2026-09-25）
+
+按用户确认的方案，演示只作为测试能力保留。`BuildConfig.DEMO_MODE_ENABLED` 在 debug 为 true、release 为 false；正式包新建任务直接进入医院连接与真实条件选择，不出现演示模式选择、虚构医生或演示记录。页面、草稿保存、启用、医院适配、付款、定时与服务入口共同执行这项规则。
+
+兼容本机旧数据：正式包同时识别任务 `demo` 标记和演示就诊人会话，忽略这些记录及它们的执行占用，恢复时取消对应的闹钟令牌和结果通知，保留存储内容。已送达的旧演示启动请求也不会执行。真实挂号流程与原记录保留；未增加删除入口。
+
+| 验证 | 结果 |
+| --- | --- |
+| debug / release 单元测试 | 各 9 项通过（含同一组 3 项构建模式测试），0 failures；分别确认实际编译默认值 |
+| debug / release lint 与 APK | 两种构建均成功，各 0 errors、9 个既有 UseKtx 建议 |
+| 实际 release APK / 模拟器 | 2 项通过，5.509s；无演示入口和记录，拒绝演示保存、启用、调度、数据与付款调用；恢复清理旧定时及通知，旧启动请求不改动记录、不产生结果 |
+| 实际 debug APK / 模拟器 | 4 项通过，21.413s；模式入口、演示适配、自定义一小时后草稿，以及实际闹钟服务的演示结果通过 |
+| Mate 60 Pro / debug | 2 项通过，6.995s；测试包演示功能保留，覆盖安装后 APK 哈希回读一致 |
+
+[实际正式包页面](evidence/v0.1/build-mode-release.jpeg)已目视核对：新建任务首先连接医院，科室、医生为空待选择，未连接时不能继续。正式构建产物尚无正式分发签名；本轮仅使用本机调试证书对副本签名，以便在模拟器覆盖安装验收。手机继续使用 debug，保留后续真机演示验收能力。
+
+结构化记录：[build-mode-verification.json](evidence/v0.1/build-mode-verification.json)；原始测试结果：[release](evidence/v0.1/build-mode-release.txt)、[debug](evidence/v0.1/build-mode-debug.txt)、[真机 debug](evidence/v0.1/build-mode-phone.txt)。原 APK 和修改前源码备份：`/tmp/guahao-build-mode-before/`；回滚用本次提交的反向提交，或确认无活动任务后覆盖安装原 debug APK。没有医院请求、真实锁号、付款、现有记录删除或远端推送。
 
 ## 真机剩余验收
 

@@ -4,12 +4,13 @@ import android.app.*
 import android.content.*
 import cn.guahao.MainActivity
 import cn.guahao.R
+import cn.guahao.AppMode
 import cn.guahao.core.*
 import cn.guahao.runtime.TaskReceiver
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class BookingNotifications(private val context: Context) {
+class BookingNotifications(private val context: Context, private val mode: AppMode = AppMode()) {
     private val manager = context.getSystemService(NotificationManager::class.java)
     init {
         manager.createNotificationChannel(NotificationChannel("execution", "挂号任务运行", NotificationManager.IMPORTANCE_LOW))
@@ -46,8 +47,10 @@ class BookingNotifications(private val context: Context) {
             .setGroup("guahao.execution.silent").setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY)
             .addAction(Notification.Action.Builder(null, "停止任务", stop).build()).build()
     }
-    fun updateRunning(record: TaskRecord) { manager.notify(1, running(record)) }
+    fun updateRunning(record: TaskRecord) { if (mode.allows(record.task)) manager.notify(1, running(record)) }
+    fun cancelResult(id: String) { manager.cancel(id.hashCode()) }
     fun result(record: TaskRecord) {
+        if (!mode.allows(record.task)) { cancelResult(record.task.id); return }
         val deadline = record.order?.invalidAt?.atZone(ZoneId.of("Asia/Shanghai"))?.format(DateTimeFormatter.ofPattern("HH:mm"))
         val title = when(record.phase) {
             TaskPhase.BOOKED -> "挂号已完成"
