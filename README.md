@@ -73,7 +73,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据、平台适配与独立接入的验证边界。
 - [v0.2 最新查询核验](docs/research/2026-09-25-xweb-read-query-verification.md)：手机微信内置调试已验证 114 两家医院的科室与排班、7 种核心查询端点，并确认京通复用同组查询协议；独立客户端认证、请求构造与预约提交仍待验证。
 - [v0.2 入口核验](docs/research/2026-09-25-114-mobile-entry-and-web-closure.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：网站预约已关闭；京通与 114 的登录态和凭据按入口隔离。
-- [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计；新增抢号性能与策略优化任务，其余方向仍为候选，开发均未排期。
+- [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计；新增抢号性能与策略优化及显著付款提醒任务，其余方向仍为候选，开发均未排期。
 - [服务号 v0.1 开发计划](docs/superpowers/plans/2026-09-24-service-account-v01.md)：会话导入、自动预约、锁屏执行、付款通知与设备验收。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。
 - [服务号固定入口与首次连接核对](docs/research/2026-09-25-service-account-connection.md)：现有会话可保存复用，首次免粘贴授权和回传仍未验证。
