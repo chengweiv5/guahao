@@ -1,0 +1,71 @@
+INSTRUMENTATION_STATUS: class=cn.guahao.HospitalImportGuardTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+cn.guahao.HospitalImportGuardTest:
+INSTRUMENTATION_STATUS: test=existingDemoTasksDoNotBlockFirstHospitalImport
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: demo_blockers=1
+INSTRUMENTATION_STATUS: demo_unresolved=0
+INSTRUMENTATION_STATUS: has_current_session=false
+INSTRUMENTATION_STATUS: real_blockers=0
+INSTRUMENTATION_STATUS: task_count=16
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=cn.guahao.HospitalImportGuardTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Demo records blocked hospital connection: 请先停止任务并处理未决提交，再重新连接医院
+	at org.junit.Assert.fail(Assert.java:89)
+	at cn.guahao.HospitalImportGuardTest$existingDemoTasksDoNotBlockFirstHospitalImport$1.invokeSuspend(HospitalImportGuardTest.kt:38)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at cn.guahao.HospitalImportGuardTest.existingDemoTasksDoNotBlockFirstHospitalImport(HospitalImportGuardTest.kt:15)
+
+INSTRUMENTATION_STATUS: stream=
+Error in existingDemoTasksDoNotBlockFirstHospitalImport(cn.guahao.HospitalImportGuardTest):
+java.lang.AssertionError: Demo records blocked hospital connection: 请先停止任务并处理未决提交，再重新连接医院
+	at org.junit.Assert.fail(Assert.java:89)
+	at cn.guahao.HospitalImportGuardTest$existingDemoTasksDoNotBlockFirstHospitalImport$1.invokeSuspend(HospitalImportGuardTest.kt:38)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at cn.guahao.HospitalImportGuardTest.existingDemoTasksDoNotBlockFirstHospitalImport(HospitalImportGuardTest.kt:15)
+
+INSTRUMENTATION_STATUS: test=existingDemoTasksDoNotBlockFirstHospitalImport
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 1.566
+There was 1 failure:
+1) existingDemoTasksDoNotBlockFirstHospitalImport(cn.guahao.HospitalImportGuardTest)
+java.lang.AssertionError: Demo records blocked hospital connection: 请先停止任务并处理未决提交，再重新连接医院
+	at org.junit.Assert.fail(Assert.java:89)
+	at cn.guahao.HospitalImportGuardTest$existingDemoTasksDoNotBlockFirstHospitalImport$1.invokeSuspend(HospitalImportGuardTest.kt:38)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at cn.guahao.HospitalImportGuardTest.existingDemoTasksDoNotBlockFirstHospitalImport(HospitalImportGuardTest.kt:15)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

@@ -125,6 +125,29 @@ class SessionConnectionTest {
         }
     }
 
+    @Test fun newConnectionKeepsExistingTaskCredentialsAndCookieJarIsolated() = runBlocking {
+        MockWebServer().use { server ->
+            server.start(); val vault = saved(); val sessions = repository(vault, server)
+            val oldTransport = sessions.transport(original.reference.sessionId)
+            server.enqueue(MockResponse().setBody("<html>synthetic</html>"))
+            server.enqueue(MockResponse().setBody("""{"code":0,"data":[{"id":"new-user","ptno":"new-patient","name":"新测试就诊人"}]}"""))
+            server.enqueue(MockResponse().setBody("""{"code":2,"data":{"id":"new-user","ptno":"new-patient","userIdKey":"new-key","ptnoKey":"new-patient-key"}}"""))
+            server.enqueue(ok())
+            val replacement = sessions.importAndVerify("https://psc.hkinfo.net/regis/initDept?userId=new-user&userIdKey=new-key&ptno=new-patient")
+            repeat(4) { server.takeRequest() }
+            assertEquals("new-key", sessions.current()!!.userKey)
+            assertEquals("test-key", sessions.load(original.reference).userKey)
+            assertSame(oldTransport, sessions.transport(original.reference.sessionId))
+            assertNotSame(oldTransport, sessions.transport(replacement.reference.sessionId))
+            server.enqueue(ok())
+            assertTrue(PscClient(sessions).validateBookingAccess(original.reference))
+            val sent = responseObject(server.takeRequest().body.readUtf8())
+            assertEquals(original.ptno, sent.text("ptno"))
+            assertEquals(original.ptnoKey, sent.text("ptnoKey"))
+            assertEquals(replacement.reference, sessions.current()!!.reference)
+        }
+    }
+
     @Test fun simultaneousForegroundChecksCoalesceAndCancellationIsNotExpiry() = runBlocking {
         MockWebServer().use { server ->
             server.start(); val sessions = repository(saved(), server)

@@ -55,13 +55,15 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
     fun hasUnresolvedOrActive(excluding: String? = null) = visibleRecords().any { it.task.id != excluding &&
         (it.phase in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING) ||
             (it.attempt != null && it.order == null && !it.manuallyResolved)) }
-    suspend fun importSession(raw: String): PscSession {
-        check(!hasUnresolvedOrActive()) { "请先停止任务并处理未决提交，再重新连接医院" }
-        return sessions.importAndVerify(raw)
-    }
+    // Import creates a new isolated session; existing tasks keep their original PatientRef.
+    // An unresolved submission restricts new submissions, not adding a connection.
+    suspend fun importSession(raw: String): PscSession = sessions.importAndVerify(raw)
     suspend fun checkConnection(force: Boolean = false) {
-        // Do not insert foreground preflight requests into a running booking/reconciliation window.
-        if (!force && hasUnresolvedOrActive()) return
+        val currentPatient = sessions.current()?.reference ?: return
+        // Suppress optional checks only for the session currently used by a protected task.
+        if (!force && visibleRecords().any { !it.task.demo && it.task.condition.patient == currentPatient &&
+                (it.phase in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING) ||
+                    (it.attempt != null && it.order == null && !it.manuallyResolved)) }) return
         sessions.checkCurrent(force)
     }
     suspend fun enable(id: String) {
@@ -69,9 +71,6 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         val r = store.get(id)
         mode.requireAllowed(r.task)
         check(r.phase == TaskPhase.DRAFT && r.attempt == null)
-        if (!r.task.demo) check(r.task.condition.patient == sessions.current()?.reference) {
-            "医院连接已更新，请复用条件新建任务，重新核对就诊人后启用"
-        }
         check(r.task.releaseAt.isAfter(clock.now())) { "放号时间已过，请调整后重新启用" }
         val sessionValid = r.task.demo || runCatching { sessions.load(r.task.condition.patient) }.isSuccess
         check(readiness(context, sessionValid).ready) { "请先补齐医院连接、通知、精确定时和后台运行准备" }

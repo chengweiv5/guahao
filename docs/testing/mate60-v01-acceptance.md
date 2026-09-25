@@ -234,3 +234,15 @@ adb -s <serial> shell am instrument -w -r -e class cn.guahao.NotificationAlertTe
 真机已保留数据升级 debug APK，安装包 SHA-256 与本地产物一致：`c92ce942bc7d835374962a3f7fa232e11a579b96843cbe89f36ebf61119cbd98`。release unsigned SHA-256：`1782e54fac4e3ffa18a90d9e1463010bd6efe4b199836460a7a17565a13340c9`。最终虚构连接页已检查文字与按钮；测试结束无运行中的 BookingService。实际医院自然过期的响应、真实 Android 首次导入和长期锁屏仍未补验，不能用本次模拟响应测试替代。
 
 证据：[结构化结果](evidence/v0.1/connection-state-verification.json)、[真机测试](evidence/v0.1/connection-state-physical.txt)、[模拟器测试](evidence/v0.1/connection-state-emulator.txt)。回滚：反向提交本轮变更，或确认没有活动任务后使用 `/tmp/guahao-connection-fix-before/app/build/outputs/apk/debug/app-debug.apk` 保留数据安装；不卸载、不清空数据。
+
+## 2026-09-25：新增医院连接不应被任务阻塞
+
+用户连接医院时收到“请先停止任务并处理未决提交”。真机只读诊断确认：16 条记录中有 1 条待触发演示任务、0 条真实阻塞任务、没有已导入会话。无效测试链接在到达本地格式校验前就被任务门禁拦截，复现失败（1.566 秒）。用户进一步明确需要同时挂多家医院：连接属于独立操作，不能被其他任务阻塞。
+
+已移除新增连接的全局任务门禁；导入继续创建独立会话，原任务引用和未决提交记录不变。旧草稿不再因为 UI 默认连接变化而被禁止启用，仍核验自己绑定的会话和条件。可选自动检查只避让同一会话正在等待、执行或核对的真实任务。全局任务启用/执行限制暂未改造，多医院隔离设计已完成供评审，第二家医院稍后确定。
+
+真机以相同待触发演示任务复验 **1/1 通过，1.071 秒**，16 条原记录逐项比对未变；模拟器隔离场景 **4/4，9.219 秒**，验证真实任务各状态下可进入新连接本地校验、原身份和记录不变，未决提交仍拦截新的挂号启用。新增模拟 HTTP 测试验证导入新连接后，旧任务仍向医院发送原就诊凭据，未串用新连接。debug/release 各 **17/17**，构建与 lint 通过（0 错误、9 个既有 UseKtx 提示）。
+
+保留数据升级已安装真机与模拟器，真机 APK SHA-256 回读一致：`7084ebf1c2cf3a1b77dee4f49fef05682b080094ff05971bc947d102ac7f9a51`。未停止/删除用户任务，未使用真实身份链接，未发真实医院请求、锁号或付款。本次证明任务门禁修复，不代表真实首次连接或多医院并行已通过。
+
+证据：[结构化结果](evidence/v0.1/hospital-import-guard-verification.json)、[修复前](evidence/v0.1/hospital-import-guard-before.txt)、[真机复验](evidence/v0.1/hospital-import-guard-physical.txt)、[模拟器](evidence/v0.1/hospital-import-guard-emulator.txt)。设计：[多医院连接与并行任务](../design/2026-09-25-multi-hospital-connections.md)。回滚：反向提交本轮变更；前版 APK 在 `/tmp/guahao-import-guard-before/app/build/outputs/apk/debug/app-debug.apk`，确认没有任务执行后可保留数据安装，不清空数据。

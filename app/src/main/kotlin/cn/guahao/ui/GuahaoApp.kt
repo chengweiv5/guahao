@@ -173,12 +173,13 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                                 TaskStatus(r, now)
                                 val oldConnection = !r.task.demo && r.task.condition.patient != session?.reference
                                 if (!r.task.demo && (connection.needsReconnect || oldConnection)) Panel(tint = Amber) {
-                                    Text(if (oldConnection) "此任务使用先前的医院连接" else "医院需要重新连接", fontWeight = FontWeight.SemiBold)
-                                    Text("旧任务和提交记录会保留。先处理未决订单；重新导入后，复用条件新建任务并核对就诊人，不会自动恢复提交。")
+                                    Text(if (oldConnection) "此任务保留创建时的医院连接" else "医院需要重新连接", fontWeight = FontWeight.SemiBold)
+                                    Text(if (oldConnection) "新增连接不改变此任务的就诊人或会话。启用时核验任务原有连接；若需更换就诊人，请复用条件新建。"
+                                        else "可以重新连接医院，原任务和提交记录保留。重新连接不会恢复或重复提交原任务。")
                                     Primary("管理医院连接", !busy) { page = "session" }
                                 }
                                 if (r.phase == TaskPhase.DRAFT) {
-                                    Primary("确认开启自动挂号", !busy && !oldConnection && (r.task.demo || !connection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
+                                    Primary("确认开启自动挂号", !busy && (r.task.demo || oldConnection || !connection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
                                     OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("修改条件并另存为任务") }
                                 }
                                 if (r.order != null) {
@@ -269,7 +270,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
             modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri))
         Primary("连接并核验就诊人", raw.isNotBlank() && !busy && !connection.checking) { val value = raw; raw = ""; onImport(value) }
         Text("链接包含身份凭据，仅用于本机接入。不会自动读取剪贴板。", fontSize = 13.sp, color = Muted)
-        Text("重新导入前请停止等待或执行中的任务，处理未决提交。连接更新后，旧任务不会自动恢复。", fontSize = 13.sp, color = Muted)
+        Text("新增连接不受其他任务影响。已有任务保留原来的就诊人和会话，不会自动恢复或重复提交。", fontSize = 13.sp, color = Muted)
     }
     }
 }

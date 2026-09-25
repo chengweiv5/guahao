@@ -98,7 +98,7 @@ class ConnectionScreenTest {
         catch (e: cn.guahao.core.HospitalException) { assertTrue(e.reconnectRequired) }
     }
 
-    @Test fun priorConnectionDraftCannotEnableAndUnresolvedTaskBlocksReimport() = runBlocking {
+    @Test fun addingConnectionNeverBlocksOnTasksOrChangesTheirBoundIdentity() = runBlocking {
         val isolated = File(compose.activity.cacheDir, "connection-test-${UUID.randomUUID()}").apply { mkdirs() }
         val testContext = object : ContextWrapper(compose.activity) {
             override fun getNoBackupFilesDir() = File(isolated, "vault").apply { mkdirs() }
@@ -112,17 +112,21 @@ class ConnectionScreenTest {
         val task = BookingTask("connection-test-${UUID.randomUUID()}", condition, Instant.now().plusSeconds(3600), demo = false)
         graph.store.save(TaskRecord(task))
         try {
-            try { graph.enable(task.id); fail("Old session draft enabled") }
-            catch (e: IllegalStateException) { assertTrue(e.message, e.message!!.contains("医院连接已更新")) }
-            assertEquals(TaskPhase.DRAFT, graph.store.get(task.id).phase)
-            assertNull(graph.store.get(task.id).attempt)
             val candidate = Candidate(condition.department, condition.doctorCode, condition.doctorName, condition.visitDate,
                 "1", "09:00-09:30", 540, 570, 5000, 1, "2", false)
-            graph.store.update(task.id) { it.copy(phase = TaskPhase.NEEDS_ATTENTION,
-                attempt = SubmissionAttempt("synthetic", task.id, candidate, Instant.now().minusSeconds(180), emptySet())) }
-            try { graph.importSession("not-a-real-link"); fail("Unresolved task allowed reimport") }
-            catch (e: IllegalStateException) { assertTrue(e.message!!.contains("未决提交")) }
-            assertNotNull(graph.store.get(task.id).attempt)
+            for (phase in listOf(TaskPhase.DRAFT, TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.RECONCILING, TaskPhase.NEEDS_ATTENTION)) {
+                val before = graph.store.update(task.id) { it.copy(phase = phase,
+                    attempt = if (phase in setOf(TaskPhase.RECONCILING, TaskPhase.NEEDS_ATTENTION))
+                        SubmissionAttempt("synthetic", task.id, candidate, Instant.now().minusSeconds(180), emptySet()) else null) }
+                try { graph.importSession("not-a-real-link"); fail("Invalid link accepted") }
+                catch (_: IllegalArgumentException) { /* Reached local parser despite task state. */ }
+                assertEquals(before, graph.store.get(task.id))
+                assertEquals(patient.reference, graph.store.get(task.id).task.condition.patient)
+            }
+            val other = task.copy(id = "other-test-${UUID.randomUUID()}")
+            graph.store.save(TaskRecord(other))
+            try { graph.enable(other.id); fail("Unresolved submission must still prevent a new submission") }
+            catch (e: IllegalStateException) { assertTrue(e.message!!.contains("已有任务")) }
         } finally {
             graph.store.update(task.id) { it.copy(phase = TaskPhase.STOPPED, manuallyResolved = true, stopRequested = true,
                 note = "连接保护测试已结束（虚构），未请求医院") }

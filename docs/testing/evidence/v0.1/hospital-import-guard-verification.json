@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-25",
+  "status": "connection_bug_fixed_and_multi_hospital_design_written",
+  "base_commit": "07f8bf04a4621370e8a18493c492de99d29ed676",
+  "reproduction": {
+    "device": "Mate 60 Pro",
+    "record_count": 16,
+    "demo_blockers": 1,
+    "demo_unresolved": 0,
+    "real_blockers": 0,
+    "current_session_present": false,
+    "old_result": "rejected before local URL parsing with task-blocking message",
+    "duration_seconds": 1.566,
+    "receipt": "hospital-import-guard-before.txt"
+  },
+  "root_cause": "Global active/unresolved task guard was applied to adding a hospital connection. Current-session equality also incorrectly bound old drafts to the UI default connection.",
+  "final_behavior": [
+    "adding a connection has no task-state gate",
+    "each import remains a new isolated session with original task PatientRef retained",
+    "old drafts validate their own credentials rather than compare against current UI session",
+    "automatic optional check skips only tasks using the same current session",
+    "new-submission single-task protection is unchanged pending multi-hospital execution design"
+  ],
+  "physical_regression": {
+    "result": "passed",
+    "tests": 1,
+    "seconds": 1.071,
+    "same_demo_blocker_count": 1,
+    "same_record_count": 16,
+    "task_records_unchanged_during_probe": true,
+    "receipt": "hospital-import-guard-physical.txt"
+  },
+  "emulator_regression": {
+    "result": "passed",
+    "tests": 4,
+    "seconds": 9.219,
+    "scope": "synthetic UI and isolated real-task-state test with draft/wait/search/reconcile/needs-attention; adding connection reaches local URL validation, original record unchanged; unresolved submission still blocks new task enable",
+    "receipt": "hospital-import-guard-emulator.txt"
+  },
+  "builds": [
+    "debug",
+    "release unsigned",
+    "debug androidTest"
+  ],
+  "unit_and_installation": {
+    "debug_sha256": "7084ebf1c2cf3a1b77dee4f49fef05682b080094ff05971bc947d102ac7f9a51",
+    "installed_sha256": "7084ebf1c2cf3a1b77dee4f49fef05682b080094ff05971bc947d102ac7f9a51",
+    "package_hash_matches": true,
+    "release_unsigned_sha256": "1e369fe0d5ccc2e016b228643c532eb50d9356a52c422fca5e722c1a0d4f9978",
+    "unit_tests": {
+      "Debug": {
+        "tests": 17,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "Release": {
+        "tests": 17,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "validation_limits": [
+    "local invalid URL intentionally stops before hospital request; not a real first-login test",
+    "second hospital not selected or integrated",
+    "global execution, database and service concurrency limits still exist; multi-hospital execution not implemented",
+    "no user tasks cancelled/deleted; no automatic login or booking performed"
+  ],
+  "design": "docs/design/2026-09-25-multi-hospital-connections.md",
+  "backup": "/tmp/guahao-import-guard-before",
+  "rollback": "Reverse delivery commit; if needed install previous debug APK with install -r while no execution is active; keep app data.",
+  "lint": {
+    "debug": {
+      "errors": 0,
+      "warnings": 9,
+      "ids": [
+        "UseKtx"
+      ]
+    },
+    "release": {
+      "errors": 0,
+      "warnings": 9,
+      "ids": [
+        "UseKtx"
+      ]
+    }
+  }
+}
