@@ -10,7 +10,8 @@ import java.time.LocalDate
     fun sameIdentity(other: DoctorRef) = code == other.code && name == other.name
 }
 data class ScheduleQuery(val patient: PatientRef, val department: DepartmentRef, val visitDate: LocalDate, val purpose: String)
-data class ScheduleDay(val date: LocalDate, val status: DateAvailability, val doctors: List<DoctorRef>, val candidates: List<Candidate>)
+data class ScheduleDay(val date: LocalDate, val status: DateAvailability, val doctors: List<DoctorRef>, val candidates: List<Candidate>,
+    val hospitalReleaseAt: Instant? = null)
 data class DepartmentSchedule(val department: DepartmentRef, val days: List<ScheduleDay>) {
     val doctors: List<DoctorRef> get() = days.flatMap { it.doctors }.distinctBy { it.code to it.name }
     fun day(date: LocalDate): ScheduleDay {
@@ -18,9 +19,10 @@ data class DepartmentSchedule(val department: DepartmentRef, val days: List<Sche
         return found.copy(candidates = found.candidates.filter { it.date == date && it.department == department })
     }
 }
-@Serializable data class ScheduleObservation(val availability: DateAvailability, val doctorConfirmed: Boolean, val checkedAt: Instant)
+@Serializable data class ScheduleObservation(val availability: DateAvailability, val doctorConfirmed: Boolean, val checkedAt: Instant,
+    val hospitalReleaseAt: Instant? = null)
 fun VisitCondition.scheduleQuery() = ScheduleQuery(patient, department, visitDate, purpose)
-fun ScheduleDay.observation(doctor: DoctorRef, now: Instant) = ScheduleObservation(status, doctors.any { it.sameIdentity(doctor) }, now)
+fun ScheduleDay.observation(doctor: DoctorRef, now: Instant) = ScheduleObservation(status, doctors.any { it.sameIdentity(doctor) }, now, hospitalReleaseAt)
 val DateAvailability.label: String get() = when (this) {
     DateAvailability.AVAILABLE -> "当日有号"
     DateAvailability.NOT_RELEASED -> "尚未放号"

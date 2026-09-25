@@ -11,6 +11,7 @@ import okhttp3.mockwebserver.*
 import org.junit.Assert.*
 import org.junit.Test
 import java.time.LocalDate
+import java.time.Instant
 
 class DailyScheduleClientTest {
     @Test fun transportPreservesDateStatusAndOtherDateIdentityWithoutInventingTargetSlots() = runBlocking {
@@ -27,7 +28,7 @@ class DailyScheduleClientTest {
             })
             server.enqueue(MockResponse().setBody("""<script>var regisInfo = {"dayViews":[
                 {"day":"20261002","syqty":0,"registryList":null},
-                {"day":"20261010","syqty":-3,"registryList":null},
+                {"day":"20261010","syqty":-3,"syTime":"2026/09/26 15:00:00","registryList":null},
                 {"day":"20261001","syqty":1,"registryList":[{"doctor_code":"doctor","doctor":"测试医生","title":"主任医师","title_type":"4","fee":"80","count":"1","reg_half":"1","iscanceled":"0","regHourList":[["08:00-08:30","1"]]}]}
                 ]};</script>"""))
             val dept = DepartmentRef("parent", "eye", "五官科", "眼科", "origin")
@@ -37,6 +38,8 @@ class DailyScheduleClientTest {
             assertEquals(DateAvailability.NO_STOCK, target.status)
             assertTrue(target.doctors.isEmpty()); assertTrue(target.candidates.isEmpty())
             assertEquals(DateAvailability.NOT_RELEASED, schedule.day(LocalDate.parse("2026-10-10")).status)
+            assertEquals(Instant.parse("2026-09-26T07:00:00Z"), schedule.day(LocalDate.parse("2026-10-10")).hospitalReleaseAt)
+            assertNull(target.hospitalReleaseAt)
             assertEquals(DateAvailability.UNKNOWN, schedule.day(LocalDate.parse("2026-10-11")).status)
             assertEquals(listOf(DoctorRef("doctor", "测试医生", "主任医师")), schedule.doctors)
             assertEquals(8000L, schedule.day(LocalDate.parse("2026-10-01")).candidates.single().feeFen)

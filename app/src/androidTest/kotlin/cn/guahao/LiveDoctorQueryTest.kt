@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inspector.WindowInspector
 import android.widget.DatePicker
+import android.widget.TimePicker
 import androidx.test.filters.SdkSuppress
 
 /** Opt-in live queries. Credentials stay on device; UI checks never save or enable a task. */
@@ -70,9 +71,46 @@ class LiveDoctorQueryTest {
             assertTrue("Expected verified doctor options", compose.onAllNodesWithText(" · 选择 ○", substring = true).fetchSemanticsNodes().isNotEmpty())
             compose.onAllNodesWithText(" · 选择 ○", substring = true)[0].performScrollTo().performClick()
             compose.onNodeWithText("下一步 · 执行设置").performScrollTo().assertIsEnabled().performClick()
+            val expectedRelease = args.getString("expectedHospitalRelease")
+            if (expectedRelease != null) {
+                compose.onNodeWithText("医院放号时间：$expectedRelease（北京时间）").assertExists()
+                compose.onNodeWithText("已自动采用医院放号时间").assertExists()
+                compose.onNodeWithText("查号日期：${expectedRelease.substringBefore(' ')}").assertExists()
+                compose.onNodeWithText("查号时刻：${expectedRelease.substringAfter(' ')}（北京时间）").assertExists()
+                compose.onNodeWithText("查号时刻：${expectedRelease.substringAfter(' ')}（北京时间）").performScrollTo().performClick()
+                InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                    fun find(view: View): TimePicker? {
+                        if (view is TimePicker) return view
+                        if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))?.let { return it }
+                        return null
+                    }
+                    val root = WindowInspector.getGlobalWindowViews().single { find(it) != null }
+                    find(root)!!.apply { hour = 16; minute = 7 }
+                    root.findViewById<View>(android.R.id.button1).performClick()
+                }
+                compose.onNodeWithText("查号时刻：16:07:00（北京时间）").assertExists()
+                compose.onNodeWithText("医院放号时间：$expectedRelease（北京时间）").assertExists()
+                compose.onNodeWithText("使用医院放号时间").performScrollTo().performClick()
+                compose.onNodeWithText("查号时刻：${expectedRelease.substringAfter(' ')}（北京时间）").assertExists()
+            } else if (compose.onAllNodesWithText("查号时刻：请选择（北京时间）").fetchSemanticsNodes().isNotEmpty()) {
+                compose.onNodeWithText("下一步 · 核对并启用").assertIsNotEnabled()
+                compose.onNodeWithText("查号时刻：请选择（北京时间）").performScrollTo().performClick()
+                InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                    fun find(view: View): TimePicker? {
+                        if (view is TimePicker) return view
+                        if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))?.let { return it }
+                        return null
+                    }
+                    val root = WindowInspector.getGlobalWindowViews().single { find(it) != null }
+                    val time = java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Shanghai")).plusMinutes(5)
+                    find(root)!!.apply { hour = time.hour; minute = time.minute }
+                    root.findViewById<View>(android.R.id.button1).performClick()
+                }
+            }
             compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
             args.getString("expectedStatus")?.let { compose.onNodeWithText("最近查询：${DateAvailability.valueOf(it).label}").assertExists() }
             compose.onNodeWithText(if (preselected) "目标日排班待确认" else "目标日医生排班已确认").assertExists()
+            expectedRelease?.let { compose.onNodeWithText("医院放号时间：$it（北京时间）").assertExists() }
             compose.onNodeWithText("‹ 返回").performScrollTo().performClick()
             compose.onNodeWithText("‹ 返回").performScrollTo().performClick()
             assertEquals(1, compose.onAllNodesWithText(" · 已选择 ✓", substring = true).fetchSemanticsNodes().size)
@@ -111,7 +149,7 @@ class LiveDoctorQueryTest {
                 putBoolean("no_persistent_session_writes", true)
                 for (raw in args.getString("probeDates", "2026-10-02,2026-10-10").split(",")) {
                     val day = schedule.day(LocalDate.parse(raw))
-                    putString("date_$raw", "${day.status.name};doctors=${day.doctors.size};slots=${day.candidates.size}")
+                    putString("date_$raw", "${day.status.name};doctors=${day.doctors.size};slots=${day.candidates.size};release=${day.hospitalReleaseAt}")
                 }
             })
             assertTrue("Expected selectable doctors for the user-selected department", candidates.isNotEmpty())

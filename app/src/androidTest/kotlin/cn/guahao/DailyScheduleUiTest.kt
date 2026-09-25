@@ -18,6 +18,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
+import java.time.Instant
 import java.io.File
 
 /** Synthetic query results only; never saves or enables a registration task. */
@@ -117,5 +118,22 @@ class DailyScheduleUiTest {
         compose.onNodeWithText("当日无号").assertDoesNotExist()
         compose.onNodeWithText("查询当日排班").assertIsEnabled()
         compose.onNodeWithText("下一步").performScrollTo().assertIsNotEnabled()
+    }
+    @Test fun hospitalReleaseTimeStaysWithTargetDateAndConfirmation() {
+        val release = Instant.parse("2026-09-26T07:00:00Z")
+        val expected = "医院放号时间：2026-09-26 15:00:00（北京时间）"
+        show { q -> schedule(q, DateAvailability.NOT_RELEASED).let { s -> s.copy(days = s.days.map {
+            if (it.date == q.visitDate) it.copy(hospitalReleaseAt = release) else it
+        }) } }
+        query()
+        compose.onNodeWithText(expected).assertExists()
+        preview("hospital-release-time.jpeg")
+        compose.onNodeWithText("预选目标医生").performScrollTo().performClick()
+        compose.onNodeWithText("测试医生 · 选择 ○").performScrollTo().performClick()
+        compose.onNodeWithText("下一步").performScrollTo().performClick()
+        compose.onNodeWithText(expected).assertExists()
+        compose.onNodeWithText("返回条件").performClick()
+        compose.onNodeWithText("更换日期").performScrollTo().performClick()
+        compose.onNodeWithText(expected).assertDoesNotExist()
     }
 }

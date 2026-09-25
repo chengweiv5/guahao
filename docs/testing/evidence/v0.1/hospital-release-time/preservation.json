@@ -1,0 +1,12 @@
+{
+  "tasks_before": 28,
+  "tasks_after": 28,
+  "task_ids_and_indexed_metadata_equal": true,
+  "submission_scopes_equal": true,
+  "credential_files": 2,
+  "credentials_equal": true,
+  "current_session_equal": true,
+  "semantic_business_fields_equal_in_live_ui_test": true,
+  "existing_foreground_payment_refresh_lastEventAt_excluded": true,
+  "app_uninstalled_or_data_cleared": false
+}

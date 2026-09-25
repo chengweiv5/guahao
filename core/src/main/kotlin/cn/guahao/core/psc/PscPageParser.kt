@@ -4,6 +4,7 @@ import cn.guahao.core.*
 import kotlinx.serialization.json.*
 import java.time.*
 import java.time.format.DateTimeFormatter
+import java.time.format.ResolverStyle
 
 val pscJson = Json { ignoreUnknownKeys = true }
 fun JsonObject.text(key: String): String = (get(key) as? JsonPrimitive)?.contentOrNull
@@ -50,14 +51,15 @@ object PscPageParser {
             }
         }.distinct()
     }
-    data class Day(val date: LocalDate, val availability: Int, val candidates: List<Candidate>, val doctors: List<DoctorRef>) {
+    data class Day(val date: LocalDate, val availability: Int, val candidates: List<Candidate>, val doctors: List<DoctorRef>,
+        val hospitalReleaseAt: Instant? = null) {
         val status: DateAvailability get() = when (availability) {
             1 -> DateAvailability.AVAILABLE
             0 -> DateAvailability.NO_STOCK
             -2, -3 -> DateAvailability.NOT_RELEASED
             else -> DateAvailability.UNKNOWN
         }
-        fun asScheduleDay() = ScheduleDay(date, status, doctors, candidates)
+        fun asScheduleDay() = ScheduleDay(date, status, doctors, candidates, hospitalReleaseAt)
     }
     fun schedule(html: String, department: DepartmentRef): List<Day> =
         variable(html, "regisInfo").jsonObject.getValue("dayViews").jsonArray.map { item ->
@@ -87,8 +89,15 @@ object PscPageParser {
                     if (it.code.isBlank() || it.name.isBlank()) throw HospitalException("医院医生身份缺失，请稍后刷新")
                 }
             }.distinctBy { it.code to it.name }
-            Day(date, day.text("syqty").toInt(), candidates, doctors)
+            val availability = day.text("syqty").toInt()
+            val releaseAt = if (availability in setOf(-2, -3)) day.optional("syTime")?.let { raw ->
+                // syTime belongs to this dayView and uses Beijing local time in the official page.
+                // Missing or malformed optional timing must not discard the date's stock state.
+                runCatching { LocalDateTime.parse(raw, releaseFormat).atZone(ZoneId.of("Asia/Shanghai")).toInstant() }.getOrNull()
+            } else null
+            Day(date, availability, candidates, doctors, releaseAt)
         }
+    private val releaseFormat = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss").withResolverStyle(ResolverStyle.STRICT)
 }
 fun parseDate(value: String): LocalDate = when {
     Regex("[0-9]{8}").matches(value) -> LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE)

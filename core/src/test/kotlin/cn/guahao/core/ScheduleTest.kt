@@ -13,6 +13,36 @@ class ScheduleTest {
     private fun parse(code: String, list: String = "null") = PscPageParser.schedule(
         """<script>var regisInfo = {"dayViews":[{"day":"2026-10-02","syqty":$code,"registryList":$list}]};</script>""", dept).single()
 
+    @Test fun hospitalReleaseTimeUsesBeijingDateAndIsIndependentOfDoctorPublication() {
+        val day = PscPageParser.schedule("""<script>var regisInfo = {"dayViews":[
+            {"day":"20261010","syqty":-3,"syTime":"2026/09/26 15:00:00","registryList":null}
+            ]};</script>""", dept).single().asScheduleDay()
+        val at = Instant.parse("2026-09-26T07:00:00Z")
+        assertEquals(at, day.hospitalReleaseAt)
+        assertEquals(DateAvailability.NOT_RELEASED, day.status)
+        val observation = day.observation(DoctorRef("doctor", "医生"), Instant.EPOCH)
+        assertEquals(at, observation.hospitalReleaseAt)
+        assertFalse(observation.doctorConfirmed)
+        assertEquals(observation, Json.decodeFromString(ScheduleObservation.serializer(), Json.encodeToString(ScheduleObservation.serializer(), observation)))
+        val old = """{"availability":"NOT_RELEASED","doctorConfirmed":false,"checkedAt":"1970-01-01T00:00:00Z"}"""
+        assertNull(Json.decodeFromString(ScheduleObservation.serializer(), old).hospitalReleaseAt)
+    }
+
+    @Test fun invalidReleaseTimesDoNotChangeAvailabilityOrDiscardDoctors() {
+        for (value in listOf("null", "\"\"", "\"15:00\"", "\"2026/02/30 15:00:00\"", "\"2026/09/26 25:00:00\"", "\"unexpected\"")) {
+            val day = PscPageParser.schedule("""<script>var regisInfo = {"dayViews":[
+                {"day":"20261010","syqty":-2,"syTime":$value,"registryList":null}
+                ]};</script>""", dept).single()
+            assertNull(day.hospitalReleaseAt)
+            assertEquals(DateAvailability.NOT_RELEASED, day.status)
+        }
+        val noStock = PscPageParser.schedule("""<script>var regisInfo = {"dayViews":[
+            {"day":"20261002","syqty":0,"syTime":"2026/09/26 15:00:00","registryList":null}
+            ]};</script>""", dept).single()
+        assertNull(noStock.hospitalReleaseAt)
+        assertEquals(DateAvailability.NO_STOCK, noStock.status)
+    }
+
     @Test fun explicitDateStatesSurviveIdenticalEmptyDoctorLists() {
         assertEquals(DateAvailability.NO_STOCK, parse("0").status)
         assertEquals(DateAvailability.NOT_RELEASED, parse("-2").status)

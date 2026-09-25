@@ -400,7 +400,6 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     var doctorName by remember { mutableStateOf("") }
     var doctorSelection by remember { mutableStateOf<DoctorSelection?>(null) }
     var date by remember { mutableStateOf(reusable?.condition?.visitDate?.takeIf { !it.isBefore(LocalDate.now(zone)) } ?: LocalDate.now(zone).plusDays(7)) }
-    var release by remember { mutableStateOf(Instant.now().plusSeconds(120).atZone(zone).withNano(0)) }
     var minutes by rememberSaveable { mutableStateOf((reusable?.maxRuntimeMinutes ?: prefs.getInt("defaultMinutes", 30)).toString()) }
     var fee by rememberSaveable { mutableStateOf(reusable?.condition?.maxFeeFen?.let { java.math.BigDecimal.valueOf(it, 2).toPlainString() } ?: "80") }
     var start by rememberSaveable { mutableIntStateOf(reusable?.condition?.startMinute ?: 0) }
@@ -431,6 +430,10 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     val query = patient?.takeIf { department.code.isNotBlank() && purpose in setOf("1", "2") && !date.isBefore(LocalDate.now(zone)) }
         ?.let { ScheduleQuery(it, department, date, purpose) }
     val currentSelection = doctorSelection?.takeIf { it.query == query }
+    var manualRelease by remember(query) { mutableStateOf<ZonedDateTime?>(null) }
+    val demoRelease = remember(query) { Instant.now().plusSeconds(120).atZone(zone).withNano(0) }
+    val hospitalRelease = currentSelection?.observation?.takeIf { it.availability == DateAvailability.NOT_RELEASED }?.hospitalReleaseAt?.atZone(zone)
+    val release = manualRelease ?: hospitalRelease ?: demoRelease.takeIf { demo }
     val scheduleState = remember(query) { SchedulePickerState() }
     LaunchedEffect(query) { doctorSelection = null; doctorCode = ""; doctorName = ""; accepted = false; loadError = null; if (step > 1) step = 1 }
     Content {
@@ -489,11 +492,19 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
         } else if (step == 2) {
             Panel {
                 Text("何时开始查号", fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
-                OutlinedButton(onClick = { selectDate(context, release.toLocalDate()) { release = it.atTime(release.toLocalTime()).atZone(zone) } }, modifier = Modifier.fillMaxWidth()) { Text("放号日期：${release.toLocalDate()}") }
-                OutlinedButton(onClick = { selectTime(context, release.hour, release.minute) { h,m -> release=release.withHour(h).withMinute(m).withSecond(0) } }, modifier = Modifier.fillMaxWidth()) { Text("放号时刻：${release.format(DateTimeFormatter.ofPattern("HH:mm:ss"))}（北京时间）") }
+                hospitalRelease?.let {
+                    Text(hospitalReleaseText(it.toInstant()), color = Teal)
+                    Text(if (manualRelease == null) "已自动采用医院放号时间" else "已手动调整计划查号时间，医院公布时间保持不变", color = Muted)
+                    if (manualRelease != null) OutlinedButton(onClick = { manualRelease = null; accepted = false }, modifier = Modifier.fillMaxWidth()) { Text("使用医院放号时间") }
+                }
+                if (!demo && hospitalRelease == null) Text("未取得可用的医院放号时间，请核对后手动设置计划查号时间。", color = Muted)
+                val editingTime = release ?: Instant.now().plusSeconds(120).atZone(zone).withNano(0)
+                OutlinedButton(onClick = { selectDate(context, editingTime.toLocalDate()) { manualRelease = it.atTime(editingTime.toLocalTime()).atZone(zone); accepted = false } }, modifier = Modifier.fillMaxWidth()) { Text("${if (demo) "放号日期" else "查号日期"}：${release?.toLocalDate() ?: "请选择"}") }
+                OutlinedButton(onClick = { selectTime(context, editingTime.hour, editingTime.minute) { h,m -> manualRelease=editingTime.withHour(h).withMinute(m).withSecond(0); accepted = false } }, modifier = Modifier.fillMaxWidth()) { Text("${if (demo) "放号时刻" else "查号时刻"}：${release?.format(DateTimeFormatter.ofPattern("HH:mm:ss")) ?: "请选择"}（北京时间）") }
+                if (release != null && !release.toInstant().isAfter(Instant.now())) Text("所选查号时间已过，请重新查询或调整计划查号时间。", color = MaterialTheme.colorScheme.error)
                 if (demo) {
                     OutlinedButton(
-                        onClick = { release = Instant.now().plusSeconds(60).atZone(zone).withNano(0) },
+                        onClick = { manualRelease = Instant.now().plusSeconds(60).atZone(zone).withNano(0); accepted = false },
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         border = BorderStroke(1.dp, Teal),
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Teal.copy(alpha = 0.06f))
@@ -501,7 +512,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                     Text("演示任务也按上方选择的日期和时刻执行。", color = Muted, fontSize = 13.sp)
                 }
                 OutlinedTextField(minutes, { minutes=it }, label = { Text("最长运行时长（分钟）") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), isError = minutes.toIntOrNull()?.let { it>0 } != true)
-                minutes.toIntOrNull()?.takeIf { it>0 }?.let { Text("停止查号：${timestamp(release.toInstant().plusSeconds(it.toLong()*60))}", color = Teal) }
+                minutes.toIntOrNull()?.takeIf { it>0 && release != null }?.let { Text("停止查号：${timestamp(release!!.toInstant().plusSeconds(it.toLong()*60))}", color = Teal) }
                 Text("从计划查号时刻开始计时。此时间不改变医院号源状态。", color = Muted, fontSize = 13.sp)
             }
             Panel {
@@ -510,10 +521,10 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 Choice("我在微信全额付款", !insurance) { insurance=false }
                 Text("医保不可用时提醒你处理，不自动切换支付方式。付款由你在微信完成。", color = Muted)
             }
-            Primary("下一步 · 核对并启用", currentSelection != null && condition() != null && minutes.toIntOrNull()?.let { it>0 } == true && release.toInstant().isAfter(Instant.now())) { step=3 }
+            Primary("下一步 · 核对并启用", currentSelection != null && condition() != null && minutes.toIntOrNull()?.let { it>0 } == true && release?.toInstant()?.isAfter(Instant.now()) == true) { step=3 }
         } else {
             val condition = condition()
-            if (condition != null && currentSelection != null) {
+            if (condition != null && currentSelection != null && release != null) {
                 Panel {
                     Badge(if (demo) "演示任务" else "将自动提交真实医院挂号", !demo)
                     Value("就诊人", if (demo) "演示就诊人（虚构）" else session?.patientName ?: "尚未连接")

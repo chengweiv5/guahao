@@ -11,6 +11,8 @@ import cn.guahao.core.*
 import kotlinx.coroutines.*
 import java.time.Instant
 
+internal fun hospitalReleaseText(at: Instant) = "医院放号时间：${at.atZone(java.time.ZoneId.of("Asia/Shanghai")).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}（北京时间）"
+
 data class DoctorSelection(val query: ScheduleQuery, val doctor: DoctorRef, val observation: ScheduleObservation)
 
 internal class SchedulePickerState {
@@ -25,6 +27,7 @@ internal class SchedulePickerState {
         Text("尚未查询目标日排班", color = MaterialTheme.colorScheme.onSurfaceVariant)
     } else {
         Text("最近查询：${observation.availability.label}", fontWeight = FontWeight.SemiBold)
+        observation.hospitalReleaseAt?.let { Text(hospitalReleaseText(it), style = MaterialTheme.typography.bodySmall) }
         Text(if (observation.doctorConfirmed) "目标日医生排班已确认" else "目标日排班待确认",
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text("查询于 ${observation.checkedAt.atZone(java.time.ZoneId.of("Asia/Shanghai")).format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))} · 执行时重新核实",
@@ -71,11 +74,15 @@ internal class SchedulePickerState {
                 Text("${query.visitDate} · ${query.department.name}", style = MaterialTheme.typography.bodySmall)
                 Text(day.status.label, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 Text(when (day.status) {
-                    DateAvailability.NOT_RELEASED -> "医院尚未开放这一天的号源。可先指定医生，设置放号时间。"
+                    DateAvailability.NOT_RELEASED -> if (day.hospitalReleaseAt != null) "医院尚未开放这一天的号源，可先指定医生。" else "医院尚未开放这一天的号源。可先指定医生，再设置查号时间。"
                     DateAvailability.NO_STOCK -> "医院显示这一天当前无可挂号源。可更换日期，或在任务执行期间等待号源。"
                     DateAvailability.UNKNOWN -> "医院暂未返回可确认的当天状态，请重试或在服务号核对。"
                     DateAvailability.AVAILABLE -> "医院显示当日有号，以具体医生和时段为准。"
                 })
+                if (day.status == DateAvailability.NOT_RELEASED) {
+                    Text(day.hospitalReleaseAt?.let(::hospitalReleaseText) ?: "未取得医院放号时间，请在服务号核对后手动设置。",
+                        fontWeight = FontWeight.SemiBold)
+                }
             }
         }
         val published = day.doctors.isNotEmpty()
