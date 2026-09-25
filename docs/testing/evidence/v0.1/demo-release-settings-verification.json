@@ -1,0 +1,35 @@
+{
+  "date": "2026-09-25",
+  "scope": "Demo release time and shortcut appearance; no task enabled or hospital requests.",
+  "finding": "The custom release time was already saved correctly. The old one-minute TextButton looked like current-state text.",
+  "fix": "Full-width outlined button with teal border, tinted background and 48dp minimum height; action label and separate helper text.",
+  "shortcutLabel": "快捷设置为 1 分钟后",
+  "test": "UiAndAlarmTest#demoReleaseTimeKeepsCustomHourAndLabelsShortcutAsAction",
+  "assertions": [
+    "System date/time selection about one hour ahead is preserved in saved demo draft.",
+    "No attempt is created.",
+    "Shortcut action label is present and clickable."
+  ],
+  "beforeFix": {
+    "result": "failed",
+    "assertion": "Label the one-minute shortcut as an action, not the current release time",
+    "customReleaseSavePassed": true
+  },
+  "afterFix": {
+    "emulator": {
+      "result": "OK (1 test)",
+      "seconds": 6.181
+    },
+    "mate60": {
+      "result": "OK (1 test)",
+      "seconds": 5.398
+    },
+    "visual": "Mate 60 preview inspected: border, background, label and helper readable; no text overlap."
+  },
+  "build": "assembleDebug and assembleDebugAndroidTest passed; lint 0 errors, 9 existing UseKtx warnings.",
+  "apkSha256": "b1fd148a0e65a64d3993e7bfa4be84a1b76952859dd1b9c46a93a68561cd004e",
+  "installedApkMatches": true,
+  "bookingServiceActiveAfterTest": false,
+  "preview": "mate60-demo-release-settings.jpeg",
+  "rollbackBackup": "/tmp/guahao-demo-release-fix-before/"
+}

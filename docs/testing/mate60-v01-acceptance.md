@@ -6,7 +6,8 @@
 
 - 应用：挂号，`cn.guahao`，`0.1.0`（versionCode 1）。
 - APK：`app/build/outputs/apk/debug/app-debug.apk`，约 11 MB，Android Debug 签名，v2 签名验证通过。
-- 当前通知修复版 SHA-256：`879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818`；本机与手机已安装 APK 哈希一致。
+- 当前演示时间按钮修复版 SHA-256：`b1fd148a0e65a64d3993e7bfa4be84a1b76952859dd1b9c46a93a68561cd004e`；本机与手机已安装 APK 哈希一致。
+- 通知修复验收使用 SHA-256：`879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818`；随后仅修改演示时间快捷按钮的外观及说明，未重跑通知验收。
 - 下方首轮与 10:15–10:16 锁屏验收使用原版 SHA-256：`5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e`。通知复验单独记载，不将旧测试结果记为新包重跑。
 - minSdk 26 / targetSdk 36 / compileSdk 36；不依赖 Google 服务。目标手机已实测 Android API 31，详见下方真机首轮记录。
 - 构建环境：macOS arm64，JDK 21.0.7（编译目标 17），Gradle 8.13，AGP 8.13.2，Kotlin 2.0.21。
@@ -164,6 +165,16 @@ adb -s <serial> shell am instrument -w -r -e class cn.guahao.NotificationAlertTe
 ```
 
 请等提醒播放完再点击，点击自动清除通知会影响听感验收。本轮源码、文档及原 APK 备份位于 `/tmp/guahao-notification-fix-before/`；需要回退时先确认没有运行任务，再覆盖安装该目录下原 APK，可保留本机数据。源码使用本次提交的反向提交回退。
+
+## 演示放号时间快捷按钮（2026-09-25）
+
+用户选择一小时后仍看到“演示：从现在起 1 分钟后放号”，且看不出该行可点击。通过真实页面的系统日期/时间选择器和保存草稿路径复现，确认自定义放号时间已正确保存，问题是原 TextButton 的外观与文案容易被理解为当前状态。
+
+改成整行描边按钮，深青绿边框、浅色底、最小高度 48dp，文案为“快捷设置为 1 分钟后”；独立说明“演示任务也按上方选择的日期和时刻执行”。点击才会改成一分钟后，原有日期、时刻选择与保存逻辑保持一致。
+
+新增界面回归在模拟器（6.181s）和 Mate 60 Pro（5.398s）均通过：设置约一小时后，保存后与选择的时间完全一致，仍为演示草稿、未产生提交；快捷按钮具有点击语义。[真机预览](evidence/v0.1/mate60-demo-release-settings.jpeg)已目视确认边框与文字清晰，无重叠。构建通过，lint 0 errors、9 个既有 UseKtx 建议；修复版已覆盖安装，APK 哈希回读一致，服务未运行。没有启用新任务、访问医院或清除本机数据。
+
+结构化记录：[demo-release-settings-verification.json](evidence/v0.1/demo-release-settings-verification.json)。回滚可对本次提交创建反向提交；原 APK、源码和文档备份位于 `/tmp/guahao-demo-release-fix-before/`，需要覆盖安装回退时先确认无运行任务。
 
 ## 真机剩余验收
 

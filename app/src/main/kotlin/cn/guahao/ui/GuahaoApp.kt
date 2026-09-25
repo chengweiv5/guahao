@@ -382,7 +382,15 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 Text("何时开始查号", fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
                 OutlinedButton(onClick = { selectDate(context, release.toLocalDate()) { release = it.atTime(release.toLocalTime()).atZone(zone) } }, modifier = Modifier.fillMaxWidth()) { Text("放号日期：${release.toLocalDate()}") }
                 OutlinedButton(onClick = { selectTime(context, release.hour, release.minute) { h,m -> release=release.withHour(h).withMinute(m).withSecond(0) } }, modifier = Modifier.fillMaxWidth()) { Text("放号时刻：${release.format(DateTimeFormatter.ofPattern("HH:mm:ss"))}（北京时间）") }
-                if (demo) TextButton(onClick = { release = Instant.now().plusSeconds(60).atZone(zone).withNano(0) }) { Text("演示：从现在起 1 分钟后放号") }
+                if (demo) {
+                    OutlinedButton(
+                        onClick = { release = Instant.now().plusSeconds(60).atZone(zone).withNano(0) },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        border = BorderStroke(1.dp, Teal),
+                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Teal.copy(alpha = 0.06f))
+                    ) { Text("快捷设置为 1 分钟后") }
+                    Text("演示任务也按上方选择的日期和时刻执行。", color = Muted, fontSize = 13.sp)
+                }
                 OutlinedTextField(minutes, { minutes=it }, label = { Text("最长运行时长（分钟）") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), isError = minutes.toIntOrNull()?.let { it>0 } != true)
                 minutes.toIntOrNull()?.takeIf { it>0 }?.let { Text("停止查号：${timestamp(release.toInstant().plusSeconds(it.toLong()*60))}", color = Teal) }
                 Text("从放号时刻开始计时。医院付款期限独立计算。", color = Muted, fontSize = 13.sp)
