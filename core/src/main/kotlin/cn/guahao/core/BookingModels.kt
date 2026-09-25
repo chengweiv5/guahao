@@ -48,7 +48,8 @@ val PatientRef.isDemo: Boolean get() = sessionId == "demo" || sessionId.startsWi
 @Serializable data class BookingTask(
     val id: String, val condition: VisitCondition, val releaseAt: Instant, val maxRuntimeMinutes: Int = 30,
     val paymentPreference: PaymentPreference = PaymentPreference.INSURANCE_FIRST,
-    val generation: Long = 1, val demo: Boolean = true, val binding: ConnectionBinding? = null
+    val generation: Long = 1, val demo: Boolean = true, val binding: ConnectionBinding? = null,
+    val initialSchedule: ScheduleObservation? = null
 ) {
     init { require(maxRuntimeMinutes > 0); require(id.isNotBlank()) }
     val deadline: Instant get() = releaseAt.plusSeconds(maxRuntimeMinutes.toLong() * 60)
@@ -77,7 +78,7 @@ val PatientRef.isDemo: Boolean get() = sessionId == "demo" || sessionId.startsWi
     val order: OrderSnapshot? = null, val stopRequested: Boolean = false, val note: String = "",
     val insuranceStartedAt: Instant? = null, val insuranceResult: String? = null,
     val lastEventAt: Instant? = null, val manuallyResolved: Boolean = false,
-    val reconciliationPatient: PatientRef? = null
+    val reconciliationPatient: PatientRef? = null, val latestSchedule: ScheduleObservation? = null
 )
 val TaskRecord.hasUnresolvedSubmission get() = attempt != null && order == null && !manuallyResolved
 val BookingTask.hospitalName get() = binding?.hospitalName ?: if (demo) "演示医院 A" else "北京佑安医院"

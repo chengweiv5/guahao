@@ -7,6 +7,7 @@ interface BookingGateway {
     fun binding(patient: PatientRef): ConnectionBinding
     suspend fun departments(patient: PatientRef): List<DepartmentRef>
     suspend fun candidates(condition: VisitCondition): List<Candidate>
+    suspend fun schedule(query: ScheduleQuery): DepartmentSchedule
     suspend fun validateBookingAccess(patient: PatientRef): Boolean
     suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate): List<OrderSnapshot>
     suspend fun lock(task: BookingTask, candidate: Candidate): LockReply

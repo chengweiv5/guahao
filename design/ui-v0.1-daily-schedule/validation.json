@@ -1,0 +1,82 @@
+{
+  "status": "design_review",
+  "android_implemented": false,
+  "source": "../guahao-v0.1-daily-schedule.pen",
+  "original_design_preserved": true,
+  "screens": [
+    {
+      "id": "LUEff",
+      "state": "doctors",
+      "visible_nodes": 78,
+      "clipping": [],
+      "sibling_overlaps": []
+    },
+    {
+      "id": "oRqXX",
+      "state": "no_stock",
+      "visible_nodes": 63,
+      "clipping": [],
+      "sibling_overlaps": []
+    },
+    {
+      "id": "MIs7X",
+      "state": "before_query",
+      "visible_nodes": 59,
+      "clipping": [],
+      "sibling_overlaps": []
+    },
+    {
+      "id": "GD7jk",
+      "state": "not_released",
+      "visible_nodes": 61,
+      "clipping": [],
+      "sibling_overlaps": []
+    },
+    {
+      "id": "AU2Ux",
+      "state": "doctor_preselected_schedule_unconfirmed",
+      "visible_nodes": 81,
+      "clipping": [],
+      "sibling_overlaps": []
+    }
+  ],
+  "checks": {
+    "pencil_saved_without_edited_marker": true,
+    "pencil_saved_bytes": 541957,
+    "ocr_key_states": true,
+    "gallery_local_links": true,
+    "interactive_preselect_entry": true,
+    "interactive_preselection_enables_next": true,
+    "interactive_pending_badge": true,
+    "interactive_query_then_select_doctor": true,
+    "interactive_department_change_clears_selection": true,
+    "interactive_no_stock_message_and_preselection_entry": true,
+    "observed_date_change_clears_selection": true,
+    "script_date_change_invalidates_selection": true,
+    "script_syntax": true,
+    "real_hospital_network_in_preview": false,
+    "visual_review_final_pencil_export": true
+  },
+  "limits": [
+    "原 Android 排班流程尚未修复",
+    "人物、费用和排班为合成预览数据",
+    "图稿展开全内容，非真机截图",
+    "预览只演示下一步入口；没有实际执行设置页面或挂号操作",
+    "Mac 自动锁定后未继续浏览器检查；下一步说明的点击未完成验证"
+  ],
+  "revision": "preselect_doctor_before_release",
+  "state_distinction_review": {
+    "review_scope": "设计规则与既有预览静态检查，非 Android 实现验证",
+    "separate_pending_and_no_stock_preview_titles": true,
+    "unknown_preview_title_preserved": true,
+    "requirements": [
+      "按医院明确状态区分未放号和当日无号",
+      "日期号源状态与医生排班确认状态独立",
+      "空医生列表不能推断无号或未放号",
+      "医生无号与筛选无匹配不能推断日期无号",
+      "预选医生不覆盖日期号源状态",
+      "用户设置的放号时间不能覆盖医院实际状态"
+    ],
+    "implementation_acceptance_pending": true
+  }
+}

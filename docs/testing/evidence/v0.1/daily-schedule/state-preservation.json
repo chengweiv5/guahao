@@ -1,0 +1,21 @@
+{
+  "task_count_before": 28,
+  "task_count_after": 28,
+  "task_ids_equal": true,
+  "task_metadata_equal": true,
+  "task_payloads_changed": 3,
+  "submission_scopes_equal": true,
+  "encrypted_files_before": 1,
+  "encrypted_files_changed": 1,
+  "files_added": 0,
+  "files_removed": 0,
+  "credential_comparison_baseline": "earlier same-day doctor-loading acceptance snapshot, not this install baseline",
+  "credential_files_compared": 2,
+  "credential_files_equal": true,
+  "credential_file_count_now": 2,
+  "current_session_pointer_equal": true,
+  "no_app_data_clear_or_uninstall": true,
+  "semantic_business_data_preserved_in_live_ui_test": true,
+  "live_ui_comparison_excludes_existing_foreground_payment_refresh_lastEventAt": true,
+  "initial_backup_omits_no_backup_credentials": true
+}

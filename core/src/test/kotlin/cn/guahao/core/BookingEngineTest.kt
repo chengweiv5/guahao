@@ -49,6 +49,13 @@ open class FakeGateway : BookingGateway {
     var available = true
     override suspend fun departments(patient: PatientRef) = listOf(fixtureTask().condition.department)
     override suspend fun candidates(condition: VisitCondition) = listOf(fixtureCandidate())
+    override suspend fun schedule(query: ScheduleQuery): DepartmentSchedule {
+        val values = candidates(fixtureTask().condition.copy(patient = query.patient, department = query.department,
+            visitDate = query.visitDate, purpose = query.purpose))
+        return DepartmentSchedule(query.department, values.groupBy { it.date }.map { (date, slots) ->
+            ScheduleDay(date, DateAvailability.AVAILABLE, slots.map { DoctorRef(it.doctorCode, it.doctorName) }.distinct(), slots)
+        })
+    }
     override suspend fun validateBookingAccess(patient: PatientRef) = true
     override suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate) = if (locked) returned else existing
     override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply { locks++; locked=true; onLock?.invoke(); return reply }

@@ -29,6 +29,9 @@ class UiAndAlarmTest {
         val selected = Instant.now().plusSeconds(3600).atZone(zone).withSecond(0).withNano(0)
         compose.onNodeWithText("＋ 新建挂号任务").performClick()
         compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
+        compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
+        compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
         compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
         compose.onNodeWithText("放号日期：", substring = true).performScrollTo().performClick()
         compose.runOnUiThread {
@@ -66,6 +69,9 @@ class UiAndAlarmTest {
         compose.onNodeWithText("演示医院 B", useUnmergedTree = true).performScrollTo().performClick()
         capturePreview("ui-parallel-hospital-picker.png")
         compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
+        compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
+        compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
         compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
         compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
         compose.onNodeWithText("先保存草稿").performScrollTo().performClick()
@@ -94,6 +100,9 @@ class UiAndAlarmTest {
     @Test fun createSixtyMinuteDraftFromVisibleUi() {
         compose.onNodeWithText("＋ 新建挂号任务").performClick()
         compose.onNodeWithText("否",useUnmergedTree=true).performScrollTo().performClick()
+        compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
+        compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
         compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
         compose.onNodeWithText("最长运行时长（分钟）").performScrollTo().performTextReplacement("60")
         compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()

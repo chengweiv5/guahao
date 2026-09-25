@@ -50,7 +50,15 @@ object PscPageParser {
             }
         }.distinct()
     }
-    data class Day(val date: LocalDate, val availability: Int, val candidates: List<Candidate>)
+    data class Day(val date: LocalDate, val availability: Int, val candidates: List<Candidate>, val doctors: List<DoctorRef>) {
+        val status: DateAvailability get() = when (availability) {
+            1 -> DateAvailability.AVAILABLE
+            0 -> DateAvailability.NO_STOCK
+            -2, -3 -> DateAvailability.NOT_RELEASED
+            else -> DateAvailability.UNKNOWN
+        }
+        fun asScheduleDay() = ScheduleDay(date, status, doctors, candidates)
+    }
     fun schedule(html: String, department: DepartmentRef): List<Day> =
         variable(html, "regisInfo").jsonObject.getValue("dayViews").jsonArray.map { item ->
             val day = item.jsonObject
@@ -73,7 +81,13 @@ object PscPageParser {
                         minOf(count, hour[1].jsonPrimitive.content.toInt().also { require(it >= 0) }), r.text("title_type"), r.text("iscanceled") != "0")
                 }
             }
-            Day(date, day.text("syqty").toInt(), candidates)
+            val doctors = registries.map { raw ->
+                val r = raw.jsonObject
+                DoctorRef(r.text("doctor_code"), r.text("doctor"), r.optional("title")?.takeIf { it.isNotBlank() }).also {
+                    if (it.code.isBlank() || it.name.isBlank()) throw HospitalException("医院医生身份缺失，请稍后刷新")
+                }
+            }.distinctBy { it.code to it.name }
+            Day(date, day.text("syqty").toInt(), candidates, doctors)
         }
 }
 fun parseDate(value: String): LocalDate = when {

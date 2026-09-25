@@ -41,6 +41,7 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         override fun binding(patient: PatientRef): ConnectionBinding { mode.requireAllowed(patient); return gatewayBinding(patient) }
         override suspend fun departments(patient: PatientRef) = forPatient(patient).departments(patient)
         override suspend fun candidates(condition: VisitCondition) = forPatient(condition.patient).candidates(condition)
+        override suspend fun schedule(query: ScheduleQuery) = forPatient(query.patient).schedule(query)
         override suspend fun validateBookingAccess(patient: PatientRef) = forPatient(patient).validateBookingAccess(patient)
         override suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate) = forPatient(patient).orders(patient, from, to)
         override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply {
@@ -82,12 +83,18 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         check(r.task.releaseAt.isAfter(clock.now())) { "放号时间已过，请调整后重新启用" }
         val sessionValid = r.task.demo || runCatching { sessions.load(r.task.condition.patient) }.isSuccess
         check(readiness(context, sessionValid).ready) { "请先补齐医院连接、通知、精确定时和后台运行准备" }
+        var observation = r.task.initialSchedule
         if (!r.task.demo) {
             check(gateway.validateBookingAccess(r.task.condition.patient)) { "医院会话不可用，请重新连接" }
             check(gateway.departments(r.task.condition.patient).contains(r.task.condition.department)) { "医院科室信息已变化，请重新选择" }
-            check(gateway.candidates(r.task.condition).any { it.doctorCode == r.task.condition.doctorCode && it.doctorName == r.task.condition.doctorName }) { "未能核实医生与科室的关联，请刷新后选择" }
+            val schedule = gateway.schedule(r.task.condition.scheduleQuery())
+            check(schedule.department == r.task.condition.department) { "医院返回科室不一致，请重新查询" }
+            val doctor = DoctorRef(r.task.condition.doctorCode, r.task.condition.doctorName)
+            check(schedule.doctors.any { it.sameIdentity(doctor) }) { "未能核实医生与科室的关联，请刷新后选择" }
+            observation = schedule.day(r.task.condition.visitDate).observation(doctor, clock.now())
         }
-        store.update(id) { it.copy(phase = TaskPhase.WAITING, stopRequested = false, note = "等待放号", lastEventAt = clock.now()) }
+        store.update(id) { it.copy(phase = TaskPhase.WAITING, stopRequested = false, note = "等待计划查号时间",
+            latestSchedule = observation, lastEventAt = clock.now()) }
         try { scheduler.schedule(r.task) }
         catch (e: Exception) { store.update(id) { it.copy(phase = TaskPhase.DRAFT, note = "定时失败，请检查权限后重新启用") }; throw e }
     }

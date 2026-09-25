@@ -1,0 +1,87 @@
+{
+  "core": {
+    "tests": 46,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "app_debug": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "app_release": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint_debug": {
+    "error": 0,
+    "warning": 13
+  },
+  "lint_release": {
+    "error": 0,
+    "warning": 13
+  },
+  "status": "verified",
+  "apk_sha256": "f632e6d731cafbc11bb1057c8add15ea60071f7b88792513bb986256c2b96072",
+  "installed_apk_sha256_verified": true,
+  "release_unsigned_sha256": "d00ffbb15184bba4d63f1b8012ab59af89d636578fc6bde0a1a62753f821b88a",
+  "device": "Huawei Mate 60 Pro / HarmonyOS 4.2",
+  "synthetic_ui": {
+    "tests": 4,
+    "passed": 4,
+    "seconds": 6.269
+  },
+  "live_query": {
+    "tests": 1,
+    "passed": 1,
+    "seconds": 1.443,
+    "department": "肝病中心一科",
+    "target_dates": {
+      "2026-10-02": "NO_STOCK; doctors=0; slots=0",
+      "2026-10-10": "NOT_RELEASED; doctors=0; slots=0"
+    },
+    "department_doctors": 14,
+    "all_dates_slots": 108
+  },
+  "live_editor": [
+    {
+      "date": "2026-10-02",
+      "status": "NO_STOCK",
+      "seconds": 9.005,
+      "passed": true
+    },
+    {
+      "date": "2026-10-10",
+      "status": "NOT_RELEASED",
+      "seconds": 8.879,
+      "passed": true
+    },
+    {
+      "date": "2026-10-10",
+      "status": "NOT_RELEASED",
+      "flow": "preselect -> confirm -> return",
+      "seconds": 9.342,
+      "passed": true
+    }
+  ],
+  "real_booking_or_payment_submitted": false,
+  "new_tasks_saved_or_enabled": false,
+  "database_schema_version": 2,
+  "push": false,
+  "visual_check": "Synthetic component previews visually inspected, no clipping/overlap. Default test theme is not full product theme. Actual live editor validated through Compose semantics; secure flag retained.",
+  "intermediate_test_failures": [
+    "Synthetic test host setContent called off UI thread; fixed to compose.setContent; 4 tests passed.",
+    "One live UI run had no Compose hierarchy while another app was foreground; rerun with user-reserved device.",
+    "Live UI final preservation assertion included foreground payment lastEventAt refresh; compare all business fields ignoring only lastEventAt. No product logic changed to satisfy tests."
+  ],
+  "limitations": [
+    "No real booking or payment submitted in this delivery.",
+    "Long screen-off/Doze alarm and notification audio acceptance not rerun.",
+    "Department identities only available if official department response supplies verified doctors on some date.",
+    "Initial install backup omitted no_backup; credential equality uses earlier same-day acceptance snapshot. Final complete encrypted snapshot includes no_backup."
+  ]
+}

@@ -33,13 +33,25 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
                 if (r.stopRequested) { phase(taskId, TaskPhase.STOPPED, "已停止查号"); return }
                 if (!clock.now().isBefore(t.deadline)) { phase(taskId, TaskPhase.EXPIRED, "运行时间已结束，未取得符合条件的号源"); return }
                 if (clock.now().isBefore(t.releaseAt)) {
-                    phase(taskId, TaskPhase.WAITING, "等待放号")
+                    phase(taskId, TaskPhase.WAITING, "等待计划查号时间")
                     clock.delayMillis(minOf(1000, java.time.Duration.between(clock.now(), t.releaseAt).toMillis()))
                     continue
                 }
                 try {
                     phase(taskId, TaskPhase.SEARCHING, "正在查询符合条件的号源")
-                    val candidate = gateway.candidates(t.condition).firstOrNull { eligible(t, it, clock.now()) }
+                    val schedule = gateway.schedule(t.condition.scheduleQuery())
+                    if (schedule.department != t.condition.department) throw HospitalException("医院返回科室不一致，请重新核对")
+                    val day = schedule.day(t.condition.visitDate)
+                    val observation = day.observation(DoctorRef(t.condition.doctorCode, t.condition.doctorName), clock.now())
+                    store.update(t.id) { it.copy(latestSchedule = observation) }
+                    val candidate = day.candidates.takeIf { day.status == DateAvailability.AVAILABLE && observation.doctorConfirmed }
+                        ?.firstOrNull { eligible(t, it, clock.now()) }
+                    if (candidate == null) phase(taskId, TaskPhase.SEARCHING, when (day.status) {
+                        DateAvailability.NOT_RELEASED -> "尚未放号，等待医院开放；按原截止时间结束"
+                        DateAvailability.NO_STOCK -> "当日无号，等待可挂号源；按原截止时间结束"
+                        DateAvailability.UNKNOWN -> "暂未查到当天排班，稍后重试；按原截止时间结束"
+                        DateAvailability.AVAILABLE -> "暂无符合条件的号源，继续等待指定医生"
+                    })
                     if (candidate != null && canSubmit(t)) {
                         if (!gateway.validateBookingAccess(t.condition.patient)) throw HospitalException("医院会话或挂号权限不可用，请重新接入")
                         if (!canSubmit(t)) continue

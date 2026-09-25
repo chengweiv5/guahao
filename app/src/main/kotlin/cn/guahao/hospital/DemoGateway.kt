@@ -13,6 +13,12 @@ class DemoGateway(private val store: TaskStore) : BookingGateway {
     override suspend fun departments(patient: PatientRef) = listOf(department)
     override suspend fun candidates(condition: VisitCondition) = listOf(Candidate(department, "demo-doctor", "林医生（虚构）",
         condition.visitDate, "1", "09:00-09:30", 540, 570, 5000, 1, "2", false))
+    override suspend fun schedule(query: ScheduleQuery): DepartmentSchedule {
+        val c = Candidate(department, "demo-doctor", "林医生（虚构）", query.visitDate,
+            "1", "09:00-09:30", 540, 570, 5000, 1, "2", false)
+        return DepartmentSchedule(department, listOf(ScheduleDay(query.visitDate, DateAvailability.AVAILABLE,
+            listOf(DoctorRef(c.doctorCode, c.doctorName)), listOf(c))))
+    }
     override suspend fun validateBookingAccess(patient: PatientRef) = true
     override suspend fun insuranceAvailable(patient: PatientRef) = true
     override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply { check(task.demo)

@@ -48,7 +48,7 @@ private val zone = ZoneId.of("Asia/Shanghai")
 private fun timestamp(i: Instant) = i.atZone(zone).format(DateTimeFormatter.ofPattern("MM月dd日 HH:mm:ss"))
 private fun money(fen: Long) = "¥" + java.math.BigDecimal.valueOf(fen, 2).toPlainString()
 private fun phaseLabel(p: TaskPhase) = when(p) {
-    TaskPhase.DRAFT -> "草稿"; TaskPhase.WAITING -> "等待放号"; TaskPhase.SEARCHING -> "正在查号"
+    TaskPhase.DRAFT -> "草稿"; TaskPhase.WAITING -> "等待查号"; TaskPhase.SEARCHING -> "正在查号"
     TaskPhase.SUBMITTING -> "正在提交"; TaskPhase.RECONCILING -> "结果待确认"
     TaskPhase.AWAITING_PAYMENT -> "锁号成功，待付款"; TaskPhase.BOOKED -> "挂号已完成"
     TaskPhase.EXPIRED -> "未挂到"; TaskPhase.STOPPED -> "已停止"; TaskPhase.NEEDS_ATTENTION -> "需要处理"
@@ -124,10 +124,11 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                                 Badge((if (r.task.demo) "演示 · " else "") + phaseLabel(r.phase), r.order != null || r.phase == TaskPhase.NEEDS_ATTENTION)
                                 if (r.phase == TaskPhase.WAITING) {
                                     Text(r.task.releaseAt.atZone(zone).format(DateTimeFormatter.ofPattern("HH:mm:ss")), fontSize = 42.sp, fontWeight = FontWeight.SemiBold)
-                                    Text("${timestamp(r.task.releaseAt)} 放号 · 北京时间", color = Muted)
+                                    Text("${timestamp(r.task.releaseAt)} 计划查号 · 北京时间", color = Muted)
                                 }
                                 Text("${r.task.condition.department.name} · ${r.task.condition.doctorName}", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                                 Text("${r.task.condition.visitDate}  ·  ${periodLabel(r.task.condition.startMinute, r.task.condition.endMinute)}", color = Muted)
+                                ScheduleSummary(r.latestSchedule ?: r.task.initialSchedule)
                                 Text("${r.task.maxRuntimeMinutes} 分钟内尝试 · ${money(r.task.condition.maxFeeFen)} 以内", color = Muted)
                                 Text("查看任务详情  →", color = Teal)
                             }
@@ -360,7 +361,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
         if (r.phase == TaskPhase.WAITING) {
             val seconds = Duration.between(now, t.releaseAt).seconds.coerceAtLeast(0)
             Text("%02d:%02d:%02d".format(seconds/3600, seconds/60%60, seconds%60), fontSize = 40.sp, fontWeight = FontWeight.SemiBold)
-            Text("距放号 · 北京时间", color = Muted)
+            Text("距计划查号 · 北京时间", color = Muted)
         }
         Text(r.note.ifBlank { "核对条件后开启自动挂号" }, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         r.order?.let { o ->
@@ -374,7 +375,8 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
         Value("医院 / 渠道", "${t.hospitalName} · ${t.binding?.providerName ?: if (t.demo) "本机演示" else "微信服务号"}")
         Value("科室 / 医生", "${t.condition.department.name} · ${t.condition.doctorName}")
         Value("就诊日期 / 时段", "${t.condition.visitDate} · ${periodLabel(t.condition.startMinute, t.condition.endMinute)}")
-        Value("放号时间", timestamp(t.releaseAt))
+        ScheduleSummary(r.latestSchedule ?: t.initialSchedule)
+        Value("计划查号时间", timestamp(t.releaseAt))
         Value("停止查号", "${timestamp(t.deadline)} · 最长 ${t.maxRuntimeMinutes} 分钟")
         Value("费用上限", money(t.condition.maxFeeFen))
         Value("支付方式", if (t.paymentPreference == PaymentPreference.INSURANCE_FIRST) "优先医保；不可用时提醒处理" else "用户在微信全额付款")
@@ -388,14 +390,15 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     val scope = rememberCoroutineScope()
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     var step by rememberSaveable { mutableIntStateOf(1) }
-    var chosenRef by remember { mutableStateOf(defaultConnection.session?.reference) }
+    var chosenRef by remember { mutableStateOf(reuse?.condition?.patient?.takeUnless { it.isDemo } ?: defaultConnection.session?.reference) }
     val connection = chosenRef?.let { graph.sessions.connection(it) } ?: defaultConnection
     var demoPatient by remember { mutableStateOf(reuse?.condition?.patient?.takeIf { it.isDemo } ?: DemoGateway.patient) }
     val reusable = reuse?.takeIf { graph.mode.allows(it) }
     var demo by remember { mutableStateOf(graph.mode.demoEnabled && (reusable?.demo ?: true)) }
     var department by remember { mutableStateOf(reusable?.condition?.department ?: if (demo) DemoGateway.department else DepartmentRef("", "", "", "请选择科室", "")) }
-    var doctorCode by remember { mutableStateOf(reusable?.condition?.doctorCode ?: if (demo) "demo-doctor" else "") }
-    var doctorName by remember { mutableStateOf(reusable?.condition?.doctorName ?: if (demo) "林医生（虚构）" else "") }
+    var doctorCode by remember { mutableStateOf("") }
+    var doctorName by remember { mutableStateOf("") }
+    var doctorSelection by remember { mutableStateOf<DoctorSelection?>(null) }
     var date by remember { mutableStateOf(reusable?.condition?.visitDate?.takeIf { !it.isBefore(LocalDate.now(zone)) } ?: LocalDate.now(zone).plusDays(7)) }
     var release by remember { mutableStateOf(Instant.now().plusSeconds(120).atZone(zone).withNano(0)) }
     var minutes by rememberSaveable { mutableStateOf((reusable?.maxRuntimeMinutes ?: prefs.getInt("defaultMinutes", 30)).toString()) }
@@ -406,30 +409,30 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     var insurance by rememberSaveable { mutableStateOf(reusable?.paymentPreference?.let { it == PaymentPreference.INSURANCE_FIRST } ?: prefs.getBoolean("defaultInsurance", true)) }
     var accepted by rememberSaveable { mutableStateOf(false) }
     var departments by remember { mutableStateOf(emptyList<DepartmentRef>()) }
-    var candidates by remember { mutableStateOf(emptyList<Candidate>()) }
     var loading by remember { mutableStateOf(false) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var pick by remember { mutableStateOf<String?>(null) }
     var search by remember { mutableStateOf("") }
     val session = connection.session
     val patient = if (demo) demoPatient else session?.reference?.takeUnless { connection.needsReconnect }
+    val currentPatient by rememberUpdatedState(patient)
     fun condition(): VisitCondition? = runCatching { VisitCondition(patient ?: return null, department, doctorCode, doctorName, date, start, end, purpose, yuanToFen(fee)) }.getOrNull()
     fun loadDepartments() {
         if (patient == null) return
         loading = true; loadError = null
-        scope.launch { try { departments = withContext(Dispatchers.IO) { graph.gateway.departments(patient) }; pick = "department" }
-            catch (e: Exception) { loadError = (e as? HospitalException)?.safeMessage ?: "科室加载失败，请重新连接或稍后刷新" }
+        val requestedPatient = patient
+        scope.launch { try {
+                val loaded = withContext(Dispatchers.IO) { graph.gateway.departments(requestedPatient) }
+                if (currentPatient == requestedPatient) { departments = loaded; pick = "department" }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { if (currentPatient == requestedPatient) loadError = (e as? HospitalException)?.safeMessage ?: "科室加载失败，请重新连接或稍后刷新" }
             finally { loading = false } }
     }
-    fun loadDoctors() {
-        if (patient == null || purpose.isBlank()) { loadError = "请先选择就诊人和是否专程来京就医"; return }
-        loading = true; loadError = null
-        scope.launch { try {
-            val c = VisitCondition(patient, department, doctorCode.ifBlank { "pending" }, doctorName.ifBlank { "待选医生" }, date, start, end, purpose, runCatching { yuanToFen(fee) }.getOrDefault(8000))
-            candidates = withContext(Dispatchers.IO) { graph.gateway.candidates(c) }; pick = "doctor"
-        } catch (e: Exception) { loadError = (e as? HospitalException)?.safeMessage ?: "医生加载失败，请刷新科室或重新连接" }
-        finally { loading = false } }
-    }
+    val query = patient?.takeIf { department.code.isNotBlank() && purpose in setOf("1", "2") && !date.isBefore(LocalDate.now(zone)) }
+        ?.let { ScheduleQuery(it, department, date, purpose) }
+    val currentSelection = doctorSelection?.takeIf { it.query == query }
+    val scheduleState = remember(query) { SchedulePickerState() }
+    LaunchedEffect(query) { doctorSelection = null; doctorCode = ""; doctorName = ""; accepted = false; loadError = null; if (step > 1) step = 1 }
     Content {
         BackTitle("新建挂号任务") { if (step > 1) step-- else onBack() }
         Text("$step / 3  ·  ${listOf("就诊条件", "执行设置", "确认启用")[step-1]}", color = Teal, fontWeight = FontWeight.SemiBold)
@@ -439,7 +442,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
             Panel {
                 Text(if (graph.mode.demoEnabled) "运行模式" else "就诊人", fontWeight = FontWeight.SemiBold)
                 if (graph.mode.demoEnabled) {
-                    Choice("演示模式 · 不连接医院", demo) { demo = true; department = DemoGateway.department; doctorCode = "demo-doctor"; doctorName = "林医生（虚构）" }
+                    Choice("演示模式 · 不连接医院", demo) { demo = true; department = DemoGateway.department; doctorSelection = null; doctorCode = ""; doctorName = "" }
                     Choice("真实挂号 · 使用本人服务号", !demo) { demo = false; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = "" }
                 }
                 if (demo) {
@@ -466,16 +469,23 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 Choice("是", purpose == "1") { purpose = "1" }
                 Choice("否", purpose == "2") { purpose = "2" }
                 OutlinedButton(onClick = ::loadDepartments, enabled = patient != null && !loading, modifier = Modifier.fillMaxWidth()) { Text("科室：${department.name}") }
-                OutlinedButton(onClick = ::loadDoctors, enabled = patient != null && department.code.isNotBlank() && !loading, modifier = Modifier.fillMaxWidth()) { Text("医生：${doctorName.ifBlank { "请选择医生" }}") }
                 OutlinedButton(onClick = { selectDate(context, date) { date = it } }, modifier = Modifier.fillMaxWidth()) { Text("就诊日期：$date") }
-                Text("可接受就诊时段", color = Muted)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(Triple("全天",0,1440), Triple("上午",0,720), Triple("下午",720,1440)).forEach { (label,s,e) -> FilterChip(selected = start == s && end == e, onClick = { start=s; end=e }, label = { Text(label) }) }
+                key(query) {
+                    DailySchedulePicker(query, currentSelection, load = graph.gateway::schedule, state = scheduleState) { selected ->
+                        doctorSelection = selected; doctorCode = selected?.doctor?.code.orEmpty(); doctorName = selected?.doctor?.name.orEmpty(); accepted = false
+                    }
                 }
-                OutlinedButton(onClick = { selectTime(context, start / 60, start % 60) { h,m -> start=h*60+m; selectTime(context, minOf(end / 60,23), end%60) { eh,em -> end=eh*60+em } } }, modifier = Modifier.fillMaxWidth()) { Text("自定义时段 · ${periodLabel(start,end)}") }
-                Text("没有目标日期排班时，可以保留该科室已确认的医生；放号时只匹配该医生。", color = Muted, fontSize = 13.sp)
+                if (currentSelection != null) {
+                    Text(if (currentSelection.observation.doctorConfirmed) "可接受就诊时段" else "可接受就诊时段（偏好）", color = Muted)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(Triple("全天",0,1440), Triple("上午",0,720), Triple("下午",720,1440)).forEach { (label,s,e) -> FilterChip(selected = start == s && end == e, onClick = { start=s; end=e }, label = { Text(label) }) }
+                    }
+                    OutlinedButton(onClick = { selectTime(context, start / 60, start % 60) { h,m -> start=h*60+m; selectTime(context, minOf(end / 60,23), end%60) { eh,em -> end=eh*60+em } } }, modifier = Modifier.fillMaxWidth()) { Text("自定义时段 · ${periodLabel(start,end)}") }
+                    Text("已选：$date · $doctorName", color = Teal)
+                    if (!currentSelection.observation.doctorConfirmed) Text("目标日排班待确认", color = Muted)
+                }
             }
-            Primary("下一步 · 执行设置", patient != null && department.code.isNotBlank() && doctorCode.isNotBlank() && purpose.isNotBlank() && start < end && !date.isBefore(LocalDate.now(zone))) { step = 2 }
+            Primary("下一步 · 执行设置", patient != null && currentSelection != null && !loading && department.code.isNotBlank() && doctorCode.isNotBlank() && purpose.isNotBlank() && start < end && !date.isBefore(LocalDate.now(zone))) { step = 2 }
         } else if (step == 2) {
             Panel {
                 Text("何时开始查号", fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
@@ -492,7 +502,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 }
                 OutlinedTextField(minutes, { minutes=it }, label = { Text("最长运行时长（分钟）") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), isError = minutes.toIntOrNull()?.let { it>0 } != true)
                 minutes.toIntOrNull()?.takeIf { it>0 }?.let { Text("停止查号：${timestamp(release.toInstant().plusSeconds(it.toLong()*60))}", color = Teal) }
-                Text("从放号时刻开始计时。医院付款期限独立计算。", color = Muted, fontSize = 13.sp)
+                Text("从计划查号时刻开始计时。此时间不改变医院号源状态。", color = Muted, fontSize = 13.sp)
             }
             Panel {
                 OutlinedTextField(fee, { fee=it }, label = { Text("费用上限（元）") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth(), isError = runCatching { yuanToFen(fee) }.isFailure)
@@ -500,37 +510,36 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 Choice("我在微信全额付款", !insurance) { insurance=false }
                 Text("医保不可用时提醒你处理，不自动切换支付方式。付款由你在微信完成。", color = Muted)
             }
-            Primary("下一步 · 核对并启用", condition() != null && minutes.toIntOrNull()?.let { it>0 } == true && release.toInstant().isAfter(Instant.now())) { step=3 }
+            Primary("下一步 · 核对并启用", currentSelection != null && condition() != null && minutes.toIntOrNull()?.let { it>0 } == true && release.toInstant().isAfter(Instant.now())) { step=3 }
         } else {
             val condition = condition()
-            if (condition != null) {
+            if (condition != null && currentSelection != null) {
                 Panel {
                     Badge(if (demo) "演示任务" else "将自动提交真实医院挂号", !demo)
                     Value("就诊人", if (demo) "演示就诊人（虚构）" else session?.patientName ?: "尚未连接")
                     Value("医院", patient?.let { graph.gateway.binding(it).hospitalName } ?: "尚未连接")
                     Value("科室 / 医生", "${department.name} · $doctorName")
                     Value("就诊日期 / 时段", "$date · ${periodLabel(start,end)}")
-                    Value("放号时间", timestamp(release.toInstant()))
+                    ScheduleSummary(currentSelection?.observation)
+                    Value("计划查号时间", timestamp(release.toInstant()))
                     Value("最长运行", "$minutes 分钟")
                     Value("费用 / 支付", "${money(condition.maxFeeFen)} 以内 · ${if (insurance) "优先医保" else "全额支付"}")
                 }
                 RuntimeSettings(graph)
                 Choice("我已核对就诊人和条件，允许到点自动提交一次符合条件的挂号", accepted) { accepted = !accepted }
-                fun save(enable: Boolean) { onSave(BookingTask(UUID.randomUUID().toString(), condition, release.toInstant(), minutes.toInt(), if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER, demo=demo, binding=graph.gateway.binding(condition.patient)), enable) }
+                fun save(enable: Boolean) { onSave(BookingTask(UUID.randomUUID().toString(), condition, release.toInstant(), minutes.toInt(), if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER, demo=demo, binding=graph.gateway.binding(condition.patient), initialSchedule=currentSelection?.observation), enable) }
                 Primary(if (demo) "开启演示挂号任务" else "确认开启自动挂号", accepted && !busy && readiness(context, patient != null).ready) { save(true) }
                 OutlinedButton(onClick = { save(false) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("先保存草稿") }
             }
         }
     }
-    if (pick != null) AlertDialog(onDismissRequest = { pick = null; search = "" }, title = { Text(if (pick == "department") "选择科室" else "选择医生") }, text = {
+    if (pick == "department") AlertDialog(onDismissRequest = { pick = null; search = "" }, title = { Text("选择科室") }, text = {
         Column {
             OutlinedTextField(search, { search=it }, label = { Text("搜索") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())) {
-                if (pick == "department") departments.filter { it.name.contains(search) }.forEach { d -> TextButton(onClick = { department=d; doctorCode=""; doctorName=""; pick=null; search="" }, modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) { Text("${d.name} · ${d.parentName}") } }
-                else {
-                    val doctors = candidates.distinctBy { it.doctorCode }.filter { it.doctorName.contains(search) }
-                    if (doctors.isEmpty()) Text("该科室暂未返回可核验的医生排班，请稍后刷新。", Modifier.padding(12.dp))
-                    doctors.forEach { c -> TextButton(onClick = { doctorCode=c.doctorCode; doctorName=c.doctorName; pick=null; search="" }, modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) { Text("${c.doctorName} · ${money(c.feeFen)}") } }
+                departments.filter { it.name.contains(search) }.forEach { d ->
+                    TextButton(onClick = { department=d; doctorSelection=null; doctorCode=""; doctorName=""; pick=null; search="" },
+                        modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) { Text("${d.name} · ${d.parentName}") }
                 }
             }
         }

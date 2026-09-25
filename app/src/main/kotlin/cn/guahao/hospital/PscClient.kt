@@ -84,11 +84,13 @@ class PscClient(private val sessions: SessionRepository, private val maySubmit: 
     override suspend fun departments(patient: PatientRef): List<DepartmentRef> = withSession(patient) { s, http ->
         PscPageParser.departments(http.get("/regis/initDept", sessionQuery(s)))
     }
-    override suspend fun candidates(condition: VisitCondition): List<Candidate> = withSession(condition.patient) { s, http ->
-        val d = condition.department
-        PscPageParser.schedule(http.get("/regis/initRegis", sessionQuery(s) + mapOf(
+    override suspend fun candidates(condition: VisitCondition) = schedule(condition.scheduleQuery()).days.flatMap { it.candidates }
+    override suspend fun schedule(query: ScheduleQuery): DepartmentSchedule = withSession(query.patient) { s, http ->
+        val d = query.department
+        val days = PscPageParser.schedule(http.get("/regis/initRegis", sessionQuery(s) + mapOf(
             "deptCode1" to d.parentCode, "deptCode2" to d.code, "deptNm1" to d.parentName,
-            "deptNm2" to d.name, "purpose" to condition.purpose, "oriDeptTwo" to d.originCode)), d).flatMap { it.candidates }
+            "deptNm2" to d.name, "purpose" to query.purpose, "oriDeptTwo" to d.originCode)), d)
+        DepartmentSchedule(d, days.map { it.asScheduleDay() })
     }
     private suspend fun access(patient: PatientRef, function: String): Boolean = withSession(patient) { s, http ->
         val reply = http.post("/function/functionControl", mapOf("functionid" to function, "ptno" to s.ptno, "ptnoKey" to s.ptnoKey))
