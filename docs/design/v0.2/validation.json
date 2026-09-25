@@ -52,5 +52,30 @@
     "source": "../../research/2026-09-25-114-mobile-entry-and-web-closure.md",
     "business_api": "unverified",
     "proxy_or_certificate_changed": false
+  },
+  "latest_scoped_https_verification": {
+    "date": "2026-09-25",
+    "publication": "local_only",
+    "consent": "explicit_user_confirmation",
+    "status": "waiting_for_user_ca_installation",
+    "record": "../../research/2026-09-25-114-scoped-https-verification.md",
+    "phone_proxy_enabled": false,
+    "phone_capture_started": false,
+    "business_api_verified": false,
+    "checks": {
+      "device_baseline": "five_keys_absent_reverse_empty",
+      "loopback_listen": "127.0.0.1:18888_only",
+      "target_tls": "verified_with_test_ca",
+      "non_target_tls": "original_server_certificate_preserved",
+      "upstream_tls_verification": true,
+      "synthetic_redaction": "passed",
+      "restore_simulation": "passed"
+    },
+    "remaining": [
+      "normal_user_ca_installation",
+      "bounded_mobile_capture",
+      "actual_restore_readback_after_capture",
+      "user_ca_removal_and_temporary_ca_deletion"
+    ]
   }
 }
