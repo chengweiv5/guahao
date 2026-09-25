@@ -1,0 +1,81 @@
+{
+  "date": "2026-09-25",
+  "versionName": "0.1.0",
+  "versionCode": 1,
+  "applicationId": "cn.guahao",
+  "apkSha256": "5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e",
+  "apkBytes": 10509058,
+  "minSdk": 26,
+  "targetSdk": 36,
+  "signing": "Android Debug, APK Signature Scheme v2 verified",
+  "jvmTarget": 17,
+  "buildJdk": "21.0.7",
+  "gradle": "8.13",
+  "agp": "8.13.2",
+  "kotlin": "2.0.21",
+  "unitTests": {
+    "core": [
+      {
+        "name": "cn.guahao.core.BookingEngineTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0"
+      },
+      {
+        "name": "cn.guahao.core.BookingPolicyTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0"
+      },
+      {
+        "name": "cn.guahao.core.PaymentPolicyTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0"
+      },
+      {
+        "name": "cn.guahao.core.PscParserTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0"
+      }
+    ],
+    "app": [
+      {
+        "name": "cn.guahao.hospital.PscClientTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0"
+      }
+    ]
+  },
+  "instrumentation": {
+    "tests": 5,
+    "failures": 0,
+    "device": "easy_trip_p60pro emulator",
+    "androidApi": 31,
+    "resolution": "1073x2321 override, 1220x2700 physical",
+    "density": 440,
+    "alarm": {
+      "release": "2026-09-25T01:28:28.551Z",
+      "attempt": "2026-09-25T01:28:28.865Z",
+      "delayMillis": "314",
+      "phase": "AWAITING_PAYMENT",
+      "order": "INSURANCE_PENDING",
+      "screenOn": "false"
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 9,
+    "warningType": "UseKtx convenience suggestions"
+  },
+  "realHospitalCalls": 0,
+  "mate60ProConnected": false,
+  "limitations": [
+    "Independent Android service-account import and live read-only schemas not yet verified",
+    "Long screen-off Doze and Huawei battery-management acceptance not yet run",
+    "Physical-device process recovery, reboot, permissions and Wi-Fi/mobile handover not yet run",
+    "No real booking/payment was created during development"
+  ]
+}
