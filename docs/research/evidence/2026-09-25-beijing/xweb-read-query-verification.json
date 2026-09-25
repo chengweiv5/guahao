@@ -1206,11 +1206,15 @@
       "task_forward_absent": true,
       "baseline_restored": true
     },
-    "debug_flag_restoration": "close requested; user confirmation pending; last observed two sockets, no ADB forwarding",
+    "debug_flag_restoration": "user_reported_execution_success; one_existing_webview_debug_socket_remains; awaiting_app_restart_readback",
     "debug_socket_readback": {
-      "at": "2026-09-25T04:24:53.652841+00:00",
-      "debug_socket_count": 2,
-      "forward_empty": true
+      "at": "2026-09-25T04:32:21.085076+00:00",
+      "user_close_command": "execution_success_then_wechat_page",
+      "debug_socket_count": 1,
+      "forward_empty": true,
+      "reverse_matches_baseline": true,
+      "proxy_settings_match_baseline": true,
+      "remaining_socket_scope": "previously_observed_jingtong_webview_process"
     },
     "capture_process_count_verified": 0
   },
