@@ -199,8 +199,17 @@
         "task_forward_absent": true,
         "baseline_restored": true
       },
-      "debug_flag_restoration": "user_reported_execution_success; one_existing_webview_debug_socket_remains; awaiting_app_restart_readback",
+      "debug_flag_restoration": "user_close_command_success; final_readback_zero_debug_sockets",
       "debug_socket_readback": {
+        "at": "2026-09-25T04:37:43.314007+00:00",
+        "debug_socket_count": 0,
+        "forward_empty": true,
+        "reverse_matches_baseline": true,
+        "proxy_settings_match_baseline": true,
+        "user_close_command": "execution_success_then_wechat_page"
+      },
+      "capture_process_count_verified": 0,
+      "intermediate_debug_socket_readback": {
         "at": "2026-09-25T04:32:21.085076+00:00",
         "user_close_command": "execution_success_then_wechat_page",
         "debug_socket_count": 1,
@@ -209,7 +218,7 @@
         "proxy_settings_match_baseline": true,
         "remaining_socket_scope": "previously_observed_jingtong_webview_process"
       },
-      "capture_process_count_verified": 0
+      "complete": true
     }
   }
 }
