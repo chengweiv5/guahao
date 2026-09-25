@@ -1,0 +1,62 @@
+{
+  "verified_at": "2026-09-25T10:00:08.079215+08:00",
+  "mode": "public_read_only",
+  "publication": "local_only",
+  "status": "partial_blocked_on_mobile_medical_entry",
+  "observations": [
+    {
+      "id": "114-root-http",
+      "url": "https://www.114yygh.com/",
+      "http_status": 202,
+      "body_bytes": 1760,
+      "body_sha256": "f75cb7442b77690f87141f84daa045945628ebbbdf333db6599b7f2ba2f15ba0",
+      "empty_body": true,
+      "business_links": 0,
+      "business_api_success": false
+    },
+    {
+      "id": "114-iab",
+      "url": "https://www.114yygh.com/",
+      "visible_result": "blank",
+      "medical_page_observed": false
+    },
+    {
+      "id": "114-chrome",
+      "attempt": "normal dedicated browser tab",
+      "result": "tool_authentication_error_before_tab_creation",
+      "platform_login_attempted": false
+    },
+    {
+      "id": "jingtong-help-iab",
+      "url": "https://portal.bjt.beijing.gov.cn/p/help/help.html?pubKey=null",
+      "visible_steps": [
+        "打开并登录京通APP",
+        "扫一扫",
+        "扫码后确认登录",
+        "跳转相关业务系统"
+      ],
+      "medical_authentication_started": false
+    },
+    {
+      "id": "114-government-guide-qr",
+      "source_url": "https://www.beijing.gov.cn/fuwu/bmfw/bmjy/202109/t20210918_2496958.html",
+      "decoded_public_url": "http://weixin.qq.com/q/02hbHpF2FvbNT10000003Z",
+      "browser_http_status_chain": [
+        302,
+        404
+      ],
+      "medical_page_observed": false
+    }
+  ],
+  "medical_capabilities": {
+    "anonymous_hospital_directory": "unverified",
+    "departments": "unverified",
+    "schedules": "unverified",
+    "medical_session": "unverified",
+    "patient_binding": "unverified",
+    "cross_entry_session": "unverified",
+    "submit": "not_executed",
+    "payment": "not_executed"
+  },
+  "next_input": "official mobile medical entry or page-stage description; no passwords, OTPs or identity documents"
+}

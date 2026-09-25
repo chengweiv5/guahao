@@ -71,6 +71,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
 - [v0.2 北京通用平台设计](docs/design/v0.2/2026-09-25-beijing-platform-design.md)：统一平台选择、多医院与渠道模型、认证/订单流程、兼容与验收条件；本任务仅完成设计，待评审。
 - [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据与真实接口尚待验证的边界。
+- [v0.2 入口续验](docs/research/2026-09-25-beijing-platform-live-verification.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：本地保留；已核实官方入口与扫码机制，医疗接口验证等待手机官方入口。
 - [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计；其余方向仍为候选，开发均未排期。
 - [服务号 v0.1 开发计划](docs/superpowers/plans/2026-09-24-service-account-v01.md)：会话导入、自动预约、锁屏执行、付款通知与设备验收。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。

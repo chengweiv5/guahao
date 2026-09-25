@@ -24,5 +24,21 @@
     "Research S12 remains search-index-only after origin 418; not a verified current API",
     "v0.1 code and database must be rechecked against its final delivery before v0.2 implementation",
     "No Feishu document created; delivery is repository design and research files"
-  ]
+  ],
+  "followup_verification": {
+    "date": "2026-09-25",
+    "publication": "local_only",
+    "status": "partial_blocked_on_mobile_medical_entry",
+    "record": "../../research/2026-09-25-beijing-platform-live-verification.md",
+    "medical_api_verified": false,
+    "new_verified_facts": [
+      "114 root HTTP 202 challenge shell",
+      "Jingtong App QR sign-in flow visible in official help",
+      "Official Jingtong App and mini-program user-system sharing statement"
+    ],
+    "checks": {
+      "local_links": "passed",
+      "evidence_json": "passed"
+    }
+  }
 }
