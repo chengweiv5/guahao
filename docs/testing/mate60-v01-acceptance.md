@@ -6,7 +6,8 @@
 
 - 应用：挂号，`cn.guahao`，`0.1.0`（versionCode 1）。
 - APK：`app/build/outputs/apk/debug/app-debug.apk`，约 11 MB，Android Debug 签名，v2 签名验证通过。
-- SHA-256：`5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e`。
+- 当前通知修复版 SHA-256：`879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818`；本机与手机已安装 APK 哈希一致。
+- 下方首轮与 10:15–10:16 锁屏验收使用原版 SHA-256：`5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e`。通知复验单独记载，不将旧测试结果记为新包重跑。
 - minSdk 26 / targetSdk 36 / compileSdk 36；不依赖 Google 服务。目标手机已实测 Android API 31，详见下方真机首轮记录。
 - 构建环境：macOS arm64，JDK 21.0.7（编译目标 17），Gradle 8.13，AGP 8.13.2，Kotlin 2.0.21。
 
@@ -135,6 +136,34 @@ adb -s <serial> shell am instrument -w -r -e class cn.guahao.AlarmRuntimeTest cn
 结论：目标机 **5 个不同功能测试已通过，锁屏用例重复两次均通过**；重复执行不重复计入功能项数。该结果覆盖 instrumentation 进程存活、USB 供电、约 10 秒后触发的演示执行，不等同于 30 分钟以上锁屏、深度 Doze、进程回收或真实医院联网保证。
 
 完整结构化结果：[mate60-lockscreen-passed.json](evidence/v0.1/mate60-lockscreen-passed.json)，内含两轮原始时间、JUnit 及电源事件文件引用。旧失败证据原样保留，并链接到最新通过记录。
+
+## 通知铃声与振动复验（2026-09-25 10:54–10:57）
+
+用户反馈一条结果通知的铃声、振动似乎未播完，并明确要求与华为系统通知设置的预览一致。应用保留原有 `execution`、`results` 通知类别及用户选择，不创建替代类别、不指定自定义双振动波形。
+
+诊断时，两个类别都已被用户开启铃声、振动；结果类别选中 `Bell.ogg`，媒体记录时长 2926ms。旧结果通知的实际记录却使用通用默认音、无振动，运行通知每秒更新且没有静默更新保护。旧版本的具体截断瞬间未被录音或物理测量，不能据此断言唯一根因。
+
+改动：结果通知每次读取当前类别的声音、振动和重要程度，同时填入华为兼容处理使用的通知字段；没有指定振动波形时使用系统振动选择。运行通知使用静默分组及只提醒一次，结果通知也只提醒一次。任务正常结束时先等待进度更新停止、移除前台通知，再发送结果，避免更新与结果交错。
+
+| 验证 | 结果 |
+| --- | --- |
+| 通知构造与生命周期 2 项 | 模拟器 OK（8.311s），真机 OK（8.450s）；进度静默、保持系统选择、移除进度后结果仍保留 |
+| 真实 AlarmManager / BookingService 演示 1 项 | 模拟器 OK（10.218s），真机 OK（13.811s）；到医保待付，服务结束后结果仍保留 |
+| 本机回归 | Android 契约测试 6/6；lint 0 errors、9 个既有 UseKtx 建议；生产及测试 APK 构建成功 |
+| 设置保留 | 安装前后两个通知类别转储完全一致；未清空应用数据、未卸载 |
+| 收尾回读 | 手机 APK 与本机哈希相同，BookingService 已退出，batteryAcknowledged 恢复本轮开始值 true |
+
+真机两轮均由系统选择 `haptic.notice.Bell`。第一次效果启动 10:54:39.049、停止 10:54:41.944，持续 2895ms。实际任务一轮：进度通知在 10:57:45.993 移除；结果通知在 10:57:46.037 入队；系统效果在 10:57:46.423 启动、10:57:49.307 停止，持续 2884ms；测试至 10:57:51.287 才清除该测试通知。通知清理晚于系统效果结束，进度更新均被系统静默处理。
+
+这些是系统组合铃声/振动效果及振动服务的生命周期日志，**不是外部录音或物理振动次数测量**。用户在重放后确认：“与系统预览一致，铃声和振动完整”。测试仅创建虚构演示任务，保留历史记录，无医院请求、真实锁号或付款；本节未重新验收长时间锁屏、深度 Doze 或真实医院联网。
+
+结构化记录：[notification-alert-verification.json](evidence/v0.1/notification-alert-verification.json)；原始 JUnit：[真机](evidence/v0.1/notification-alert-physical.txt)、[模拟器](evidence/v0.1/notification-alert-emulator.txt)；限定本 App 的 [系统播放事件](evidence/v0.1/notification-alert-system-events.txt)。用户表示第一次未听清，随后重放一条演示结果通知，测试通过（8.464s），不重复计入功能项数，用户随后确认与系统预览一致，铃声和振动完整；听感验收通过。复现通知测试：
+
+```bash
+adb -s <serial> shell am instrument -w -r -e class cn.guahao.NotificationAlertTest cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+请等提醒播放完再点击，点击自动清除通知会影响听感验收。本轮源码、文档及原 APK 备份位于 `/tmp/guahao-notification-fix-before/`；需要回退时先确认没有运行任务，再覆盖安装该目录下原 APK，可保留本机数据。源码使用本次提交的反向提交回退。
 
 ## 真机剩余验收
 

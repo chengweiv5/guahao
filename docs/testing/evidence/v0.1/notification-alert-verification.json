@@ -1,0 +1,110 @@
+{
+  "date": "2026-09-25",
+  "scope": "Synthetic notification regression on emulator and Huawei; no hospital requests, orders or payments.",
+  "requirement": "Use the sound and vibration selected in system notification settings; do not invent an application vibration waveform.",
+  "device": {
+    "model": "Huawei Mate 60 Pro / ALN-AL00",
+    "os": "HarmonyOS 4.2.0.223",
+    "androidApi": 31
+  },
+  "apkSha256": "879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818",
+  "previousApkSha256": "5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e",
+  "settings": {
+    "channelIds": [
+      "execution",
+      "results"
+    ],
+    "beforeAfterInstallIdentical": true,
+    "resultSound": "content://media/internal/audio/media/49",
+    "fileName": "Bell.ogg",
+    "fileDurationMs": 2926,
+    "vibrationEnabled": true,
+    "channelVibrationPattern": null,
+    "applicationCustomPattern": false
+  },
+  "changes": [
+    "Mirror live result-channel sound, importance and vibration choices into compatibility notification fields.",
+    "Suppress progress-notification alerts and repeat result alerts.",
+    "Join progress updates and remove foreground notification before posting result."
+  ],
+  "tests": {
+    "emulator": {
+      "notificationCases": 2,
+      "notificationElapsedSeconds": 8.311,
+      "serviceCases": 1,
+      "serviceElapsedSeconds": 10.218
+    },
+    "physical": {
+      "notificationCases": 2,
+      "notificationElapsedSeconds": 8.45,
+      "serviceCases": 1,
+      "serviceElapsedSeconds": 13.811
+    },
+    "methods": [
+      "runningUpdatesAreSilentAndOnlyAlertOnce",
+      "resultKeepsSystemAlertSettingsAndSurvivesProgressRemoval",
+      "alarmResultRemainsAfterServiceFinishes"
+    ],
+    "unit": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 9,
+      "warningIds": [
+        "UseKtx"
+      ]
+    },
+    "build": "assembleDebug, assembleDebugAndroidTest, testDebugUnitTest, lintDebug passed"
+  },
+  "playback": {
+    "timeZone": "Asia/Shanghai",
+    "vendorEffect": "haptic.notice.Bell",
+    "directNotification": {
+      "start": "10:54:39.049",
+      "stop": "10:54:41.944",
+      "durationMs": 2895,
+      "testCancellation": "10:54:47.051"
+    },
+    "actualService": {
+      "progressRemoved": "10:57:45.993",
+      "resultEnqueued": "10:57:46.037",
+      "systemPlayWithVibrate": "10:57:46.166",
+      "start": "10:57:46.423",
+      "stop": "10:57:49.307",
+      "durationMs": 2884,
+      "testCancellation": "10:57:51.287"
+    },
+    "meaning": "System logs show the vendor combined sound/vibration effect selected and its vibrator lifecycle. They are not an acoustic recording or a physical pulse count."
+  },
+  "cleanup": {
+    "batteryAcknowledged": "true",
+    "bookingServiceActive": false,
+    "installedApkSha256": "879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818",
+    "localApkSha256": "879366645b09383132a546238168fd6b66d3b192fc37970b4123059277c09818",
+    "apkMatches": true,
+    "channelsExtracted": 2
+  },
+  "subjectivePreviewComparison": {
+    "status": "passed",
+    "userConfirmation": "与系统预览一致，铃声和振动完整",
+    "afterReplay": true
+  },
+  "limitations": [
+    "The original perceived truncation was not acoustically or physically recorded; its precise cause remains unproven.",
+    "No fixed two-pulse waveform is specified by the application.",
+    "Long lock-screen, deep Doze and hospital-network acceptance were not repeated in this notification regression."
+  ],
+  "rawEvidence": [
+    "notification-alert-physical.txt",
+    "notification-alert-emulator.txt",
+    "notification-alert-system-events.txt"
+  ],
+  "listeningReplay": {
+    "result": "OK (1 test)",
+    "elapsedSeconds": 8.464,
+    "countsAsAdditionalCase": false
+  }
+}

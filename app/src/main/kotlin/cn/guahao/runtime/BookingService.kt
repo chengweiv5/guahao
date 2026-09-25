@@ -36,9 +36,12 @@ class BookingService : Service() {
                 try {
                     graph.engine.run(id, generation, UUID.randomUUID().toString())
                     if (graph.store.get(id).order != null) graph.preparePayment(id)
-                    val result = graph.store.get(id)
-                    if (result.phase != TaskPhase.STOPPED) graph.notifications.result(result)
                 } finally { updates.cancelAndJoin() }
+                // Finish/cancel the progress notification before the result takes over
+                // sound and vibration. No progress update may race with the result.
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                val result = graph.store.get(id)
+                if (result.phase != TaskPhase.STOPPED) graph.notifications.result(result)
             } catch (e: CancellationException) { throw e }
             catch (_: Exception) { graph.notifications.attention() }
             finally {

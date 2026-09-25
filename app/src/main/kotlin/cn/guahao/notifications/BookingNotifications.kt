@@ -2,7 +2,6 @@ package cn.guahao.notifications
 
 import android.app.*
 import android.content.*
-import android.os.Build
 import cn.guahao.MainActivity
 import cn.guahao.R
 import cn.guahao.core.*
@@ -24,13 +23,28 @@ class BookingNotifications(private val context: Context) {
         .setVisibility(Notification.VISIBILITY_PRIVATE)
         .setPublicVersion(Notification.Builder(context, channel).setSmallIcon(R.drawable.ic_booking)
             .setContentTitle(title).setContentText("解锁后查看详情").setContentIntent(open(id)).build())
+    @Suppress("DEPRECATION")
+    private fun resultBuilder(id: String?, title: String, text: String): Notification.Builder {
+        val channel = manager.getNotificationChannel("results")
+        // Keep the existing channel and the user's selections. Huawei's compatibility
+        // layer also reads legacy alert fields, so mirror the live channel there.
+        val pattern = if (channel.shouldVibrate()) channel.vibrationPattern else null
+        val useSystemVibration = channel.shouldVibrate() && pattern == null
+        return builder("results", id, title, text).setOnlyAlertOnce(true)
+            .setPriority(if (channel.importance >= NotificationManager.IMPORTANCE_HIGH) Notification.PRIORITY_HIGH else Notification.PRIORITY_DEFAULT)
+            .setSound(channel.sound, channel.audioAttributes)
+            .setVibrate(pattern)
+            .setDefaults(if (useSystemVibration) Notification.DEFAULT_VIBRATE else 0)
+    }
     fun running(record: TaskRecord?): Notification {
         val id = record?.task?.id
         val stop = PendingIntent.getBroadcast(context, 1,
             Intent(context, TaskReceiver::class.java).setAction("cn.guahao.STOP").putExtra("taskId", id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return builder("execution", id, if (record?.task?.demo == true) "演示挂号任务运行中" else "挂号任务运行中",
-            record?.note ?: "正在准备任务").setOngoing(true).addAction(Notification.Action.Builder(null, "停止任务", stop).build()).build()
+            record?.note ?: "正在准备任务").setOngoing(true).setOnlyAlertOnce(true)
+            .setGroup("guahao.execution.silent").setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY)
+            .addAction(Notification.Action.Builder(null, "停止任务", stop).build()).build()
     }
     fun updateRunning(record: TaskRecord) { manager.notify(1, running(record)) }
     fun result(record: TaskRecord) {
@@ -41,8 +55,8 @@ class BookingNotifications(private val context: Context) {
             TaskPhase.EXPIRED -> "挂号任务已结束"
             else -> "挂号任务需要处理"
         }
-        manager.notify(record.task.id.hashCode(), builder("results", record.task.id,
+        manager.notify(record.task.id.hashCode(), resultBuilder(record.task.id,
             (if (record.task.demo) "演示 · " else "") + title, "点击查看任务状态和官方处理入口").setAutoCancel(true).build())
     }
-    fun attention() { manager.notify(2, builder("results", null, "挂号任务需要检查", "请打开 App 检查会话、定时与后台运行权限").setAutoCancel(true).build()) }
+    fun attention() { manager.notify(2, resultBuilder(null, "挂号任务需要检查", "请打开 App 检查会话、定时与后台运行权限").setAutoCancel(true).build()) }
 }
