@@ -1,0 +1,140 @@
+{
+  "recorded_at": "2026-09-25T03:19:35.330350+00:00",
+  "publication": "local_only",
+  "scope": "114 homepage, hospital, department and schedule only; no booking/payment/patient/orders",
+  "user_ca_installation": "user_confirmed",
+  "start_at": "2026-09-25T03:11:14.464406+00:00",
+  "stop_at": "2026-09-25T03:15:22.428954+00:00",
+  "stop_reason": "target_client_tls_failure_triggered_automatic_stop",
+  "user_observation": "certificate_or_network_error",
+  "sanitized_events": [
+    {
+      "event": "tls_client_failed",
+      "host": "www.114yygh.com",
+      "category": "certificate_rejected",
+      "at": "2026-09-25T03:15:21.912350+00:00"
+    },
+    {
+      "event": "tls_client_established",
+      "host": "www.114yygh.com",
+      "at": "2026-09-25T03:15:22.064365+00:00"
+    },
+    {
+      "event": "response",
+      "host": "www.114yygh.com",
+      "method": "POST",
+      "path_template": "/{segment}/{segment}/{segment}",
+      "query_fields": [
+        "a",
+        "brkey",
+        "cmt",
+        "d",
+        "if",
+        "isp",
+        "mt",
+        "s",
+        "v"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "request_cookie_present": true,
+      "request_authorization_present": false,
+      "response_set_cookie_present": true,
+      "response_schema": {
+        "rc": "<number>"
+      },
+      "at": "2026-09-25T03:15:22.578836+00:00"
+    }
+  ],
+  "interpretation": {
+    "certificate_pinning": "not_established; coarse certificate-related client error only, raw error not retained",
+    "mixed_tls_results": "one connection failed, one parallel connection succeeded before shutdown; no deliberate retry",
+    "http_200": "opaque POST response with rc field only; not catalog/department/schedule evidence",
+    "authentication": "cookie presence only; authentication requirements and independent session not verified",
+    "business_api_verified": false
+  },
+  "cleanup": {
+    "proxy_and_reverse_readback": {
+      "at": "2026-09-25T03:15:23.078661+00:00",
+      "settings_match_baseline": true,
+      "reverse_match_baseline": true,
+      "settings": {
+        "http_proxy": {
+          "exists": false,
+          "value": null
+        },
+        "global_http_proxy_host": {
+          "exists": false,
+          "value": null
+        },
+        "global_http_proxy_port": {
+          "exists": false,
+          "value": null
+        },
+        "global_http_proxy_exclusion_list": {
+          "exists": false,
+          "value": null
+        },
+        "global_proxy_pac_url": {
+          "exists": false,
+          "value": null
+        }
+      },
+      "reverse_list": ""
+    },
+    "runner_and_proxy_exited": true,
+    "listener_absent": true,
+    "phone_downloaded_public_certificate_deleted": true,
+    "local_ca_private_material_deleted": true,
+    "raw_http_flow_or_credentials_saved": false,
+    "installed_user_ca_removal": "user_confirmed_removed",
+    "official_page_recovery": "user_confirmed_normal_after_closing_old_page_and_reentering_official_menu",
+    "post_capture_network_check": {
+      "at": "2026-09-25T03:19:11.057847+00:00",
+      "explicit_no_proxy_reset_applied": true,
+      "settings_observer_wait_seconds": 3,
+      "baseline_restored_after_reset": true,
+      "connectivity_dump_readable": true,
+      "temporary_proxy_reference_present": false,
+      "contains_any_http_proxy_field": false
+    },
+    "final_proxy_and_reverse_readback": {
+      "at": "2026-09-25T03:19:08.803551+00:00",
+      "settings_match_baseline": true,
+      "reverse_match_baseline": true,
+      "settings": {
+        "http_proxy": {
+          "exists": false,
+          "value": null
+        },
+        "global_http_proxy_host": {
+          "exists": false,
+          "value": null
+        },
+        "global_http_proxy_port": {
+          "exists": false,
+          "value": null
+        },
+        "global_http_proxy_exclusion_list": {
+          "exists": false,
+          "value": null
+        },
+        "global_proxy_pac_url": {
+          "exists": false,
+          "value": null
+        }
+      },
+      "reverse_list": ""
+    }
+  },
+  "ui_error_evidence": {
+    "source_file": "20260925-111755.jpeg",
+    "source_sha256": "ce4d75cff5d84d0a2597cf8a6867b321e44cc731838a4159b3981b82f8b37f2f",
+    "image_copied_to_repository": false,
+    "domain": "www.114yygh.com",
+    "displayed_time": "11:15",
+    "error": "-5,net::ERR_PROXY_CONNECTION_FAILED",
+    "meaning": "proxy connection failure, not a certificate error message",
+    "recovery": "explicit system no-proxy reset followed by closing old WeChat page and reentering official menu restored access; exact app cache cause not independently proven"
+  }
+}

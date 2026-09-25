@@ -57,10 +57,10 @@
     "date": "2026-09-25",
     "publication": "local_only",
     "consent": "explicit_user_confirmation",
-    "status": "waiting_for_user_ca_installation",
+    "status": "attempt_completed_stopped_on_tls_failure_business_api_unverified",
     "record": "../../research/2026-09-25-114-scoped-https-verification.md",
     "phone_proxy_enabled": false,
-    "phone_capture_started": false,
+    "phone_capture_started": true,
     "business_api_verified": false,
     "checks": {
       "device_baseline": "five_keys_absent_reverse_empty",
@@ -69,13 +69,30 @@
       "non_target_tls": "original_server_certificate_preserved",
       "upstream_tls_verification": true,
       "synthetic_redaction": "passed",
-      "restore_simulation": "passed"
+      "restore_simulation": "passed",
+      "restore_actual_readback": "passed_five_keys_absent_and_reverse_empty",
+      "runtime_no_proxy": "passed_after_explicit_no_proxy_reset",
+      "proxy_process_exit_and_listener_absence": "passed",
+      "phone_downloaded_certificate_deletion": "passed",
+      "local_ca_private_material_deletion": "passed",
+      "raw_flow_or_credential_saved": false,
+      "user_ca_removal": "user_confirmed",
+      "official_page_recovery": "user_confirmed"
     },
-    "remaining": [
-      "normal_user_ca_installation",
-      "bounded_mobile_capture",
-      "actual_restore_readback_after_capture",
-      "user_ca_removal_and_temporary_ca_deletion"
+    "remaining": [],
+    "phone_capture_finished": true,
+    "user_ca_installed_during_test": true,
+    "user_ca_removed": "user_confirmed",
+    "official_page_recovered": "user_confirmed_after_reentry",
+    "evidence": "../../research/evidence/2026-09-25-beijing/scoped-https-capture.json",
+    "http_200_business_success": false,
+    "stop_reason": "target_client_tls_failure",
+    "ui_error": "ERR_PROXY_CONNECTION_FAILED",
+    "api_limitations": [
+      "No hospital, department or schedule API success evidence",
+      "Parallel TLS success and certificate-related failure do not establish pinning",
+      "Opaque POST with rc field is not identified as medical API",
+      "Independent authentication and Android product integration remain unverified"
     ]
   }
 }
