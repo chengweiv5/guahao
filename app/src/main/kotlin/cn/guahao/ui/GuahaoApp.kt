@@ -61,6 +61,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         val scope = rememberCoroutineScope()
         var records by remember { mutableStateOf(emptyList<TaskRecord>()) }
         var connection by remember { mutableStateOf(HospitalConnection()) }
+        var connections by remember { mutableStateOf(emptyList<HospitalConnection>()) }
         val session = connection.session
         var page by rememberSaveable { mutableStateOf(if (initialTask != null) "detail" else "home") }
         var selected by rememberSaveable { mutableStateOf(initialTask) }
@@ -71,7 +72,10 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         var resolveTask by remember { mutableStateOf<String?>(null) }
         var now by remember { mutableStateOf(Instant.now()) }
         val snackbar = remember { SnackbarHostState() }
-        suspend fun reload() = withContext(Dispatchers.IO) { graph.visibleRecords() to graph.sessions.connection() }.let { records = it.first; connection = it.second }
+        suspend fun reload() {
+            val data = withContext(Dispatchers.IO) { Triple(graph.visibleRecords(), graph.sessions.connection(), graph.sessions.connections()) }
+            records = data.first; connection = data.second; connections = data.third
+        }
         fun work(block: suspend () -> Unit) {
             if (busy) return
             busy = true
@@ -103,7 +107,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                 if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
                 when(page) {
                     "home", "history" -> Content {
-                        Text("佑安医院 · 微信服务号", color = Muted, fontSize = 13.sp)
+                        Text("按医院独立执行 · 到点自动挂号", color = Muted, fontSize = 13.sp)
                         Heading(if (page == "home") "挂号任务" else "挂号记录")
                         Text(if (page == "home") "提前设置，到点自动挂号" else "任务结果和医院付款状态", color = Muted)
                         if (page == "home") Primary("＋ 新建挂号任务", !busy) { reuse = null; editorKey++; page = "editor" }
@@ -116,6 +120,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         }
                         display.forEach { r ->
                             Panel(onClick = { selected = r.task.id; page = "detail" }) {
+                                Text(r.task.hospitalName, color = Muted)
                                 Badge((if (r.task.demo) "演示 · " else "") + phaseLabel(r.phase), r.order != null || r.phase == TaskPhase.NEEDS_ATTENTION)
                                 if (r.phase == TaskPhase.WAITING) {
                                     Text(r.task.releaseAt.atZone(zone).format(DateTimeFormatter.ofPattern("HH:mm:ss")), fontSize = 42.sp, fontWeight = FontWeight.SemiBold)
@@ -137,6 +142,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                     }
                     "session" -> Content {
                         BackTitle("连接医院") { page = "settings" }
+                        ConnectionPicker(connections, session?.reference, busy) { ref -> work { withContext(Dispatchers.IO) { graph.sessions.select(ref) } } }
                         SessionScreen(connection, busy, onCheck = { work { withContext(Dispatchers.IO) { graph.checkConnection(true) } } },
                             onImport = { raw -> work { withContext(Dispatchers.IO) { graph.importSession(raw) }; reload(); snackbar.showSnackbar("连接已更新，请核对就诊人；旧任务不会自动恢复") } },
                             onWeChat = { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "未安装微信，请在手机微信中打开北京佑安医院服务号" })
@@ -145,7 +151,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         Heading("设置")
                         Panel {
                             Text("医院连接", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                            Text("北京佑安医院 · 微信服务号", color = Muted)
+                            Text("${connections.size} 个医院 / 就诊人连接", color = Muted)
                             ConnectionSummary(connection)
                             if (session != null && !connection.needsReconnect) OutlinedButton(
                                 onClick = { work { withContext(Dispatchers.IO) { graph.checkConnection(true) } } },
@@ -157,10 +163,11 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         Panel { Text("数据留在本机", fontWeight = FontWeight.SemiBold); Text("会话、就诊资料与任务加密保存，不进行系统备份。不会自动读取剪贴板、读取微信数据或自动付款。", color = Muted) }
                     }
                     "editor" -> key(editorKey) {
-                        TaskEditorScreen(graph, connection, reuse, busy, onBack = { page = "home" },
+                        TaskEditorScreen(graph, connection, connections, reuse, busy, onBack = { page = "home" },
                             onConnect = { page = "session" },
                             onSave = { task, enable -> work {
                                     withContext(Dispatchers.IO) { graph.saveDraft(task) }
+                                reload()
                                 selected = task.id; page = "detail"
                                 if (enable) withContext(Dispatchers.IO) { graph.enable(task.id) }
                             } })
@@ -171,15 +178,28 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                             BackTitle("任务详情") { page = "home" }
                             if (r == null) Text("任务不存在或此版本不可用，请返回任务列表。") else {
                                 TaskStatus(r, now)
+                                val taskConnection = graph.sessions.connection(r.reconciliationPatient ?: r.task.condition.patient)
                                 val oldConnection = !r.task.demo && r.task.condition.patient != session?.reference
-                                if (!r.task.demo && (connection.needsReconnect || oldConnection)) Panel(tint = Amber) {
+                                if (!r.task.demo && (taskConnection.needsReconnect || oldConnection)) Panel(tint = Amber) {
                                     Text(if (oldConnection) "此任务保留创建时的医院连接" else "医院需要重新连接", fontWeight = FontWeight.SemiBold)
                                     Text(if (oldConnection) "新增连接不改变此任务的就诊人或会话。启用时核验任务原有连接；若需更换就诊人，请复用条件新建。"
                                         else "可以重新连接医院，原任务和提交记录保留。重新连接不会恢复或重复提交原任务。")
                                     Primary("管理医院连接", !busy) { page = "session" }
                                 }
+                                if (!r.task.demo) {
+                                    val replacement = connections.firstOrNull { fresh ->
+                                        fresh.session?.reference != r.task.condition.patient && fresh.binding?.let { r.task.binding?.samePrincipal(it) } == true && !fresh.needsReconnect
+                                    }
+                                    if (replacement != null && r.phase !in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING)) Panel {
+                                        Text("同一医院和就诊人有新连接：${replacement.session!!.patientName}", color = Muted)
+                                        OutlinedButton(onClick = { work { withContext(Dispatchers.IO) {
+                                            graph.useConnection(r.task.id, replacement.session.reference)
+                                            if (r.attempt != null && r.order == null) graph.manualReconcile(r.task.id)
+                                        } } }, enabled = !busy) { Text(if (r.attempt != null || r.order != null) "用新连接核对本次结果" else "更新此任务连接") }
+                                    }
+                                }
                                 if (r.phase == TaskPhase.DRAFT) {
-                                    Primary("确认开启自动挂号", !busy && (r.task.demo || oldConnection || !connection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
+                                    Primary("确认开启自动挂号", !busy && (r.task.demo || !taskConnection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
                                     OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("修改条件并另存为任务") }
                                 }
                                 if (r.order != null) {
@@ -201,7 +221,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                                 if (r.attempt != null && r.order == null && !r.manuallyResolved) Panel(tint = Amber) {
                                     Text("提交结果需要核对", fontWeight = FontWeight.Bold)
                                     Text("请在微信服务号「挂号结果查询」检查。本 App 不会因为列表暂时为空而再次锁号。")
-                                    OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.engine.run(r.task.id, r.task.generation, UUID.randomUUID().toString()) } } }, enabled = !busy && now.isBefore(r.attempt!!.sentAt.plusSeconds(120))) { Text("继续有限核对") }
+                                    OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.runTask(r.task.id, r.task.generation, UUID.randomUUID().toString()) } } }, enabled = !busy && now.isBefore(r.attempt!!.sentAt.plusSeconds(120))) { Text("继续有限核对") }
                                     OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.manualReconcile(r.task.id) } } }, enabled = !busy) { Text("手动查询同一订单") }
                                     if (r.phase == TaskPhase.NEEDS_ATTENTION && !now.isBefore(r.attempt!!.sentAt.plusSeconds(120))) TextButton(onClick = { resolveTask = r.task.id }) { Text("已在医院人工核对，结束本任务") }
                                 }
@@ -237,6 +257,21 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
 @Composable private fun Badge(text: String, attention: Boolean = false) { Text(text, color = if (attention) Color(0xFF795519) else Teal, fontSize = 13.sp, modifier = Modifier.background(if (attention) Amber else Color(0xFFE7F1EA), RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 6.dp)) }
 @Composable private fun Value(label: String, value: String) { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) { Text(label, color = Muted, fontSize = 13.sp); Text(value, fontSize = 16.sp) } }
 private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -> "全天"; 0 to 720 -> "上午"; 720 to 1440 -> "下午"; else -> "%02d:%02d–%02d:%02d".format(start/60, start%60, end/60, end%60) }
+
+@Composable private fun ConnectionPicker(connections: List<HospitalConnection>, selected: PatientRef?, busy: Boolean,
+    onSelect: (PatientRef) -> Unit) {
+    if (connections.isEmpty()) return
+    Panel {
+        Text("选择医院与就诊人", fontWeight = FontWeight.SemiBold)
+        connections.forEach { c ->
+            val session = c.session ?: return@forEach
+            OutlinedButton(onClick = { onSelect(session.reference) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                Text("${if (selected == session.reference) "✓ " else ""}${c.binding?.hospitalName ?: "北京佑安医院"} · ${session.patientName}\n${c.title}")
+            }
+        }
+        Text("选择只影响新建任务；已有任务继续使用原连接。", color = Muted, fontSize = 13.sp)
+    }
+}
 
 @Composable private fun ConnectionSummary(connection: HospitalConnection) {
     Badge(connection.title, connection.needsReconnect || connection.health.status == ConnectionStatus.BOOKING_UNAVAILABLE)
@@ -336,7 +371,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
         }
     }
     Panel {
-        Value("医院 / 渠道", "北京佑安医院 · 微信服务号")
+        Value("医院 / 渠道", "${t.hospitalName} · ${t.binding?.providerName ?: if (t.demo) "本机演示" else "微信服务号"}")
         Value("科室 / 医生", "${t.condition.department.name} · ${t.condition.doctorName}")
         Value("就诊日期 / 时段", "${t.condition.visitDate} · ${periodLabel(t.condition.startMinute, t.condition.endMinute)}")
         Value("放号时间", timestamp(t.releaseAt))
@@ -347,12 +382,15 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     }
 }
 
-@Composable private fun TaskEditorScreen(graph: AppGraph, connection: HospitalConnection, reuse: BookingTask?, busy: Boolean,
+@Composable private fun TaskEditorScreen(graph: AppGraph, defaultConnection: HospitalConnection, connections: List<HospitalConnection>, reuse: BookingTask?, busy: Boolean,
     onBack: () -> Unit, onConnect: () -> Unit, onSave: (BookingTask, Boolean) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     var step by rememberSaveable { mutableIntStateOf(1) }
+    var chosenRef by remember { mutableStateOf(defaultConnection.session?.reference) }
+    val connection = chosenRef?.let { graph.sessions.connection(it) } ?: defaultConnection
+    var demoPatient by remember { mutableStateOf(reuse?.condition?.patient?.takeIf { it.isDemo } ?: DemoGateway.patient) }
     val reusable = reuse?.takeIf { graph.mode.allows(it) }
     var demo by remember { mutableStateOf(graph.mode.demoEnabled && (reusable?.demo ?: true)) }
     var department by remember { mutableStateOf(reusable?.condition?.department ?: if (demo) DemoGateway.department else DepartmentRef("", "", "", "请选择科室", "")) }
@@ -374,7 +412,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     var pick by remember { mutableStateOf<String?>(null) }
     var search by remember { mutableStateOf("") }
     val session = connection.session
-    val patient = if (demo) DemoGateway.patient else session?.reference?.takeUnless { connection.needsReconnect }
+    val patient = if (demo) demoPatient else session?.reference?.takeUnless { connection.needsReconnect }
     fun condition(): VisitCondition? = runCatching { VisitCondition(patient ?: return null, department, doctorCode, doctorName, date, start, end, purpose, yuanToFen(fee)) }.getOrNull()
     fun loadDepartments() {
         if (patient == null) return
@@ -404,9 +442,17 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                     Choice("演示模式 · 不连接医院", demo) { demo = true; department = DemoGateway.department; doctorCode = "demo-doctor"; doctorName = "林医生（虚构）" }
                     Choice("真实挂号 · 使用本人服务号", !demo) { demo = false; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = "" }
                 }
-                if (demo) Text("演示使用眼科虚构人物和 50 元示例号源。", color = Muted)
-                else if (session == null) Primary("先连接医院", !busy, onConnect)
-                else {
+                if (demo) {
+                    Text("演示使用眼科虚构人物和 50 元示例号源。", color = Muted)
+                    Choice("演示医院 A", demoPatient == DemoGateway.patient) { demoPatient = DemoGateway.patient }
+                    Choice("演示医院 B", demoPatient == DemoGateway.patientB) { demoPatient = DemoGateway.patientB }
+                } else {
+                    ConnectionPicker(connections, chosenRef, busy || loading) { ref ->
+                        chosenRef = ref; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = ""
+                    }
+                }
+                if (!demo && session == null) Primary("先连接医院", !busy, onConnect)
+                else if (!demo && session != null) {
                     Value("就诊人（请核对）", session.patientName)
                     Text(connection.title, color = if (connection.needsReconnect) MaterialTheme.colorScheme.error else Muted)
                     if (connection.needsReconnect) Primary("重新连接医院", !busy, onConnect)
@@ -415,7 +461,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 }
             }
             Panel {
-                Value("医院", "北京佑安医院")
+                Value("医院", if (demo) cn.guahao.hospital.demoBinding(demoPatient).hospitalName else connection.binding?.hospitalName ?: "请选择医院连接")
                 Text("是否专程来京就医", fontWeight = FontWeight.SemiBold)
                 Choice("是", purpose == "1") { purpose = "1" }
                 Choice("否", purpose == "2") { purpose = "2" }
@@ -461,6 +507,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 Panel {
                     Badge(if (demo) "演示任务" else "将自动提交真实医院挂号", !demo)
                     Value("就诊人", if (demo) "演示就诊人（虚构）" else session?.patientName ?: "尚未连接")
+                    Value("医院", patient?.let { graph.gateway.binding(it).hospitalName } ?: "尚未连接")
                     Value("科室 / 医生", "${department.name} · $doctorName")
                     Value("就诊日期 / 时段", "$date · ${periodLabel(start,end)}")
                     Value("放号时间", timestamp(release.toInstant()))
@@ -469,7 +516,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 }
                 RuntimeSettings(graph)
                 Choice("我已核对就诊人和条件，允许到点自动提交一次符合条件的挂号", accepted) { accepted = !accepted }
-                fun save(enable: Boolean) { onSave(BookingTask(UUID.randomUUID().toString(), condition, release.toInstant(), minutes.toInt(), if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER, demo=demo), enable) }
+                fun save(enable: Boolean) { onSave(BookingTask(UUID.randomUUID().toString(), condition, release.toInstant(), minutes.toInt(), if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER, demo=demo, binding=graph.gateway.binding(condition.patient)), enable) }
                 Primary(if (demo) "开启演示挂号任务" else "确认开启自动挂号", accepted && !busy && readiness(context, patient != null).ready) { save(true) }
                 OutlinedButton(onClick = { save(false) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("先保存草稿") }
             }

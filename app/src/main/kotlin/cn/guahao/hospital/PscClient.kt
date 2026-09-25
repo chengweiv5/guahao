@@ -19,14 +19,16 @@ import java.util.concurrent.TimeUnit
 import java.io.IOException
 
 class PscTransport(cookieJar: CookieJar, private val gate: Mutex,
-    private val baseUrl: HttpUrl = "https://psc.hkinfo.net/".toHttpUrl()) {
+    private val baseUrl: HttpUrl = "https://psc.hkinfo.net/".toHttpUrl(),
+    private val budget: RequestBudget = RequestBudget()) {
     private val client = OkHttpClient.Builder().cookieJar(cookieJar)
         .connectTimeout(10, TimeUnit.SECONDS).callTimeout(15, TimeUnit.SECONDS)
         .retryOnConnectionFailure(false).followRedirects(false).followSslRedirects(false).build()
-    suspend fun get(path: String, query: Map<String, String>) = call(path, query, null)
-    suspend fun post(path: String, values: Map<String, String>): JsonObject = responseObject(call(path, emptyMap(),
-        buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString()))
-    private suspend fun call(path: String, query: Map<String, String>, body: String?): String = gate.withLock {
+    suspend fun get(path: String, query: Map<String, String>) = call(path, query, null, { true })
+    suspend fun post(path: String, values: Map<String, String>, beforeSend: () -> Boolean = { true }): JsonObject = responseObject(call(path, emptyMap(),
+        buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString(), beforeSend))
+    private suspend fun call(path: String, query: Map<String, String>, body: String?, beforeSend: () -> Boolean): String = gate.withLock {
+        budget.awaitTurn()
         withContext(Dispatchers.IO) {
             require(path.startsWith('/') && !path.startsWith("//") && !path.contains('?'))
             val url = baseUrl.newBuilder().encodedPath(path).apply { query.forEach { (k,v) -> addQueryParameter(k,v) } }.build()
@@ -34,6 +36,7 @@ class PscTransport(cookieJar: CookieJar, private val gate: Mutex,
                 .header("User-Agent", "Guahao/0.1 (Android; personal appointment client)")
                 .apply { if (body != null) post(body.toRequestBody("application/json; charset=utf-8".toMediaType())) }.build()
             try {
+                if (!beforeSend()) throw HospitalException("已停止或超过原提交期限，未发送请求")
                 client.newCall(request).execute().use { response ->
                     if (response.code == 401) throw HospitalException("医院要求重新登录，请重新连接服务号", reconnectRequired = true)
                     if (response.code in 300..399) {
@@ -46,6 +49,7 @@ class PscTransport(cookieJar: CookieJar, private val gate: Mutex,
                     if (response.code == 429 || response.code == 503) {
                         val wait = response.header("Retry-After")?.let { raw -> raw.toLongOrNull()?.takeIf { it >= 0 }?.let { Math.multiplyExact(it, 1000) }
                             ?: runCatching { java.time.Duration.between(java.time.Instant.now(), java.time.ZonedDateTime.parse(raw, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()).toMillis().coerceAtLeast(0) }.getOrNull() }
+                        budget.defer(wait ?: 5000)
                         throw HospitalException("医院暂忙，请稍后再试", wait, true)
                     }
                     if (!response.isSuccessful) throw HospitalException("医院请求未成功，请稍后再试", retryable = response.code >= 500)
@@ -70,7 +74,9 @@ fun lockPayload(s: PscSession, t: BookingTask, c: Candidate) = mapOf(
 fun insurancePayload(s: PscSession, order: String) = mapOf("userId" to s.userId,
     "userIdKey" to URLEncoder.encode(s.userKey, "UTF-8").replace("+", "%20"), "orderNo" to order)
 
-class PscClient(private val sessions: SessionRepository) : BookingGateway {
+class PscClient(private val sessions: SessionRepository, private val maySubmit: (BookingTask) -> Boolean = { true }) : BookingGateway {
+    override fun binding(patient: PatientRef) = sessions.identities.resolve(patient)
+        ?: throw HospitalException("连接身份待核对，请重新连接医院")
     private suspend fun <T> withSession(ref: PatientRef, block: suspend (PscSession, PscTransport) -> T): T = try {
         block(sessions.load(ref), sessions.transport(ref.sessionId))
     } catch (e: CancellationException) { throw e }
@@ -98,7 +104,7 @@ class PscClient(private val sessions: SessionRepository) : BookingGateway {
     }
     override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply = withSession(task.condition.patient) { s, http ->
         require(!task.demo && candidate.remaining > 0 && !candidate.standby)
-        decodeLockCode(http.post("/regis/lockRegis", lockPayload(s, task, candidate)).text("code"))
+        decodeLockCode(http.post("/regis/lockRegis", lockPayload(s, task, candidate)) { java.time.Instant.now().isBefore(task.deadline) && maySubmit(task) }.text("code"))
     }
     override suspend fun querySubmission(patient: PatientRef): AsyncReply = withSession(patient) { s, http ->
         decodeAsync(http.post("/regis/queryRegisStat", mapOf("userId" to s.userId)))

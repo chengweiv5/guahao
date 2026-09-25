@@ -1,6 +1,7 @@
 package cn.guahao.hospital
 
 import cn.guahao.core.psc.PscSession
+import cn.guahao.core.ConnectionBinding
 import kotlinx.serialization.Serializable
 
 @Serializable enum class ConnectionStatus { SAVED, VERIFIED, CHECK_FAILED, BOOKING_UNAVAILABLE, RECONNECT_REQUIRED }
@@ -12,7 +13,7 @@ import kotlinx.serialization.Serializable
 )
 
 data class HospitalConnection(val session: PscSession? = null, val health: ConnectionHealth = ConnectionHealth(),
-    val checking: Boolean = false) {
+    val checking: Boolean = false, val binding: ConnectionBinding? = null) {
     val needsReconnect get() = session != null && health.status == ConnectionStatus.RECONNECT_REQUIRED
     val title get() = when {
         session == null -> "尚未连接"

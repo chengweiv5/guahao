@@ -60,6 +60,25 @@ class UiAndAlarmTest {
         assertTrue("Label the one-minute shortcut as an action, not the current release time", shortcutIsAction)
     }
 
+    @Test fun selectedHospitalBIsFrozenInDraft() {
+        val before = compose.activity.graph.store.all().map { it.task.id }.toSet()
+        compose.onNodeWithText("＋ 新建挂号任务").performClick()
+        compose.onNodeWithText("演示医院 B", useUnmergedTree = true).performScrollTo().performClick()
+        capturePreview("ui-parallel-hospital-picker.png")
+        compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
+        compose.onNodeWithText("先保存草稿").performScrollTo().performClick()
+        compose.waitUntil(5000) { compose.activity.graph.store.all().any { it.task.id !in before } }
+        val saved = compose.activity.graph.store.all().single { it.task.id !in before }
+        assertEquals("demo-b", saved.task.binding!!.hospitalId)
+        assertEquals(cn.guahao.hospital.DemoGateway.patientB, saved.task.condition.patient)
+        assertNull(saved.attempt)
+        compose.waitUntil(5000) { compose.onAllNodesWithText("演示医院 B · 本机演示").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("任务详情").performScrollTo()
+        capturePreview("ui-parallel-task-detail.png")
+    }
+
     private inline fun <reified T : View> findView(root: View): T? {
         if (root is T) return root
         val queue = java.util.ArrayDeque<View>()

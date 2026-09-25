@@ -17,6 +17,7 @@ class PaymentCoordinator(private val gateway: BookingGateway, private val store:
     suspend fun prepare(id: String) {
         var r = store.get(id)
         val o = r.order ?: return
+        if (r.reconciliationPatient != null) { refresh(id); return }
         if (paymentAction(o, r.task.paymentPreference) != PaymentAction.INITIALIZE_INSURANCE) { refresh(id); return }
         if (o.insuranceSupported != true || o.feeFen == 0L || o.invalidAt == null || !o.invalidAt.isAfter(clock.now()) || !gateway.insuranceAvailable(o.patient)) {
             store.update(id) { it.copy(phase = TaskPhase.NEEDS_ATTENTION, note = "已锁号，医保或付款条件需在官方页面确认") }; return
@@ -43,7 +44,8 @@ class PaymentCoordinator(private val gateway: BookingGateway, private val store:
     suspend fun refresh(id: String) {
         val r = store.get(id)
         val old = r.order ?: return
-        val list = gateway.orders(old.patient, old.visitDate, old.visitDate)
+        val queryPatient = r.reconciliationPatient ?: old.patient
+        val list = gateway.orders(queryPatient, old.visitDate, old.visitDate).filter { it.patient == queryPatient }.map { it.copy(patient = old.patient) }
         var fresh = list.singleOrNull { it.orderNo == old.orderNo && it.patient == old.patient }
             ?: throw HospitalException("未查到同一医院订单，请稍后刷新或在服务号核对")
         fresh = fresh.copy(insuranceSupported = old.insuranceSupported,
@@ -52,7 +54,7 @@ class PaymentCoordinator(private val gateway: BookingGateway, private val store:
         if (c != null && !matches(fresh, r.task, c) && fresh.phase != OrderPhase.OTHER) throw HospitalException("医院订单信息有变化，请到官方页面核对")
         var paid: InsuranceReply? = null
         if (r.task.paymentPreference == PaymentPreference.INSURANCE_FIRST || fresh.phase in setOf(OrderPhase.INSURANCE_PENDING, OrderPhase.INSURANCE_PAID)) {
-            paid = try { gateway.paymentState(old.patient, old.orderNo) } catch (e: CancellationException) { throw e } catch (_: Exception) { InsuranceReply.UNKNOWN }
+            paid = try { gateway.paymentState(queryPatient, old.orderNo) } catch (e: CancellationException) { throw e } catch (_: Exception) { InsuranceReply.UNKNOWN }
             fresh = fresh.copy(insuranceVerified = paid == InsuranceReply.PAID && fresh.phase == OrderPhase.INSURANCE_PAID)
         }
         val action = paymentAction(fresh, r.task.paymentPreference)

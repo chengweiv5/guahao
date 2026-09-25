@@ -1,11 +1,9 @@
 package cn.guahao.core
 
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.sync.Mutex
 import java.util.UUID
 
 class BookingEngine(private val gateway: BookingGateway, private val store: TaskStore, private val clock: BookingClock) {
-    private val runMutex = Mutex()
     fun stop(id: String) {
         store.update(id) { it.copy(stopRequested = true, phase = if (it.attempt != null && it.order == null)
             TaskPhase.RECONCILING else if (it.order != null) it.phase else TaskPhase.STOPPED,
@@ -15,13 +13,14 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
         it.copy(phase = phase, note = note, lastEventAt = clock.now())
     }
     suspend fun run(taskId: String, generation: Long, owner: String) {
-        if (!runMutex.tryLock()) return
         var claimed = false
         try {
             claimed = store.claim(taskId, generation, owner)
             if (!claimed) return
             val initial = store.get(taskId)
-            val t = initial.task
+            val binding = initial.task.binding ?: gateway.binding(initial.task.condition.patient)
+            val t = initial.task.copy(binding = binding)
+            if (initial.task.binding == null) store.update(taskId) { it.copy(task = t) }
             if (initial.order != null || initial.manuallyResolved) return
             if (initial.attempt != null) { reconcile(t, initial.attempt); return }
             if (initial.lastEventAt?.isAfter(clock.now().plusSeconds(60)) == true) {
@@ -49,12 +48,24 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
                             phase(taskId, TaskPhase.NEEDS_ATTENTION, "医院已有同条件订单，请到官方页面核对，已暂停新提交"); return
                         }
                         if (!canSubmit(t) || !eligible(t, candidate, clock.now())) continue
-                        val attempt = SubmissionAttempt(UUID.randomUUID().toString(), t.id, candidate, clock.now(), baseline.map { it.orderNo }.toSet())
-                        val saved = store.update(t.id) {
-                            if (it.stopRequested || !clock.now().isBefore(t.deadline) || it.attempt != null) it
-                            else it.copy(attempt = attempt, phase = TaskPhase.SUBMITTING, note = "正在提交，请等待医院结果")
+                        var attempt = SubmissionAttempt(UUID.randomUUID().toString(), t.id, candidate, clock.now(),
+                            baseline.map { it.orderNo }.toSet(), submissionScope = binding.submissionScope)
+                        if (!store.beginSubmission(t.id, generation, attempt, clock.now())) {
+                            phase(t.id, TaskPhase.SEARCHING, "等待同账户前一笔结果；按原截止时间结束")
+                            clock.delayMillis(1000)
+                            continue
                         }
-                        if (saved.attempt?.id != attempt.id) continue
+                        // Refresh the baseline while holding the persistent scope. Another task may
+                        // have completed between our first baseline read and acquiring this scope.
+                        if (!canSubmit(t)) { reconcile(t, attempt); return }
+                        val protectedBaseline = gateway.orders(t.condition.patient, t.condition.visitDate, t.condition.visitDate)
+                        if (protectedBaseline.any { satisfiesCondition(it, t) && (it.invalidAt == null || it.invalidAt.isAfter(clock.now())) }) {
+                            store.update(t.id) { it.copy(attempt = null, phase = TaskPhase.NEEDS_ATTENTION,
+                                note = "医院已有同条件订单，请核对；本任务未发出提交") }
+                            return
+                        }
+                        attempt = attempt.copy(baselineOrderNos = protectedBaseline.map { it.orderNo }.toSet())
+                        store.update(t.id) { it.copy(attempt = attempt) }
                         // A crash or stop after this durable record must never cause a second submission.
                         if (!canSubmit(t)) { reconcile(t, attempt); return }
                         val reply = try { gateway.lock(t, candidate) }
@@ -70,6 +81,7 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
                     clock.delayMillis(5000)
                 } catch (e: CancellationException) { throw e }
                 catch (e: HospitalException) {
+                    if (store.get(t.id).attempt != null) { phase(t.id, TaskPhase.NEEDS_ATTENTION, "提交准备或结果待核对，不会再次提交"); return }
                     if (!e.retryable) { phase(t.id, TaskPhase.NEEDS_ATTENTION, e.safeMessage); return }
                     phase(t.id, TaskPhase.SEARCHING, "网络暂不可用，等待后重试")
                     clock.delayMillis(maxOf(listOf(5000L, 10000, 20000, 40000, 60000)[minOf(failures++, 4)], e.retryAfterMillis ?: 0))
@@ -77,12 +89,13 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
             }
         } catch (e: CancellationException) { throw e }
         catch (_: Exception) { phase(taskId, TaskPhase.NEEDS_ATTENTION, "任务需要处理，请核对医院结果后再操作") }
-        finally { if (claimed) store.release(taskId, owner); runMutex.unlock() }
+        finally { if (claimed) store.release(taskId, owner) }
     }
     private fun canSubmit(t: BookingTask) = !store.get(t.id).stopRequested && clock.now().isBefore(t.deadline)
     /** Returns false only when the server unambiguously reports no stock. */
     private suspend fun reconcile(t: BookingTask, attempt: SubmissionAttempt): Boolean {
         phase(t.id, TaskPhase.RECONCILING, "提交结果待确认，正在核对医院订单")
+        val queryPatient = store.get(t.id).reconciliationPatient ?: t.condition.patient
         var orderNo = attempt.orderNo
         var paymentContext = attempt.paymentContext
         var polls = 0
@@ -91,7 +104,7 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
             var retryAfter = 5000L
             try {
                 if (orderNo == null && polls++ < 30) {
-                    when (val reply = gateway.querySubmission(t.condition.patient)) {
+                    when (val reply = gateway.querySubmission(queryPatient)) {
                         is AsyncReply.OrderFound -> {
                             orderNo = reply.orderNo
                             paymentContext = reply.paymentContext
@@ -101,7 +114,8 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
                         else -> Unit
                     }
                 }
-                val orders = gateway.orders(t.condition.patient, t.condition.visitDate, t.condition.visitDate)
+                val orders = gateway.orders(queryPatient, t.condition.visitDate, t.condition.visitDate)
+                    .filter { it.patient == queryPatient }.map { it.copy(patient = t.condition.patient) }
                 val matches = orders.filter { it.orderNo !in attempt.baselineOrderNos && matches(it, t, attempt.candidate) }
                 val order = matches.singleOrNull()?.takeIf { it.orderNo == orderNo }?.let {
                     it.copy(insuranceSupported = paymentContext?.insuranceSupported,

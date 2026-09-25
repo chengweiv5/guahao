@@ -17,7 +17,7 @@ class BookingNotifications(private val context: Context, private val mode: AppMo
         manager.createNotificationChannel(NotificationChannel("results", "挂号结果与付款提醒", NotificationManager.IMPORTANCE_HIGH))
     }
     private fun open(id: String?) = PendingIntent.getActivity(context, id?.hashCode() ?: 0,
-        Intent(context, MainActivity::class.java).putExtra("taskId", id).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        Intent(context, MainActivity::class.java).setData(android.net.Uri.parse("guahao://task/${id.orEmpty()}")).putExtra("taskId", id).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     private fun builder(channel: String, id: String?, title: String, text: String) = Notification.Builder(context, channel)
         .setSmallIcon(R.drawable.ic_booking).setContentTitle(title).setContentText(text).setContentIntent(open(id))
@@ -40,7 +40,7 @@ class BookingNotifications(private val context: Context, private val mode: AppMo
     fun running(record: TaskRecord?): Notification {
         val id = record?.task?.id
         val stop = PendingIntent.getBroadcast(context, 1,
-            Intent(context, TaskReceiver::class.java).setAction("cn.guahao.STOP").putExtra("taskId", id),
+            Intent(context, TaskReceiver::class.java).setData(android.net.Uri.parse("guahao://stop/${id.orEmpty()}")).setAction("cn.guahao.STOP").putExtra("taskId", id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return builder("execution", id, if (record?.task?.demo == true) "演示挂号任务运行中" else "挂号任务运行中",
             record?.note ?: "正在准备任务").setOngoing(true).setOnlyAlertOnce(true)
@@ -48,7 +48,15 @@ class BookingNotifications(private val context: Context, private val mode: AppMo
             .addAction(Notification.Action.Builder(null, "停止任务", stop).build()).build()
     }
     fun updateRunning(record: TaskRecord) { if (mode.allows(record.task)) manager.notify(1, running(record)) }
-    fun cancelResult(id: String) { manager.cancel(id.hashCode()) }
+    fun runningSummary(records: List<TaskRecord>): Notification {
+        if (records.size == 1) return running(records.single())
+        return builder("execution", null, "${records.size} 个挂号任务运行中",
+            records.joinToString(" · ") { it.task.hospitalName }.ifBlank { "正在准备任务" })
+            .setOngoing(true).setOnlyAlertOnce(true).setGroup("guahao.execution.silent")
+            .setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY).build()
+    }
+    fun updateRunningSummary(records: List<TaskRecord>) { manager.notify(1, runningSummary(records.filter { mode.allows(it.task) })) }
+    fun cancelResult(id: String) { manager.cancel(id, 3); manager.cancel(id.hashCode()) }
     fun result(record: TaskRecord) {
         if (!mode.allows(record.task)) { cancelResult(record.task.id); return }
         val deadline = record.order?.invalidAt?.atZone(ZoneId.of("Asia/Shanghai"))?.format(DateTimeFormatter.ofPattern("HH:mm"))
@@ -58,8 +66,8 @@ class BookingNotifications(private val context: Context, private val mode: AppMo
             TaskPhase.EXPIRED -> "挂号任务已结束"
             else -> "挂号任务需要处理"
         }
-        manager.notify(record.task.id.hashCode(), resultBuilder(record.task.id,
-            (if (record.task.demo) "演示 · " else "") + title, "点击查看任务状态和官方处理入口").setAutoCancel(true).build())
+        manager.notify(record.task.id, 3, resultBuilder(record.task.id,
+            (if (record.task.demo) "演示 · " else "") + title, "${record.task.hospitalName} · 点击查看任务与官方处理入口").setAutoCancel(true).build())
     }
     fun attention() { manager.notify(2, resultBuilder(null, "挂号任务需要检查", "请打开 App 检查会话、定时与后台运行权限").setAutoCancel(true).build()) }
 }

@@ -1,0 +1,5 @@
+cn.guahao.UiAndAlarmTest:.
+
+Time: 7.596
+
+OK (1 test)

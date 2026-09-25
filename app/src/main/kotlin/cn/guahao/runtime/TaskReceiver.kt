@@ -25,7 +25,14 @@ class TaskReceiver : BroadcastReceiver() {
                             note = "定时运行条件缺失，请检查通知、精确定时与后台设置；未发起新的提交") }
                         context.graph.notifications.attention(); return@launch
                     }
-                    context.startForegroundService(Intent(context, BookingService::class.java).putExtra("taskId", id).putExtra("generation", generation))
+                    // A single delivered exact alarm drains every due task. Android may coalesce
+                    // simultaneous allow-while-idle alarms; no hospital loses its wakeup.
+                    val now = context.graph.clock.now()
+                    val due = context.graph.visibleRecords().filter {
+                        it.task.id == id || (it.phase == cn.guahao.core.TaskPhase.WAITING && !it.task.releaseAt.isAfter(now) && !it.stopRequested)
+                    }
+                    for (task in due) context.startForegroundService(Intent(context, BookingService::class.java)
+                        .putExtra("taskId", task.task.id).putExtra("generation", task.task.generation))
                 }
             } catch (_: Exception) { context.graph.notifications.attention() }
             finally { pending.finish() }

@@ -1,0 +1,5 @@
+cn.guahao.ParallelRuntimeTest:.....
+
+Time: 30.667
+
+OK (5 tests)

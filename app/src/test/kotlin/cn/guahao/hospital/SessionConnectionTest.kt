@@ -84,6 +84,26 @@ class SessionConnectionTest {
         }
     }
 
+    @Test fun catalogKeepsIndependentVersionsAndStableAccountScope() {
+        val vault = saved(); val sessions = SessionRepository(vault, Mutex())
+        val old = sessions.connection()
+        val renewed = PscSession(original.reference.copy(sessionId = "renewed"), original.userId, "renewed-key", original.ptno, original.ptnoKey, original.patientName)
+        vault.write("session-renewed", pscJson.encodeToString(renewed)); sessions.register(original.reference); sessions.register(renewed.reference)
+        val other = PscSession(PatientRef("other", "another-patient"), original.userId, original.userKey, "another-patient", "another-key", "测试就诊人")
+        vault.write("session-other", pscJson.encodeToString(other)); sessions.register(other.reference)
+        assertEquals(2, sessions.connections().size)
+        assertEquals(old.binding!!.connectionId, sessions.connection(renewed.reference).binding!!.connectionId)
+        assertEquals(old.binding.submissionScope, sessions.connection(other.reference).binding!!.submissionScope)
+        assertFalse(old.binding.samePrincipal(sessions.connection(other.reference).binding!!))
+        sessions.recordFailure(original.reference, HospitalException("expired", reconnectRequired = true))
+        sessions.select(other.reference)
+        assertEquals(other.reference, sessions.current()!!.reference)
+        assertFalse(sessions.connection(renewed.reference).needsReconnect)
+        assertTrue(sessions.connection(original.reference).needsReconnect)
+        assertEquals(old.binding.submissionScope, SessionRepository(vault, Mutex()).connection(renewed.reference).binding!!.submissionScope)
+        assertFalse(old.binding.accountKey.contains(original.userId))
+    }
+
     @Test fun savedSessionChecksOnceAndNeverClaimsFreshAcrossProcessOrLongIdle() = runBlocking {
         MockWebServer().use { server ->
             server.start(); val vault = saved(); var now = Instant.parse("2026-09-25T00:00:00Z")

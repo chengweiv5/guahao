@@ -24,13 +24,21 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
     val vault = EncryptedVault(context)
     val store = BookingDatabase(context, vault).apply { recoverProcessOwnership() }
     val sessions = SessionRepository(vault, Mutex())
-    val hospital = PscClient(sessions)
+    init { store.all().asReversed().forEach { sessions.register(it.task.condition.patient) } }
+    val hospital = PscClient(sessions) { !store.get(it.id).stopRequested }
     private val demo by lazy { DemoGateway(store) }
+    private fun gatewayBinding(p: PatientRef) = if (p.isDemo) demoBinding(p) else sessions.identities.resolve(p)
+        ?: throw HospitalException("连接身份待核对，请重新连接医院")
     val gateway: BookingGateway = object : BookingGateway {
         fun forPatient(p: PatientRef): BookingGateway {
             mode.requireAllowed(p)
-            return if (p.sessionId == "demo") demo else hospital
+            return when (gatewayBinding(p).providerId) {
+                "demo-a", "demo-b" -> demo
+                "psc-youan" -> hospital
+                else -> throw HospitalException("此医院接入来源尚未支持")
+            }
         }
+        override fun binding(patient: PatientRef): ConnectionBinding { mode.requireAllowed(patient); return gatewayBinding(patient) }
         override suspend fun departments(patient: PatientRef) = forPatient(patient).departments(patient)
         override suspend fun candidates(condition: VisitCondition) = forPatient(condition.patient).candidates(condition)
         override suspend fun validateBookingAccess(patient: PatientRef) = forPatient(patient).validateBookingAccess(patient)
@@ -46,12 +54,13 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
     }
     val clock = AndroidBookingClock()
     val engine = BookingEngine(gateway, store, clock)
-    private val paymentGate = Mutex()
+    private val taskGates = java.util.concurrent.ConcurrentHashMap<String, Mutex>()
+    private fun taskGate(id: String) = taskGates.getOrPut(id) { Mutex() }
     val payment = PaymentCoordinator(gateway, store, clock)
     val scheduler = AlarmScheduler(context, mode)
     val notifications = BookingNotifications(context, mode)
     fun visibleRecords() = mode.visible(store.all())
-    fun saveDraft(task: BookingTask) { mode.requireAllowed(task); store.save(TaskRecord(task)) }
+    fun saveDraft(task: BookingTask) { mode.requireAllowed(task); store.save(TaskRecord(task.copy(binding = gateway.binding(task.condition.patient)))) }
     fun hasUnresolvedOrActive(excluding: String? = null) = visibleRecords().any { it.task.id != excluding &&
         (it.phase in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING) ||
             (it.attempt != null && it.order == null && !it.manuallyResolved)) }
@@ -67,7 +76,6 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         sessions.checkCurrent(force)
     }
     suspend fun enable(id: String) {
-        check(!hasUnresolvedOrActive(id)) { "已有任务正在等待、执行或核对，请先处理" }
         val r = store.get(id)
         mode.requireAllowed(r.task)
         check(r.phase == TaskPhase.DRAFT && r.attempt == null)
@@ -83,23 +91,28 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         try { scheduler.schedule(r.task) }
         catch (e: Exception) { store.update(id) { it.copy(phase = TaskPhase.DRAFT, note = "定时失败，请检查权限后重新启用") }; throw e }
     }
+    suspend fun runTask(id: String, generation: Long, owner: String) = taskGate(id).withLock {
+        engine.run(id, generation, owner)
+    }
     fun stop(id: String) { engine.stop(id); scheduler.cancel(store.get(id).task) }
-    suspend fun preparePayment(id: String) = paymentGate.withLock {
+    suspend fun preparePayment(id: String) = taskGate(id).withLock {
         mode.requireAllowed(store.get(id).task)
         try { payment.prepare(id) }
         catch (_: HospitalException) { store.update(id) { it.copy(phase = TaskPhase.NEEDS_ATTENTION, note = "已锁号，付款信息未取得，请刷新或到服务号核对") } }
     }
-    suspend fun refreshPayment(id: String) = paymentGate.withLock {
+    suspend fun refreshPayment(id: String) = taskGate(id).withLock {
         mode.requireAllowed(store.get(id).task)
         payment.refresh(id)
     }
-    suspend fun manualReconcile(id: String) = paymentGate.withLock {
+    suspend fun manualReconcile(id: String) = taskGate(id).withLock {
         val r = store.get(id)
         mode.requireAllowed(r.task)
         val attempt = r.attempt ?: return@withLock
         if (r.order != null || r.manuallyResolved) return@withLock
-        val number = attempt.orderNo ?: (gateway.querySubmission(r.task.condition.patient) as? AsyncReply.OrderFound)?.orderNo
-        val matches = gateway.orders(r.task.condition.patient, r.task.condition.visitDate, r.task.condition.visitDate)
+        val patient = r.reconciliationPatient ?: r.task.condition.patient
+        val number = attempt.orderNo ?: (gateway.querySubmission(patient) as? AsyncReply.OrderFound)?.orderNo
+        val matches = gateway.orders(patient, r.task.condition.visitDate, r.task.condition.visitDate)
+            .filter { it.patient == patient }.map { it.copy(patient = r.task.condition.patient) }
             .filter { it.orderNo !in attempt.baselineOrderNos && matches(it, r.task, attempt.candidate) }
         val found = matches.singleOrNull()?.takeIf { it.orderNo == number }
             ?: throw HospitalException("未找到可唯一关联的订单，请在微信服务号人工核对。列表为空不代表提交失败。")
@@ -107,6 +120,26 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
             specialPaymentCondition = found.specialPaymentCondition || attempt.paymentContext?.requiresUserChoice == true),
             phase = TaskPhase.AWAITING_PAYMENT, note = "已找到同一订单，请刷新付款结果", lastEventAt = clock.now()) }
         payment.refresh(id)
+    }
+    suspend fun useConnection(id: String, ref: PatientRef) = taskGate(id).withLock {
+        val r = store.get(id)
+        val old = r.task.binding ?: gateway.binding(r.task.condition.patient)
+        val fresh = gateway.binding(ref)
+        check(old.samePrincipal(fresh)) { "医院、来源、账户或就诊人不一致，不能接管此任务" }
+        check(gateway.validateBookingAccess(ref)) { "新连接未通过校验" }
+        if (r.attempt != null || r.order != null) {
+            // Read-only recovery override; the original attempt, binding and scope remain frozen.
+            store.update(id) { it.copy(reconciliationPatient = ref, note = "已选择同身份新连接，仅用于核对原提交与订单") }
+            if (r.order != null) payment.refresh(id)
+        } else {
+            check(r.phase !in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING)) {
+                "请先停止此任务，再更新此任务连接"
+            }
+            scheduler.cancel(r.task)
+            store.update(id) { it.copy(task = it.task.copy(condition = it.task.condition.copy(patient = ref),
+                binding = fresh, generation = it.task.generation + 1), phase = TaskPhase.DRAFT,
+                stopRequested = false, note = "已更新连接，请核对原放号时间后手动启用") }
+        }
     }
     fun acknowledgeManualResolution(id: String) {
         val r = store.get(id)

@@ -16,6 +16,8 @@ import okhttp3.CookieJar
 class SessionRepository(private val vault: SecretStore, private val networkGate: Mutex,
     private val now: () -> Instant = Instant::now,
     private val transportFactory: ((CookieJar) -> PscTransport)? = null) {
+    val identities = HospitalIdentity(vault)
+    private val budget = RequestBudget()
     private val importGate = Mutex()
     private val checkGate = Mutex()
     private val transports = mutableMapOf<String, PscTransport>()
@@ -26,7 +28,7 @@ class SessionRepository(private val vault: SecretStore, private val networkGate:
         val cookies = PscCookieJar(
             { vault.read("cookies-$id")?.let { pscJson.decodeFromString<List<String>>(it) } ?: emptyList() },
             { vault.write("cookies-$id", pscJson.encodeToString(it)) })
-        transportFactory?.invoke(cookies) ?: PscTransport(cookies, networkGate)
+        transportFactory?.invoke(cookies) ?: PscTransport(cookies, networkGate, budget = budget)
     }
     fun current(): PscSession? = vault.read("current-session")?.let { id ->
         vault.read("session-$id")?.let { pscJson.decodeFromString<PscSession>(it) }
@@ -39,18 +41,35 @@ class SessionRepository(private val vault: SecretStore, private val networkGate:
         if (s.reference != ref || s.ptno != ref.patientId) throw HospitalException("就诊身份不一致，请重新接入")
         return s
     }
+    private fun readVersion(ref: PatientRef): PscSession? = vault.read("session-${ref.sessionId}")
+        ?.let { pscJson.decodeFromString<PscSession>(it) }?.takeIf { it.reference == ref }
+    @Synchronized fun register(ref: PatientRef) {
+        if (ref.isDemo || readVersion(ref) == null) return
+        val ids = vault.read("session-catalog")?.let { pscJson.decodeFromString<List<PatientRef>>(it) }.orEmpty()
+        if (ref !in ids) vault.write("session-catalog", pscJson.encodeToString(ids + ref))
+    }
+    @Synchronized fun connections(): List<HospitalConnection> {
+        current()?.reference?.let { register(it) }
+        return vault.read("session-catalog")?.let { pscJson.decodeFromString<List<PatientRef>>(it) }.orEmpty()
+            .map { connection(it) }.filter { it.session != null }
+            .groupBy { it.binding!!.connectionId }.values.map { it.last() }
+    }
+    @Synchronized fun select(ref: PatientRef) {
+        check(readVersion(ref) != null) { "连接版本不存在" }
+        vault.write("current-session", ref.sessionId)
+    }
     private fun health(id: String): ConnectionHealth {
         if (vault.read("invalid-$id") != null) return ConnectionHealth(ConnectionStatus.RECONNECT_REQUIRED)
         return vault.read("connection-$id")?.let { pscJson.decodeFromString<ConnectionHealth>(it) } ?: ConnectionHealth()
     }
-    @Synchronized fun connection(): HospitalConnection {
-        val s = current() ?: return HospitalConnection()
+    @Synchronized fun connection(ref: PatientRef? = current()?.reference): HospitalConnection {
+        val s = ref?.let { readVersion(it) } ?: return HospitalConnection()
         val h = health(s.reference.sessionId)
         val verifiedAt = h.verifiedAt?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val recent = verifiedAt != null && !now().isBefore(verifiedAt) && now().isBefore(verifiedAt.plusSeconds(300))
         val visible = if (h.status == ConnectionStatus.VERIFIED && (s.reference.sessionId !in verifiedInProcess || !recent))
             h.copy(status = ConnectionStatus.SAVED) else h
-        return HospitalConnection(s, visible, checkingId == s.reference.sessionId)
+        return HospitalConnection(s, visible, checkingId == s.reference.sessionId, identities.psc(s))
     }
     @Synchronized fun recordAccess(ref: PatientRef, available: Boolean) {
         val previous = health(ref.sessionId)
@@ -119,6 +138,7 @@ class SessionRepository(private val vault: SecretStore, private val networkGate:
         }
         importStep("保存医院连接") {
             vault.write("session-$id", pscJson.encodeToString(s))
+            register(s.reference)
             recordAccess(s.reference, true)
             vault.write("current-session", id)
         }

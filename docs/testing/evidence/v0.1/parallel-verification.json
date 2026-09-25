@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-25",
+  "previousFixPushed": "61dec39c87858a52a02478bda6834e579bb4432c",
+  "remoteReadbackMatched": true,
+  "schema": 2,
+  "originalPhoneRecordCount": 16,
+  "originalTaskConditionsAttemptsAndOrdersPreserved": true,
+  "unitTests": {
+    "core": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0
+    },
+    "debug": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0
+    },
+    "release": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 13,
+    "warningIds": [
+      "UseKtx"
+    ]
+  },
+  "emulator": {
+    "tests": 12,
+    "seconds": 51.705,
+    "success": true
+  },
+  "phone": {
+    "tests": 5,
+    "seconds": 30.667,
+    "success": true
+  },
+  "lockscreen": {
+    "tests": 1,
+    "seconds": 20.894,
+    "success": true,
+    "scope": "screen off asserted before single actual alarm; both synthetic hospitals locked and both notifications arrived; no continuous screen-state trace"
+  },
+  "ui": {
+    "tests": 1,
+    "seconds": 7.596,
+    "success": true
+  },
+  "initialPhoneNotificationAssertion": {
+    "tests": 5,
+    "failures": 1,
+    "cause": "500 ms fixed wait too short; two task states succeeded, notifications not yet observed",
+    "resolution": "wait on notification arrival up to 12 s; standalone and full reruns passed; production notification code unchanged"
+  },
+  "apk": {
+    "debug": "afa732719aa692c27ada5b1a0699a2a1f06d594ae185772b4b8d31b4d824a795",
+    "releaseUnsigned": "2cf2708408c3a39fde9c8eafcc054fc2f4a61802acc01e7973545f9e079aa1fb"
+  },
+  "realHospitalRequests": 0,
+  "realBookingOrPayment": 0,
+  "limitations": [
+    "Only Youan PSC is integrated as a real provider",
+    "No long Doze, reboot during two submissions, or real parallel hospital traffic acceptance",
+    "System notification properties verified; no new subjective sound/vibration confirmation",
+    "PSC id=oldId import retained; cross-patient server selection side effects not validated",
+    "Final app build differs from full phone suite only in reload-before-detail UI fix; final lockscreen test used installed final build"
+  ],
+  "installedPhoneMatchesDebug": true
+}

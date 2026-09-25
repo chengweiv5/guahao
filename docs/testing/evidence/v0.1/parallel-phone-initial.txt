@@ -1,0 +1,22 @@
+cn.guahao.ParallelRuntimeTest:....
+Error in oneDeliveredAlarmStartsAllDueHospitals(cn.guahao.ParallelRuntimeTest):
+java.lang.AssertionError: expected:<2> but was:<0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at cn.guahao.ParallelRuntimeTest.oneDeliveredAlarmStartsAllDueHospitals(ParallelRuntimeTest.kt:84)
+
+
+Time: 27.132
+There was 1 failure:
+1) oneDeliveredAlarmStartsAllDueHospitals(cn.guahao.ParallelRuntimeTest)
+java.lang.AssertionError: expected:<2> but was:<0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at cn.guahao.ParallelRuntimeTest.oneDeliveredAlarmStartsAllDueHospitals(ParallelRuntimeTest.kt:84)
+
+FAILURES!!!
+Tests run: 5,  Failures: 1

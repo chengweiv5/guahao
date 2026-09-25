@@ -19,6 +19,11 @@ class MemoryStore(record: TaskRecord) : TaskStore {
         if (this.owner != null || record.task.generation != generation) return false
         this.owner=owner; return true
     }
+    @Synchronized override fun beginSubmission(id: String, generation: Long, attempt: SubmissionAttempt, now: Instant): Boolean {
+        if (record.attempt != null || record.stopRequested || record.task.generation != generation || !now.isBefore(record.task.deadline)) return false
+        update(id) { it.copy(attempt = attempt, phase = TaskPhase.SUBMITTING) }
+        return true
+    }
     @Synchronized override fun release(id: String, owner: String) { if (this.owner==owner) this.owner=null }
 }
 class FakeClock(var instant: Instant = fixtureTask().releaseAt) : BookingClock {
@@ -28,7 +33,11 @@ class FakeClock(var instant: Instant = fixtureTask().releaseAt) : BookingClock {
 }
 fun fixtureOrder() = OrderSnapshot("test-order", fixtureTask().condition.patient, "doctor", "eye", "示例医生", "眼科", "2",
     fixtureTask().condition.visitDate, "1", "08:00-08:30", 5000, OrderPhase.LOCKED, "1", fixtureTask().releaseAt.plusSeconds(1800), false, insuranceSupported=true)
+fun testBinding(patient: PatientRef, provider: String = patient.sessionId) = ConnectionBinding(
+    provider, "测试医院", provider, "合成平台", "account", patient.patientId, "connection-${patient.patientId}", patient.sessionId,
+    SubmissionScope(provider, "account"))
 open class FakeGateway : BookingGateway {
+    override fun binding(patient: PatientRef) = testBinding(patient)
     var locks = 0; var initializations = 0; var locked = false
     var reply: LockReply = LockReply.Accepted
     var result: AsyncReply = AsyncReply.OrderFound("test-order",PaymentContext(false,true,false))

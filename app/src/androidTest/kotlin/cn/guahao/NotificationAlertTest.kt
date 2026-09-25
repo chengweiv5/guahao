@@ -40,7 +40,7 @@ class NotificationAlertTest {
         val notifications = context.graph.notifications
         val manager = context.getSystemService(NotificationManager::class.java)
         val r = record()
-        val id = r.task.id.hashCode()
+        val id = r.task.id
         val originalChannel = manager.getNotificationChannel("results")
         val originalSound = originalChannel.sound
         val originalVibrate = originalChannel.shouldVibrate()
@@ -52,7 +52,7 @@ class NotificationAlertTest {
             manager.notify(1, notifications.running(r))
             manager.cancel(1)
             Thread.sleep(150)
-            val result = manager.activeNotifications.single { it.id == id }.notification
+            val result = manager.activeNotifications.single { it.tag == id && it.id == 3 }.notification
             val channel = manager.getNotificationChannel(result.channelId)
             assertEquals("Keep the user's channel", "results", result.channelId)
             assertEquals(originalSound, channel.sound)
@@ -69,9 +69,9 @@ class NotificationAlertTest {
             assertTrue("Repeat delivery must not restart sound", result.flags and Notification.FLAG_ONLY_ALERT_ONCE != 0)
             // Give system-owned sound/vibration time to finish; task service termination must not cancel it.
             Thread.sleep(8000)
-            assertTrue(manager.activeNotifications.any { it.id == id })
+            assertTrue(manager.activeNotifications.any { it.tag == id && it.id == 3 })
         } finally {
-            manager.cancel(id)
+            manager.cancel(id, 3)
             if (before != null) manager.notify(1, before) else manager.cancel(1)
         }
     }
@@ -84,25 +84,25 @@ class NotificationAlertTest {
         val date = generateSequence(LocalDate.now().plusDays(20)) { it.plusDays(1) }.first { it !in used }
         val base = record().task
         val task = base.copy(condition = base.condition.copy(visitDate = date), releaseAt = Instant.now().plusSeconds(2))
-        val id = task.id.hashCode()
+        val id = task.id
         graph.store.save(TaskRecord(task, TaskPhase.WAITING, note = "演示通知交接测试"))
         try {
             settings.edit().putBoolean("batteryAcknowledged", true).commit()
             graph.scheduler.schedule(task)
             val deadline = SystemClock.elapsedRealtime() + 15000
-            while (SystemClock.elapsedRealtime() < deadline && manager.activeNotifications.none { it.id == id }) {
+            while (SystemClock.elapsedRealtime() < deadline && manager.activeNotifications.none { it.tag == id && it.id == 3 }) {
                 Thread.sleep(100)
             }
             assertEquals(OrderPhase.INSURANCE_PENDING, graph.store.get(task.id).order?.phase)
-            assertTrue("Result must be posted by the actual task service", manager.activeNotifications.any { it.id == id })
+            assertTrue("Result must be posted by the actual task service", manager.activeNotifications.any { it.tag == id && it.id == 3 })
             // Longer than the physical test device's 2.926-second system Bell sound.
             Thread.sleep(5000)
-            assertTrue("Result must survive service teardown", manager.activeNotifications.any { it.id == id })
+            assertTrue("Result must survive service teardown", manager.activeNotifications.any { it.tag == id && it.id == 3 })
             assertFalse("Progress notification must be removed", manager.activeNotifications.any { it.id == 1 })
         } finally {
             graph.scheduler.cancel(task)
             settings.edit().putBoolean("batteryAcknowledged", previous).commit()
-            manager.cancel(id)
+            manager.cancel(id, 3)
         }
     }
 }

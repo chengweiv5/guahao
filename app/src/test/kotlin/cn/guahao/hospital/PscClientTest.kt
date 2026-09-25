@@ -3,6 +3,8 @@ package cn.guahao.hospital
 import cn.guahao.core.*
 import cn.guahao.core.psc.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -14,6 +16,21 @@ import java.time.Instant
 import java.time.LocalDate
 
 class PscClientTest {
+    @Test fun queuedRequestRechecksDeadlineAfterSharedProviderBudget() = runBlocking {
+        MockWebServer().use { server ->
+            server.start()
+            val gate = Mutex(); val budget = RequestBudget(150)
+            val a = PscTransport(CookieJar.NO_COOKIES, gate, server.url("/"), budget)
+            val b = PscTransport(CookieJar.NO_COOKIES, gate, server.url("/"), budget)
+            server.enqueue(MockResponse().setBody("{\"code\":0}"))
+            a.post("/read", emptyMap())
+            var allowed = true
+            val pending = async { runCatching { b.post("/lock", emptyMap()) { allowed } } }
+            delay(30); allowed = false
+            assertTrue(pending.await().isFailure)
+            assertEquals(1, server.requestCount)
+        }
+    }
     private fun session() = PscSession(PatientRef("synthetic-session","synthetic-patient"),"synthetic-user","AB+C=","synthetic-patient","test-pt-key","测试就诊人")
     @Test fun lockFieldsFollowOfficialProtocolExactly() {
         val d=DepartmentRef("1037","1308","五官","眼科","")

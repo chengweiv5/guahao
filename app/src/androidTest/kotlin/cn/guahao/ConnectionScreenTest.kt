@@ -125,8 +125,8 @@ class ConnectionScreenTest {
             }
             val other = task.copy(id = "other-test-${UUID.randomUUID()}")
             graph.store.save(TaskRecord(other))
-            try { graph.enable(other.id); fail("Unresolved submission must still prevent a new submission") }
-            catch (e: IllegalStateException) { assertTrue(e.message!!.contains("已有任务")) }
+            try { graph.enable(other.id); fail("Missing own session must still prevent enable") }
+            catch (e: IllegalStateException) { assertFalse(e.message!!.contains("已有任务")) }
         } finally {
             graph.store.update(task.id) { it.copy(phase = TaskPhase.STOPPED, manuallyResolved = true, stopRequested = true,
                 note = "连接保护测试已结束（虚构），未请求医院") }

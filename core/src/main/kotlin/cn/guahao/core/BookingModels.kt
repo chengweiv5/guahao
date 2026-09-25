@@ -20,6 +20,20 @@ object DateSerializer : KSerializer<LocalDate> {
 @Serializable enum class PaymentPreference { INSURANCE_FIRST, FULL_AMOUNT_BY_USER }
 @Serializable enum class TaskPhase { DRAFT, WAITING, SEARCHING, SUBMITTING, RECONCILING, AWAITING_PAYMENT, BOOKED, EXPIRED, STOPPED, NEEDS_ATTENTION }
 @Serializable data class PatientRef(val sessionId: String, val patientId: String)
+/** Keys are local HMAC indexes, never raw hospital identity or random credential IDs. */
+@Serializable data class SubmissionScope(val providerId: String, val accountKey: String?) {
+    fun conflicts(other: SubmissionScope) = providerId == other.providerId &&
+        (accountKey == null || other.accountKey == null || accountKey == other.accountKey)
+}
+@Serializable data class ConnectionBinding(
+    val hospitalId: String, val hospitalName: String, val providerId: String, val providerName: String,
+    val accountKey: String, val patientKey: String, val connectionId: String, val credentialVersionId: String,
+    val submissionScope: SubmissionScope
+) {
+    fun samePrincipal(other: ConnectionBinding) = hospitalId == other.hospitalId && providerId == other.providerId &&
+        accountKey == other.accountKey && patientKey == other.patientKey
+}
+val PatientRef.isDemo: Boolean get() = sessionId == "demo" || sessionId.startsWith("demo-")
 @Serializable data class DepartmentRef(val parentCode: String, val code: String, val parentName: String, val name: String, val originCode: String)
 @Serializable data class VisitCondition(
     val patient: PatientRef, val department: DepartmentRef, val doctorCode: String, val doctorName: String,
@@ -34,7 +48,7 @@ object DateSerializer : KSerializer<LocalDate> {
 @Serializable data class BookingTask(
     val id: String, val condition: VisitCondition, val releaseAt: Instant, val maxRuntimeMinutes: Int = 30,
     val paymentPreference: PaymentPreference = PaymentPreference.INSURANCE_FIRST,
-    val generation: Long = 1, val demo: Boolean = true
+    val generation: Long = 1, val demo: Boolean = true, val binding: ConnectionBinding? = null
 ) {
     init { require(maxRuntimeMinutes > 0); require(id.isNotBlank()) }
     val deadline: Instant get() = releaseAt.plusSeconds(maxRuntimeMinutes.toLong() * 60)
@@ -55,14 +69,18 @@ object DateSerializer : KSerializer<LocalDate> {
 @Serializable data class PaymentContext(val zeroFee: Boolean, val insuranceSupported: Boolean, val requiresUserChoice: Boolean)
 @Serializable data class SubmissionAttempt(
     val id: String, val taskId: String, val candidate: Candidate, val sentAt: Instant,
-    val baselineOrderNos: Set<String>, val orderNo: String? = null, val paymentContext: PaymentContext? = null
+    val baselineOrderNos: Set<String>, val orderNo: String? = null, val paymentContext: PaymentContext? = null,
+    val submissionScope: SubmissionScope? = null
 )
 @Serializable data class TaskRecord(
     val task: BookingTask, val phase: TaskPhase = TaskPhase.DRAFT, val attempt: SubmissionAttempt? = null,
     val order: OrderSnapshot? = null, val stopRequested: Boolean = false, val note: String = "",
     val insuranceStartedAt: Instant? = null, val insuranceResult: String? = null,
-    val lastEventAt: Instant? = null, val manuallyResolved: Boolean = false
+    val lastEventAt: Instant? = null, val manuallyResolved: Boolean = false,
+    val reconciliationPatient: PatientRef? = null
 )
+val TaskRecord.hasUnresolvedSubmission get() = attempt != null && order == null && !manuallyResolved
+val BookingTask.hospitalName get() = binding?.hospitalName ?: if (demo) "演示医院 A" else "北京佑安医院"
 sealed interface LockReply {
     data object Accepted : LockReply
     data object NoStock : LockReply

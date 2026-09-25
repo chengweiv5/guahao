@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 interface BookingGateway {
+    fun binding(patient: PatientRef): ConnectionBinding
     suspend fun departments(patient: PatientRef): List<DepartmentRef>
     suspend fun candidates(condition: VisitCondition): List<Candidate>
     suspend fun validateBookingAccess(patient: PatientRef): Boolean
@@ -22,6 +23,8 @@ interface TaskStore {
     fun update(id: String, transform: (TaskRecord) -> TaskRecord): TaskRecord
     fun claim(id: String, generation: Long, owner: String): Boolean
     fun release(id: String, owner: String)
+    /** Acquire correlation scope and persist attempt in the same short transaction. */
+    fun beginSubmission(id: String, generation: Long, attempt: SubmissionAttempt, now: Instant): Boolean
 }
 interface BookingClock {
     fun now(): Instant

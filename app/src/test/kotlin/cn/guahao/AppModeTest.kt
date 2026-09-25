@@ -16,7 +16,7 @@ class AppModeTest {
     @Test fun releaseExcludesEitherDemoMarkerButKeepsRealRecords() {
         val mode = AppMode(false)
         val real = task(false, "real-session")
-        val records = listOf(real, task(true, "demo"), task(false, "demo"), task(true, "real-session")).map(::TaskRecord)
+        val records = listOf(real, task(true, "demo"), task(false, "demo"), task(true, "real-session"), task(false, "demo-b")).map(::TaskRecord)
         assertEquals(listOf(TaskRecord(real)), mode.visible(records))
         assertFalse(mode.allows(PatientRef("demo", "synthetic")))
         assertTrue(mode.allows(real.condition.patient))
