@@ -1,23 +1,17 @@
 package cn.guahao
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.view.WindowManager
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import cn.guahao.core.*
-import cn.guahao.hospital.DemoGateway
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.*
-import java.util.UUID
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
@@ -46,38 +40,6 @@ class UiAndAlarmTest {
                 ?: compose.activity.getExternalFilesDir(null)!!
             output.mkdirs()
             File(output,"ui-task-detail.png").outputStream().use { screenshot.compress(Bitmap.CompressFormat.PNG,100,it) }
-        }
-    }
-    @Test fun exactAlarmStartsServiceWithScreenOff() = runBlocking {
-        val graph=compose.activity.graph
-        val device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val settings=compose.activity.getSharedPreferences("settings",Context.MODE_PRIVATE)
-        val previous=settings.getBoolean("batteryAcknowledged",false)
-        settings.edit().putBoolean("batteryAcknowledged",true).commit()
-        val release=Instant.now().plusSeconds(10)
-        val c=VisitCondition(DemoGateway.patient,DemoGateway.department,"demo-doctor","林医生（虚构）",LocalDate.now().plusDays(9),0,1440,"2",8000)
-        val task=BookingTask(UUID.randomUUID().toString(),c,release,maxRuntimeMinutes=1)
-        graph.store.save(TaskRecord(task,TaskPhase.WAITING,note="演示定时设备测试"))
-        try {
-            graph.scheduler.schedule(task)
-            device.sleep()
-            val end=System.currentTimeMillis()+45000
-            while (System.currentTimeMillis()<end && graph.store.get(task.id).order?.phase!=OrderPhase.INSURANCE_PENDING) kotlinx.coroutines.delay(250)
-            val result=graph.store.get(task.id)
-            assertNotNull(result.attempt)
-            assertEquals(OrderPhase.INSURANCE_PENDING,result.order?.phase)
-            assertFalse(result.attempt!!.sentAt.isBefore(release))
-            val delay=Duration.between(release,result.attempt!!.sentAt).toMillis()
-            val output=InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")?.let(::File)
-                ?: compose.activity.getExternalFilesDir(null)!!
-            output.mkdirs()
-            val evidence="release=$release\nattempt=${result.attempt!!.sentAt}\ndelayMillis=$delay\nphase=${result.phase}\norder=${result.order!!.phase}\nscreenOn=${device.isScreenOn}\n"
-            File(output,"alarm-evidence.txt").writeText(evidence)
-            println("GUAHAO_ALARM_EVIDENCE $evidence")
-            assertFalse(device.isScreenOn)
-        } finally {
-            device.wakeUp(); graph.scheduler.cancel(task)
-            settings.edit().putBoolean("batteryAcknowledged",previous).commit()
         }
     }
 }

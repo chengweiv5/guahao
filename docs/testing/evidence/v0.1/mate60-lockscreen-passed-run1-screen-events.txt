@@ -1,0 +1,5 @@
+# 2026-09-25 Asia/Shanghai; screen restored by test only after final assertion.
+09-25 10:15:26.990 I/power_screen_state( 1899): [0,2,0,0,456]
+09-25 10:15:26.991 I/screen_toggled( 1899): 0
+09-25 10:15:39.512 I/screen_toggled( 1899): 1
+09-25 10:15:39.780 I/power_screen_state( 1899): [1,0,0,0,289]

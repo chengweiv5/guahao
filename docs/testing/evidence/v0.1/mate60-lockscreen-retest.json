@@ -28,5 +28,6 @@
   "priorAttemptUserClarification": "User reported manually waking the screen during the 09:53 test; that prior attempt was externally interrupted.",
   "hospitalRequests": 0,
   "realOrdersCreated": 0,
-  "paymentPerformed": false
+  "paymentPerformed": false,
+  "latestLockscreenResult": "mate60-lockscreen-passed.json"
 }

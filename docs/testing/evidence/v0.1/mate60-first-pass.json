@@ -122,5 +122,6 @@
     "localBranch": "codex/android-v01",
     "pushedThisPass": false
   },
-  "followupLockscreenRetest": "mate60-lockscreen-retest.json"
+  "followupLockscreenRetest": "mate60-lockscreen-retest.json",
+  "latestLockscreenResult": "mate60-lockscreen-passed.json"
 }

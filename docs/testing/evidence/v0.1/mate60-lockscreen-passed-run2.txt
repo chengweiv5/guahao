@@ -1,0 +1,10 @@
+release=2026-09-25T02:16:27.187Z
+attempt=2026-09-25T02:16:28.074Z
+delayMillis=887
+phase=AWAITING_PAYMENT
+order=INSURANCE_PENDING
+screenOn=false
+screenOffAtStart=true
+screenOnObservedDuringWait=false
+checkedAt=2026-09-25T02:16:30.201Z
+syntheticVisitDate=2026-10-06

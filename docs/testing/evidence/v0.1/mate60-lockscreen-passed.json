@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-25",
+  "status": "short screen-off acceptance passed twice after Huawei background setup",
+  "device": "HUAWEI ALN-AL00 / HarmonyOS 4.2.0.223 / API 31",
+  "productionApkSha256": "5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e",
+  "productionCodeChanged": false,
+  "userConfirmedHuaweiBackgroundSettings": [
+    "self-start",
+    "associated start",
+    "background activity"
+  ],
+  "systemSettingsChangedByAgent": false,
+  "test": "cn.guahao.AlarmRuntimeTest#exactAlarmStartsServiceWithScreenOff",
+  "testFix": "Use unused synthetic visit date while keeping prior records and duplicate-order protection; remove Activity/Compose dependency; persist failure evidence and monitor screen throughout wait",
+  "intermediateFailure": {
+    "durationSeconds": 46.981,
+    "assertion": "attempt not null",
+    "reasonVerified": "NEEDS_ATTENTION: 医院已有同条件订单，请到官方页面核对，已暂停新提交",
+    "diagnosticWasReadOnly": true,
+    "temporaryDiagnosticRemoved": true,
+    "foregroundServiceAllowedInSystemLog": true,
+    "lockscreenLogAloneDoesNotEstablishDeliveryWasBlocked": true
+  },
+  "runs": [
+    {
+      "id": "run1",
+      "junit": "passed",
+      "durationSeconds": 13.879,
+      "releaseUtc": "2026-09-25T02:15:36.460Z",
+      "syntheticAttemptUtc": "2026-09-25T02:15:37.220Z",
+      "attemptDelayMillis": 760,
+      "taskPhase": "AWAITING_PAYMENT",
+      "orderPhase": "INSURANCE_PENDING",
+      "screenOffAtStart": true,
+      "screenOnObservedDuringWait": false,
+      "screenOnAtEnd": false,
+      "checkedAtUtc": "2026-09-25T02:15:39.474Z",
+      "syntheticVisitDate": "2026-10-05",
+      "rawEvidence": "mate60-lockscreen-passed-run1.txt",
+      "junitEvidence": "mate60-lockscreen-passed-run1-instrumentation.txt",
+      "screenEvidence": "mate60-lockscreen-passed-run1-screen-events.txt"
+    },
+    {
+      "id": "run2",
+      "junit": "passed",
+      "durationSeconds": 13.978,
+      "releaseUtc": "2026-09-25T02:16:27.187Z",
+      "syntheticAttemptUtc": "2026-09-25T02:16:28.074Z",
+      "attemptDelayMillis": 887,
+      "taskPhase": "AWAITING_PAYMENT",
+      "orderPhase": "INSURANCE_PENDING",
+      "screenOffAtStart": true,
+      "screenOnObservedDuringWait": false,
+      "screenOnAtEnd": false,
+      "checkedAtUtc": "2026-09-25T02:16:30.201Z",
+      "syntheticVisitDate": "2026-10-06",
+      "rawEvidence": "mate60-lockscreen-passed-run2.txt",
+      "junitEvidence": "mate60-lockscreen-passed-run2-instrumentation.txt",
+      "screenEvidence": "mate60-lockscreen-passed-run2-screen-events.txt"
+    }
+  ],
+  "notification": {
+    "verified": true,
+    "channel": "results",
+    "visibility": "PRIVATE",
+    "titles": [
+      "演示 · 锁号成功，请在 10:45 前付款",
+      "演示 · 锁号成功，请在 10:46 前付款"
+    ],
+    "publicText": "解锁后查看详情"
+  },
+  "cleanup": {
+    "batteryAcknowledgedRestoredToOriginal": true,
+    "batteryAcknowledgedFinalValue": false,
+    "appDataCleared": false,
+    "oldSyntheticRecordsPreserved": true,
+    "temporaryDiagnosticRemoved": true
+  },
+  "limits": {
+    "releaseDelaySeconds": 10,
+    "usbPowered": true,
+    "deepDozeTested": false,
+    "longThirtyMinuteLockscreenTested": false,
+    "realHospitalNetworkTested": false,
+    "instrumentationProcessRunning": true
+  },
+  "realHospitalCalls": 0,
+  "realOrdersCreated": 0,
+  "realPayments": 0
+}

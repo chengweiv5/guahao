@@ -1,6 +1,6 @@
 # 挂号 v0.1 Android 验收记录
 
-2026-09-25。已实现首版代码并形成调试安装包，Mate 60 Pro 安装、4 项真机测试及实际演示付款提醒通过。**首次短时测试被用户亮屏干扰；随后锁屏复验出现华为 `LOCKSCREEN` 拦截及 App 冻结，测试超时，当前后台配置下锁屏验收未通过。** 长时间锁屏和真实服务号 Android 集成仍待验证。原有普通/医保真实付款证据继续有效，本轮不重复占号。
+2026-09-25。已实现首版代码并形成调试安装包。Mate 60 Pro 安装、存储、演示流程、任务创建及付款提醒通过；**用户开启华为三项后台许可后，短时锁屏演示连续两次通过，模拟提交延迟 760ms / 887ms，执行期间屏幕保持关闭。** 30 分钟以上锁屏、深度 Doze、真实服务号 Android 集成及锁屏联网仍待验证。原有普通/医保真实付款证据继续有效，本轮不重复占号。
 
 ## 安装包
 
@@ -84,8 +84,8 @@ adb -s <serial> install -r app/build/outputs/apk/debug/app-debug.apk
 adb -s <serial> install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 adb -s <serial> shell am instrument -w -r -e class cn.guahao.StorageAndRuntimeTest cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
 adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#createSixtyMinuteDraftFromVisibleUi' cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
-# 当前真机结果：业务状态已到待付款，末尾 screenOn=false 断言失败
-adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#exactAlarmStartsServiceWithScreenOff' cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
+# 当前锁屏测试已独立于 UI 生命周期，使用互不冲突的虚构就诊日期
+adb -s <serial> shell am instrument -w -r -e class cn.guahao.AlarmRuntimeTest cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
 请先正常解锁、处理本 App 系统权限提示；不要在 instrumentation 运行中同时执行 `uiautomator dump`。真机直接运行 instrumentation，避免 Gradle connected 流程结束时卸载应用。
@@ -105,18 +105,43 @@ adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#exa
 | 10:06:52.693 | 已结束灭屏观察，助手发出亮屏键以恢复冻结的测试 |
 | 10:06:52.721 | App `UNFREEZE`，随后测试清理恢复 batteryAcknowledged=false |
 
-结果为**未通过 / 需要华为后台配置后复验**。系统闹钟已派发，App 同时被锁屏策略拦截；未观察到存活的 BookingService，不能把超时直接归为业务请求慢。宿主超时断开后恢复亮屏，Android 随后结束 instrumentation 并报告 Process crashed；本轮没有完整 JUnit 结果，不能把该报告独立作为 App 自发崩溃结论。
+该轮结果为**未通过 / 需要华为后台配置后复验**（后续已通过，见下一节）。系统闹钟已派发，同时记录锁屏拦截与 App 冻结；当时未观察到存活的 BookingService，不能把超时直接归为业务请求慢。宿主超时断开后恢复亮屏，Android 随后结束 instrumentation 并报告 Process crashed；该轮没有完整 JUnit 结果，不能把该报告独立作为 App 自发崩溃结论。后续证据也表明，单条 LOCKSCREEN 日志不足以证明服务未收到闹钟，必须结合冻结、服务和业务状态判断。
 
-通知与精确定时权限不等同于华为后台许可。下一步请用户进入“设置 → 应用和服务 → 应用启动管理 → 挂号”，关闭自动管理并允许自启动、关联启动和后台活动，再在同样条件下运行测试；菜单以设备为准。助手未自动修改这些系统开关。当前临时测试设置已恢复 false；未清除数据、卸载、改动系统常亮配置，也没有真实医院请求或订单操作。
+通知与精确定时权限不等同于华为后台许可。当时请用户进入“设置 → 应用和服务 → 应用启动管理 → 挂号”，关闭自动管理并允许自启动、关联启动和后台活动；用户随后确认已完成。助手未自动修改这些系统开关。临时测试设置已恢复 false；未清除数据、卸载、改动系统常亮配置，也没有真实医院请求或订单操作。
 
 结构化证据：[mate60-lockscreen-retest.json](evidence/v0.1/mate60-lockscreen-retest.json)；限定日志：[mate60-lockscreen-retest-events.txt](evidence/v0.1/mate60-lockscreen-retest-events.txt)。此前 4 项真机通过结果保持有效，锁屏项另记。本轮修改前文档备份在 `/tmp/guahao-mate60-lockscreen-retest/before/`。
+
+## 锁屏复验通过：后台许可与测试隔离（2026-09-25 10:15–10:16）
+
+用户确认已允许自启动、关联启动和后台活动后，先原样复验。系统日志显示 10:11:12 允许并启动 BookingService；46.981s 后测试在“必须有新 attempt”断言失败。临时只读诊断确认任务为 NEEDS_ATTENTION，原因是“医院已有同条件订单，请到官方页面核对，已暂停新提交”。这是此前演示订单触发了正确的防重复保护，不是新的锁屏失败。[该轮 JUnit 输出](evidence/v0.1/mate60-lockscreen-duplicate-protection.txt)保留。
+
+只修改 instrumentation 测试：将闹钟用例移至 `AlarmRuntimeTest`，去掉不必要的 Compose/Activity 依赖；每轮选择未使用的虚构就诊日期，保留历史任务和生产防重复逻辑；在等待期间每 250ms 记录是否曾亮屏，成功与失败均保存独立结果文件。临时只读诊断已移除。生产源代码和安装的 App APK 未改动。
+
+| 检查 | 第一次通过 | 连续第二次通过 |
+| --- | --- | --- |
+| JUnit | OK (1 test)，13.879s | OK (1 test)，13.978s |
+| 灭屏完成（北京时间） | 10:15:26.990 | 10:16:17.728 |
+| 计划放号 | 10:15:36.460 | 10:16:27.187 |
+| 模拟提交 | 10:15:37.220 | 10:16:28.074 |
+| 模拟提交延迟 | 760ms | 887ms |
+| 断言时刻 | 10:15:39.474 | 10:16:30.201 |
+| 状态 | AWAITING_PAYMENT / INSURANCE_PENDING | AWAITING_PAYMENT / INSURANCE_PENDING |
+| 全程屏幕检查 | 起始关闭、等待未亮屏、结束仍关闭 | 起始关闭、等待未亮屏、结束仍关闭 |
+| 测试结束主动恢复亮屏 | 10:15:39.512 | 10:16:30.240 |
+| 虚构就诊日期 | 2026-10-05 | 2026-10-06 |
+
+系统电源事件与测试内屏幕检查一致，亮屏均发生在最终断言之后。两条对应 results 通知已回读：“演示 · 锁号成功，请在 10:45 前付款”和“演示 · 锁号成功，请在 10:46 前付款”，PRIVATE 可见性、公开文本“解锁后查看详情”。两轮临时 `batteryAcknowledged` 都恢复原值 false，保留用户自行配置的华为后台许可。
+
+结论：目标机 **5 个不同功能测试已通过，锁屏用例重复两次均通过**；重复执行不重复计入功能项数。该结果覆盖 instrumentation 进程存活、USB 供电、约 10 秒后触发的演示执行，不等同于 30 分钟以上锁屏、深度 Doze、进程回收或真实医院联网保证。
+
+完整结构化结果：[mate60-lockscreen-passed.json](evidence/v0.1/mate60-lockscreen-passed.json)，内含两轮原始时间、JUnit 及电源事件文件引用。旧失败证据原样保留，并链接到最新通过记录。
 
 ## 真机剩余验收
 
 | 检查 | 后续操作与通过标准 |
 | --- | --- |
 | Mate 60 Pro 安装与 API | 已通过：ALN-AL00、鸿蒙 4.2.0.223、Android API 31，安装及冷启动成功 |
-| 短时全程灭屏 | 排除用户亮屏后出现系统 LOCKSCREEN 拦截；待用户允许华为三项后台许可后，重新验证自动执行和提醒 |
+| 短时全程灭屏 | 已通过：用户完成后台设置后，两轮全程灭屏到演示医保待付；通知已验证 |
 | 服务号独立会话 | 用户在手机主动粘贴本人页面链接；确认医院返回的姓名、ptno、功能权限一致 |
 | 真实只读数据 | 科室/医生/号源及既有订单读取；确认 `actdate/ampm/reserved_date/invalidtime` 的实际格式。当前解析拒绝未知结构，不退化为空列表 |
 | 长时间锁屏 | 演示任务设为至少 30 分钟后，锁屏等待；记录实际唤醒与通知。手机省电、自启动和后台联网以实测为准 |
@@ -125,7 +150,7 @@ adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#exa
 | 权限改变 | 拒绝/撤销通知、通知类别、精确闹钟、省电设置后，页面明确说明未就绪 |
 | 微信返回 | 用户完成已有订单付款后，App 同单回查确认；未回跳时手动刷新可用 |
 
-真实提交的 Android 集成验收只在用户安排下一次真实就医需求时进行。已打开手机“连接医院”页，等待用户主动粘贴本人的服务号链接；不从旧对话或微信私有数据自动导入。上表除安装/API 外尚未完成，不计入本轮通过数量。长时间锁屏、后台设置和网络切换需要用户配合安排测试时段。
+真实提交的 Android 集成验收只在用户安排下一次真实就医需求时进行。真实数据读取仍需要用户在手机主动粘贴本人的服务号链接；不从旧对话或微信私有数据自动导入。上表除安装/API、短时全程灭屏外尚未完成，不计入通过数量。用户已确认三项华为后台许可开启，长时间锁屏与网络切换另安排测试时段。
 
 ## 实现取舍与风险
 
