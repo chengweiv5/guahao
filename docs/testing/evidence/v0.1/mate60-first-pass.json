@@ -55,7 +55,7 @@
     "screenWakeEventUtc": "2026-09-25T01:53:50.711Z",
     "screenOnEventUtc": "2026-09-25T01:53:51.180Z",
     "screenOnAtFinalAssertion": true,
-    "wakeReason": "not established",
+    "wakeReason": "User subsequently confirmed manually waking the screen during this attempt; source: user report, not system log attribution",
     "durationMillis": 15958,
     "rawEvidence": "mate60-alarm-evidence.txt",
     "screenEventEvidence": "mate60-screen-events.txt",
@@ -63,7 +63,8 @@
     "existingStayOnWhilePluggedIn": 7,
     "systemStayAwakeSettingChanged": false,
     "deepDozeTested": false,
-    "interpretation": "Release time fell inside a screen-off interval, but the screen was awake before the synthetic attempt. This does not prove continuous screen-off execution or prolonged lock-screen reliability."
+    "interpretation": "Release time fell inside a screen-off interval, but the screen was awake before the synthetic attempt. This does not prove continuous screen-off execution or prolonged lock-screen reliability.",
+    "externallyInterrupted": true
   },
   "permissions": {
     "scheduleExactAlarm": "granted",
@@ -120,5 +121,6 @@
   "delivery": {
     "localBranch": "codex/android-v01",
     "pushedThisPass": false
-  }
+  },
+  "followupLockscreenRetest": "mate60-lockscreen-retest.json"
 }

@@ -1,0 +1,10 @@
+# Huawei Mate 60 Pro lock-screen retest; 2026-09-25, Asia/Shanghai (+08:00).
+# Narrow runtime and power observations; no patient data.
+09-25 10:04:35.421 I/SWAP_Scene( 1899): Entering notifySceneData notifySceneData. EventType:FREEZE pkg:cn.guahao uid:10201 pid:0 proc: activity:null
+09-25 10:04:41.785 I/ActivityManager( 1899): sendIntentSender target:PendingIntentRecord{e3e1b2e cn.guahao broadcastIntent}, intent:flg=0x4 hwFlg=0x810
+09-25 10:04:41.788 I/HwActivityTaskManagerServiceEx( 1899): isNeedInterceptStart true, interceptionState:LOCKSCREEN, callerPkg:cn.guahao, targetPkgName:cn.guahao, isAlarmIntent:true, uid:10201
+09-25 10:06:52.721 I/SWAP_Scene( 1899): Entering notifySceneData notifySceneData. EventType:UNFREEZE pkg:cn.guahao uid:10201 pid:0 proc: activity:null
+09-25 10:04:32.339 I/power_screen_state( 1899): [0,2,0,0,463]
+09-25 10:04:32.339 I/screen_toggled( 1899): 0
+09-25 10:06:52.693 I/screen_toggled( 1899): 1
+09-25 10:06:53.103 I/power_screen_state( 1899): [1,0,0,0,363]

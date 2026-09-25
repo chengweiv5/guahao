@@ -1,6 +1,6 @@
 # 挂号 v0.1 Android 验收记录
 
-2026-09-25。已实现首版代码并形成调试安装包，Mate 60 Pro 安装、4 项真机测试及实际演示付款提醒通过。**短时定时任务已执行，但请求前屏幕已亮，末尾灭屏断言失败；长时间锁屏和真实服务号 Android 集成尚未通过。** 原有普通/医保真实付款证据继续有效，本轮不重复占号。
+2026-09-25。已实现首版代码并形成调试安装包，Mate 60 Pro 安装、4 项真机测试及实际演示付款提醒通过。**首次短时测试被用户亮屏干扰；随后锁屏复验出现华为 `LOCKSCREEN` 拦截及 App 冻结，测试超时，当前后台配置下锁屏验收未通过。** 长时间锁屏和真实服务号 Android 集成仍待验证。原有普通/医保真实付款证据继续有效，本轮不重复占号。
 
 ## 安装包
 
@@ -68,7 +68,7 @@ APK 不入库；同一机器可按上述命令重建。调试签名不是长期�
 | 模拟提交记录 | 09:53:52.164，比计划晚 3328ms |
 | 结果 | AWAITING_PAYMENT / INSURANCE_PENDING，screenOn=true |
 
-计划放号时处于灭屏阶段，但模拟请求前已亮屏。现有日志未确定唤醒原因，不能归因为付款通知，也不能把 3328ms 直接认作 AlarmManager 唤醒延迟。测试时 USB 供电，系统已有 `stay_on_while_plugged_in=7`；未修改该设置，也未进入深度 Doze。原始时间证据：[mate60-alarm-evidence.txt](evidence/v0.1/mate60-alarm-evidence.txt)；限定电源事件：[mate60-screen-events.txt](evidence/v0.1/mate60-screen-events.txt)。
+计划放号时处于灭屏阶段，但模拟请求前已亮屏。原日志未确定唤醒原因；用户随后明确说明这次由其手动点亮屏幕，因此将本轮标记为人为干扰，不归因为付款通知，也不能把 3328ms 直接认作 AlarmManager 唤醒延迟。测试时 USB 供电，系统已有 `stay_on_while_plugged_in=7`；未修改该设置，也未进入深度 Doze。原始时间证据：[mate60-alarm-evidence.txt](evidence/v0.1/mate60-alarm-evidence.txt)；限定电源事件：[mate60-screen-events.txt](evidence/v0.1/mate60-screen-events.txt)。
 
 前序失败与复验：首次 UI 测试受锁屏/系统权限页干扰，曾观察到华为 BACKGROUND Activity 拦截；临时前台启动试验未解决且已撤回。处理通知授权后，原代码 UI 测试通过，不能再将该问题记为当前页面缺陷。授权前的闹钟测试被主动结束，Process crashed 是停止测试的结果；另一个 `uiautomator dump` 进程出现 `UiAutomationService already registered`，属于与 instrumentation 并发注册冲突，不是 App 自发崩溃证据。
 
@@ -90,12 +90,33 @@ adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#exa
 
 请先正常解锁、处理本 App 系统权限提示；不要在 instrumentation 运行中同时执行 `uiautomator dump`。真机直接运行 instrumentation，避免 Gradle connected 流程结束时卸载应用。
 
+## 锁屏复验：排除手动亮屏（2026-09-25 10:04）
+
+用户确认上一轮由其点亮屏幕后，告知测试期间不要操作手机，重新运行同一原始测试；应用和测试 APK 均未改动，通知/精确闹钟权限仍已授予。
+
+| 事件（北京时间） | 观察 |
+| --- | --- |
+| 10:04:32.339 | 系统完成灭屏，直到结束观察前无亮屏事件 |
+| 10:04:35.421 | 华为记录 `FREEZE pkg:cn.guahao` |
+| 10:04:41.783 | 计划放号时间，来自调度日志的 triggerAtTime |
+| 10:04:41.785 | 系统派发本 App 闹钟 PendingIntent；比计划晚约 2ms，非业务提交时间 |
+| 10:04:41.788 | `isNeedInterceptStart true, interceptionState:LOCKSCREEN, isAlarmIntent:true` |
+| 宿主等待 65 秒 | instrumentation 无返回，宿主命令超时；无新的成功证据，不复用上轮 alarm-evidence.txt |
+| 10:06:52.693 | 已结束灭屏观察，助手发出亮屏键以恢复冻结的测试 |
+| 10:06:52.721 | App `UNFREEZE`，随后测试清理恢复 batteryAcknowledged=false |
+
+结果为**未通过 / 需要华为后台配置后复验**。系统闹钟已派发，App 同时被锁屏策略拦截；未观察到存活的 BookingService，不能把超时直接归为业务请求慢。宿主超时断开后恢复亮屏，Android 随后结束 instrumentation 并报告 Process crashed；本轮没有完整 JUnit 结果，不能把该报告独立作为 App 自发崩溃结论。
+
+通知与精确定时权限不等同于华为后台许可。下一步请用户进入“设置 → 应用和服务 → 应用启动管理 → 挂号”，关闭自动管理并允许自启动、关联启动和后台活动，再在同样条件下运行测试；菜单以设备为准。助手未自动修改这些系统开关。当前临时测试设置已恢复 false；未清除数据、卸载、改动系统常亮配置，也没有真实医院请求或订单操作。
+
+结构化证据：[mate60-lockscreen-retest.json](evidence/v0.1/mate60-lockscreen-retest.json)；限定日志：[mate60-lockscreen-retest-events.txt](evidence/v0.1/mate60-lockscreen-retest-events.txt)。此前 4 项真机通过结果保持有效，锁屏项另记。本轮修改前文档备份在 `/tmp/guahao-mate60-lockscreen-retest/before/`。
+
 ## 真机剩余验收
 
 | 检查 | 后续操作与通过标准 |
 | --- | --- |
 | Mate 60 Pro 安装与 API | 已通过：ALN-AL00、鸿蒙 4.2.0.223、Android API 31，安装及冷启动成功 |
-| 短时全程灭屏 | 已观察到自动执行和提醒；请求前屏幕已亮，需在用户确认的测试条件下复验，记录实际闹钟接收和亮屏原因 |
+| 短时全程灭屏 | 排除用户亮屏后出现系统 LOCKSCREEN 拦截；待用户允许华为三项后台许可后，重新验证自动执行和提醒 |
 | 服务号独立会话 | 用户在手机主动粘贴本人页面链接；确认医院返回的姓名、ptno、功能权限一致 |
 | 真实只读数据 | 科室/医生/号源及既有订单读取；确认 `actdate/ampm/reserved_date/invalidtime` 的实际格式。当前解析拒绝未知结构，不退化为空列表 |
 | 长时间锁屏 | 演示任务设为至少 30 分钟后，锁屏等待；记录实际唤醒与通知。手机省电、自启动和后台联网以实测为准 |
