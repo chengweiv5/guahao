@@ -1,0 +1,108 @@
+{
+  "verified_at": "2026-09-25T03:31:23.040426+00:00",
+  "publication": "local_only",
+  "scope": "public official distribution static resources and credential-free GET; no installation or phone modifications",
+  "official_source_chain": {
+    "login_page": "https://portal.bjt.beijing.gov.cn/p/login/login.html",
+    "download_qr": "https://portal.bjt.beijing.gov.cn/p/assets/imgs/qr-download-app2.jpg",
+    "qr_decoded_url": "https://image.jt.beijing.gov.cn/jingtong-secondary-page/index.html#/deepLinkHandler?accessDetail=34_J1_05&jumpUrl=jingtong://app.detail",
+    "download_page_script": "https://image.jt.beijing.gov.cn/jingtong-secondary-page/static/js/main.66e83989.chunk.js",
+    "public_apk_download": "https://app.jt.beijing.gov.cn/api/file/external/jtfs/download/latest",
+    "redirect_query_retained": false
+  },
+  "apk": {
+    "package": "com.bjbdc.jingtong",
+    "version_name": "1.0.6",
+    "version_code": 106000,
+    "bytes": 79277331,
+    "sha256": "e0151ba069eb890f95c93a38994e7479eb9a7fe093cd0bf0912a60ef1adbd828",
+    "copy_in_repository": false,
+    "signature_identity_independently_verified": false
+  },
+  "medical_entry_configuration": [
+    {
+      "appName": "预约挂号",
+      "appId": "5dc3895dfaac4f22a2cc1408fdaf5f4a",
+      "authLevel": "L3",
+      "authType": -1,
+      "caStatus": "needLogin%253Atrue%257Cpath%253AappointmentRegisterHome",
+      "forwardUrl": "110000000000021111992100100000",
+      "gwUrl": "https://zyff.bjt.beijing.gov.cn/h5/bjswsjkwyhmryy/jkfwyyghscappdjqzdl",
+      "source_asset": "assets/tnData/tem_1783_3127.json"
+    },
+    {
+      "appName": "健康服务",
+      "appId": "2f1f8a4ce0be48d583fcad59cb3a1e3a",
+      "authLevel": "L3",
+      "authType": -1,
+      "caStatus": "needLogin%253Atrue%257Cpath%253AjtHealthService",
+      "forwardUrl": "110000000000031111993400100J00",
+      "gwUrl": "https://zyff.bjt.beijing.gov.cn/h5/bjswsjkwyhmryy/jkfwscappdjqzdl",
+      "source_asset": "assets/tnData/tem_1783_4101.json"
+    }
+  ],
+  "manifest_public_entry": {
+    "scheme": "jingtong",
+    "host": "app.detail",
+    "category": "android.intent.category.BROWSABLE",
+    "tested_app_launch": false
+  },
+  "gateway_probes": [
+    {
+      "entry": "registration",
+      "http_status": 200,
+      "business_error": {
+        "errcode": "AGW.1433",
+        "errmsg": "您好!您当前使用的手机、电脑等设备的时间与北京时间存在一定偏差，影响了您的访问，请您校准设备时间后再次访问，谢谢! （Request signature error or the difference between the request server timestamp and the actual time is greater than 180 seconds）"
+      },
+      "request_method": "GET",
+      "credential_or_signature_sent": false,
+      "timestamp_supplied": false
+    },
+    {
+      "entry": "health",
+      "http_status": 200,
+      "business_error": {
+        "errcode": "AGW.1433",
+        "errmsg": "您好!您当前使用的手机、电脑等设备的时间与北京时间存在一定偏差，影响了您的访问，请您校准设备时间后再次访问，谢谢! （Request signature error or the difference between the request server timestamp and the actual time is greater than 180 seconds）"
+      },
+      "request_method": "GET",
+      "credential_or_signature_sent": false,
+      "timestamp_supplied": false
+    }
+  ],
+  "conclusions": {
+    "medical_entry_located": true,
+    "bundled_login_required": true,
+    "bundled_auth_level": "L3",
+    "auth_level_meaning": "not inferred; bundle metadata, not a completed identity check",
+    "independent_medical_auth": false,
+    "hospital_department_schedule_api_success": false,
+    "third_party_oauth_or_sdk_contract_found": false,
+    "plain_get_rejected_by_gateway": true,
+    "clock_fault_confirmed": false,
+    "signed_gateway_requirement_proves_third_party_ban": false
+  },
+  "public_code_crosscheck": [
+    {
+      "repository": "https://github.com/hjwang1024/guahao114",
+      "last_push": "2023-10-11T01:39:09Z",
+      "readme": "website sign-in and manually copied cookie"
+    },
+    {
+      "repository": "https://github.com/AndyXiaoyu/beijingguahao",
+      "last_push": "2022-06-14T03:19:37Z",
+      "readme": "legacy bjguahao.gov.cn script"
+    },
+    {
+      "repository": "https://github.com/uzdz/114_robot",
+      "last_push": "2023-12-18T08:37:39Z",
+      "description": "channel closed"
+    },
+    {
+      "repository": "https://github.com/johnshazhu/114_register",
+      "last_push": "2024-07-11T02:01:01Z",
+      "readme": "author states official-account parameters became encrypted and maintenance stopped"
+    }
+  ]
+}

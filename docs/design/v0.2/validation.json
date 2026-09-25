@@ -94,5 +94,36 @@
       "Opaque POST with rc field is not identified as medical API",
       "Independent authentication and Android product integration remain unverified"
     ]
+  },
+  "latest_jingtong_static_verification": {
+    "date": "2026-09-25",
+    "publication": "local_only",
+    "record": "../../research/2026-09-25-jingtong-official-client-entry.md",
+    "evidence": "../../research/evidence/2026-09-25-beijing/jingtong-official-apk-entry.json",
+    "status": "medical_entries_located_gateway_auth_contract_missing",
+    "apk_package": "com.bjbdc.jingtong",
+    "apk_version": "1.0.6",
+    "official_distribution_chain": "verified",
+    "signature_identity_independently_verified": false,
+    "medical_entry_count": 2,
+    "bundled_auth_level": "L3",
+    "bundled_login_required": true,
+    "ordinary_get_results": [
+      "AGW.1433",
+      "AGW.1433"
+    ],
+    "medical_api_success": false,
+    "third_party_auth_contract_found": false,
+    "adapter_ready_for_implementation": false,
+    "phone_modified": false,
+    "new_user_action_needed_for_this_check": false,
+    "next_gate": "platform-supported third-party access or user authorization contract, then two-hospital department/schedule readback",
+    "scope_change": "none; links/reminders do not replace original registration goal",
+    "checks": {
+      "json": "passed",
+      "exact_gateway_urls_from_official_assets": "passed",
+      "no_secret_or_signed_download_url_saved": "passed",
+      "community_repos_checked": 4
+    }
   }
 }
