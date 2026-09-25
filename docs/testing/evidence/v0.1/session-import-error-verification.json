@@ -19,6 +19,19 @@
     "apkSha256": "3547c31b8d021d4d751fd8ed61779b112edf3142a8a9f154b7438bf3151e4557",
     "installedReadbackMatches": true,
     "installMode": "adb install -r",
-    "liveConnection": "pending user retry"
+    "liveConnection": "user confirmed department-page link imported successfully"
+  },
+  "missingCredentialFollowup": {
+    "reportedQueryNames": [
+      "ptno",
+      "userId"
+    ],
+    "syntheticRepro": "missing userIdKey; zero network requests; saved connection unchanged",
+    "coreTests": 31,
+    "appTests": 21,
+    "isolatedUiTests": 2,
+    "isolatedApplicationId": "cn.guahao.importcheck",
+    "installedOnPhone": false,
+    "sharedEmulatorRestored": true
   }
 }

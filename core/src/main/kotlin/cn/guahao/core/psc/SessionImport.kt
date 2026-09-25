@@ -36,7 +36,9 @@ fun parseSessionLink(raw: String): ImportedSession {
         values[key] = value
     }
     fun required(k: String) = values[k]?.takeIf { it.isNotBlank() }
-        ?: throw SessionLinkException("链接缺少就诊人身份信息，请在微信进入「预约挂号」，确认就诊人后重新复制完整链接")
+        ?: throw SessionLinkException(if (k == "userIdKey")
+            "链接缺少医院登录凭据，请在微信进入「预约挂号」后重新复制完整链接"
+            else "链接缺少就诊人身份信息，请在微信进入「预约挂号」，确认就诊人后重新复制完整链接")
     return ImportedSession(required("userId"), required("userIdKey"), required("ptno"))
 }
 fun requireMatchingIdentity(imported: ImportedSession, returnedUserId: String, returnedPtno: String) {

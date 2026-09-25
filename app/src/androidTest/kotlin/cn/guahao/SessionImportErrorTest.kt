@@ -13,6 +13,17 @@ import org.junit.runner.RunWith
 class SessionImportErrorTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
+    @Test fun homeLinkWithoutCredentialExplainsHowToGetBookingLink() {
+        compose.onNodeWithText("设置").performClick()
+        compose.onNodeWithText("连接医院").performScrollTo().performClick()
+        compose.onNodeWithText("粘贴服务号页面链接").performScrollTo().performTextInput(
+            "https://psc.hkinfo.net/admin/youmanage?ptno=test-patient&userId=test-user")
+        compose.onNodeWithText("连接并核验就诊人").performScrollTo().performClick()
+        compose.waitUntil(5000) { compose.onAllNodesWithText("知道了").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("链接缺少医院登录凭据，请在微信进入「预约挂号」后重新复制完整链接").assertIsDisplayed()
+        compose.onNodeWithText("链接缺少就诊人身份信息", substring = true).assertDoesNotExist()
+    }
+
     @Test fun invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure() {
         compose.onNodeWithText("设置").performClick()
         compose.onNodeWithText("连接医院").performScrollTo().performClick()

@@ -28,6 +28,21 @@ class SessionConnectionTest {
         SessionRepository(vault, Mutex(), clock) { PscTransport(CookieJar.NO_COOKIES, Mutex(), server.url("/")) }
     private fun ok() = MockResponse().setBody("""{"code":"0"}""")
 
+    @Test fun homeLinkWithOnlyPatientAndUserIdsExplainsMissingLoginCredentialWithoutNetwork() = runBlocking {
+        MockWebServer().use { server ->
+            server.start(); val vault = saved(); val sessions = repository(vault, server)
+            val before = vault.values.toMap()
+            try { sessions.importAndVerify("https://psc.hkinfo.net/admin/youmanage?ptno=test-patient&userId=test-user"); fail() }
+            catch (e: HospitalException) {
+                assertEquals("链接缺少医院登录凭据，请在微信进入「预约挂号」后重新复制完整链接", e.safeMessage)
+                assertFalse(e.safeMessage.contains("test-patient"))
+                assertFalse(e.safeMessage.contains("test-user"))
+            }
+            assertEquals(0, server.requestCount)
+            assertEquals(before, vault.values.toMap())
+        }
+    }
+
     @Test fun invalidPasteHasSafeInputErrorAndMakesNoRequest() = runBlocking {
         MockWebServer().use { server ->
             server.start(); val sessions = repository(saved(), server)
