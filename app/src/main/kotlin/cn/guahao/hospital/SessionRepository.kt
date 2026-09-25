@@ -88,26 +88,49 @@ class SessionRepository(private val vault: SecretStore, private val networkGate:
         connection()
     }
     suspend fun importAndVerify(raw: String): PscSession = importGate.withLock {
-        val input = parseSessionLink(raw)
+        val input = try { parseSessionLink(raw) }
+            catch (e: SessionLinkException) { throw HospitalException(e.safeMessage) }
         val id = UUID.randomUUID().toString()
         val http = transport(id)
-        http.get("/regis/initDept", mapOf("userId" to input.userId, "userIdKey" to input.userKey, "ptno" to input.ptno))
-        val list = http.post("/admin/getchargename", mapOf("id" to input.userId, "userIdKey" to input.userKey))
-        if (list.text("code") != "0") throw HospitalException("未能验证就诊人，请重新从微信接入")
-        val current = list.getValue("data").jsonArray.map { it.jsonObject }.singleOrNull {
-            it.text("id") == input.userId && it.text("ptno") == input.ptno
-        } ?: throw HospitalException("未找到导入链接对应的唯一就诊人")
-        val reply = http.post("/patient/changePatient", mapOf("id" to input.userId, "oldId" to input.userId, "userIdKey" to input.userKey))
-        if (reply.text("code") != "2") throw HospitalException("医院未返回有效就诊会话")
-        val person = reply.getValue("data").jsonObject
-        requireMatchingIdentity(input, person.text("id"), person.text("ptno"))
-        val s = PscSession(PatientRef(id, input.ptno), input.userId, person.text("userIdKey"), input.ptno, person.text("ptnoKey"), current.text("name"))
-        if (s.userKey.isBlank() || s.ptnoKey.isBlank()) throw HospitalException("医院会话凭据不完整")
-        val access = http.post("/function/functionControl", mapOf("functionid" to "002", "ptno" to s.ptno, "ptnoKey" to s.ptnoKey))
-        if (access.text("code") != "0") throw HospitalException("医院挂号功能暂不可用，请在微信确认")
-        vault.write("session-$id", pscJson.encodeToString(s))
-        recordAccess(s.reference, true)
-        vault.write("current-session", id)
+        importStep("打开医院页面") {
+            http.get("/regis/initDept", mapOf("userId" to input.userId, "userIdKey" to input.userKey, "ptno" to input.ptno))
+        }
+        val current = importStep("核验就诊人") {
+            val list = http.post("/admin/getchargename", mapOf("id" to input.userId, "userIdKey" to input.userKey))
+            if (list.text("code") != "0") throw HospitalException("未能验证就诊人，请重新从微信接入")
+            val people = list["data"] as? JsonArray ?: throw HospitalException("医院返回的就诊人列表格式异常，请稍后重试")
+            people.map { it as? JsonObject ?: throw HospitalException("医院返回的就诊人列表格式异常，请稍后重试") }.singleOrNull {
+                it.text("id") == input.userId && it.text("ptno") == input.ptno
+            } ?: throw HospitalException("未找到导入链接对应的唯一就诊人")
+        }
+        val s = importStep("获取就诊会话") {
+            val reply = http.post("/patient/changePatient", mapOf("id" to input.userId, "oldId" to input.userId, "userIdKey" to input.userKey))
+            if (reply.text("code") != "2") throw HospitalException("医院未返回有效就诊会话")
+            val person = reply["data"] as? JsonObject ?: throw HospitalException("医院返回的就诊会话格式异常，请稍后重试")
+            try { requireMatchingIdentity(input, person.text("id"), person.text("ptno")) }
+            catch (_: IllegalArgumentException) { throw HospitalException("医院返回的就诊人与链接不一致，请在微信确认就诊人后重新复制链接") }
+            PscSession(PatientRef(id, input.ptno), input.userId, person.text("userIdKey"), input.ptno, person.text("ptnoKey"), current.text("name")).also {
+                if (it.userKey.isBlank() || it.ptnoKey.isBlank()) throw HospitalException("医院会话凭据不完整")
+            }
+        }
+        importStep("校验挂号功能") {
+            val access = http.post("/function/functionControl", mapOf("functionid" to "002", "ptno" to s.ptno, "ptnoKey" to s.ptnoKey))
+            if (access.text("code") != "0") throw HospitalException("医院挂号功能暂不可用，请在微信确认")
+        }
+        importStep("保存医院连接") {
+            vault.write("session-$id", pscJson.encodeToString(s))
+            recordAccess(s.reference, true)
+            vault.write("current-session", id)
+        }
         s
+    }
+
+    private suspend fun <T> importStep(stage: String, block: suspend () -> T): T = try { block() }
+    catch (e: CancellationException) { throw e }
+    catch (e: HospitalException) {
+        throw HospitalException("$stage：${e.safeMessage}", e.retryAfterMillis, e.retryable, e.reconnectRequired)
+    } catch (_: Exception) {
+        // Exception messages, request URLs and response bodies can contain patient credentials.
+        throw HospitalException("$stage 未完成，请稍后重试；若仍失败，请反馈此提示")
     }
 }

@@ -1,0 +1,24 @@
+{
+  "core": {
+    "tests": 31,
+    "failures": 0,
+    "errors": 0
+  },
+  "app": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0
+  },
+  "emulator": {
+    "tests": 5,
+    "failures": 0,
+    "seconds": 18.125,
+    "hospitalRequests": 0
+  },
+  "physical": {
+    "apkSha256": "3547c31b8d021d4d751fd8ed61779b112edf3142a8a9f154b7438bf3151e4557",
+    "installedReadbackMatches": true,
+    "installMode": "adb install -r",
+    "liveConnection": "pending user retry"
+  }
+}

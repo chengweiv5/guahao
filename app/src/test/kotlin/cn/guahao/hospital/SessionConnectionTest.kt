@@ -28,6 +28,47 @@ class SessionConnectionTest {
         SessionRepository(vault, Mutex(), clock) { PscTransport(CookieJar.NO_COOKIES, Mutex(), server.url("/")) }
     private fun ok() = MockResponse().setBody("""{"code":"0"}""")
 
+    @Test fun invalidPasteHasSafeInputErrorAndMakesNoRequest() = runBlocking {
+        MockWebServer().use { server ->
+            server.start(); val sessions = repository(saved(), server)
+            try { sessions.importAndVerify("not-a-link?userIdKey=never-display-this"); fail() }
+            catch (e: HospitalException) {
+                assertTrue(e.safeMessage.contains("链接"))
+                assertFalse(e.safeMessage.contains("never-display-this"))
+            }
+            assertEquals(0, server.requestCount)
+            assertEquals(original.reference, sessions.current()!!.reference)
+        }
+    }
+
+    @Test fun malformedPatientListHasSafeStageErrorAndKeepsPreviousSession() = runBlocking {
+        for (data in listOf("null", "{}", "[42]")) MockWebServer().use { server ->
+            server.start(); val sessions = repository(saved(), server)
+            server.enqueue(MockResponse().setBody("<html>synthetic</html>"))
+            server.enqueue(MockResponse().setBody("""{"code":0,"data":$data,"debug":"never-display-this"}"""))
+            try { sessions.importAndVerify("https://psc.hkinfo.net/regis/initDept?userId=test&userIdKey=key&ptno=patient"); fail() }
+            catch (e: HospitalException) {
+                assertTrue(e.safeMessage.contains("核验就诊人"))
+                assertFalse(e.safeMessage.contains("never-display-this"))
+            }
+            assertEquals(2, server.requestCount)
+            assertEquals(original.reference, sessions.current()!!.reference)
+        }
+    }
+
+    @Test fun identityMismatchStopsBeforeAccessCheckAndKeepsPreviousSession() = runBlocking {
+        MockWebServer().use { server ->
+            server.start(); val sessions = repository(saved(), server)
+            server.enqueue(MockResponse().setBody("<html>synthetic</html>"))
+            server.enqueue(MockResponse().setBody("""{"code":0,"data":[{"id":"test","ptno":"patient","name":"测试"}]}"""))
+            server.enqueue(MockResponse().setBody("""{"code":2,"data":{"id":"other","ptno":"patient"}}"""))
+            try { sessions.importAndVerify("https://psc.hkinfo.net/admin/youmanage?userId=test&userIdKey=key&ptno=patient"); fail() }
+            catch (e: HospitalException) { assertTrue(e.safeMessage.contains("获取就诊会话：医院返回的就诊人与链接不一致")) }
+            assertEquals(3, server.requestCount)
+            assertEquals(original.reference, sessions.current()!!.reference)
+        }
+    }
+
     @Test fun savedSessionChecksOnceAndNeverClaimsFreshAcrossProcessOrLongIdle() = runBlocking {
         MockWebServer().use { server ->
             server.start(); val vault = saved(); var now = Instant.parse("2026-09-25T00:00:00Z")

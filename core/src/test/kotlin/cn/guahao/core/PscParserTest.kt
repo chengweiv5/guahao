@@ -6,6 +6,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PscParserTest {
+    @Test fun pastedLinkAllowsSurroundingWhitespaceWithoutChangingCredential() {
+        for (path in listOf("/admin/youmanage", "/regis/initDept")) {
+            val link = "https://psc.hkinfo.net$path?userId=test&userIdKey=AB%2BC%3D&ptno=p"
+            val imported = parseSessionLink(" \n$link\r\n ")
+            assertEquals("test", imported.userId)
+            assertEquals("AB+C=", imported.userKey)
+            assertEquals("p", imported.ptno)
+        }
+    }
+    @Test fun missingIdentityAndUnsupportedPagesHaveSpecificSafeErrors() {
+        val missing = assertThrows(SessionLinkException::class.java) {
+            parseSessionLink("https://psc.hkinfo.net/admin/youmanage?userId=test&userIdKey=secret")
+        }
+        assertTrue(missing.safeMessage.contains("缺少就诊人身份信息"))
+        assertFalse(missing.safeMessage.contains("secret"))
+        val unsupported = assertThrows(SessionLinkException::class.java) {
+            parseSessionLink("https://psc.hkinfo.net/other?userId=test&userIdKey=secret&ptno=p")
+        }
+        assertTrue(unsupported.safeMessage.contains("暂不支持这个服务号页面"))
+        assertFalse(unsupported.safeMessage.contains("secret"))
+    }
     @Test fun importsDecodeOnlyOnceWithoutChangingPlus() {
         for ((encoded, expected) in listOf("AB%2BC%3D" to "AB+C=", "AB+C=" to "AB+C=", "%252B" to "%2B")) {
             val s = parseSessionLink("https://psc.hkinfo.net/regis/initDept?userId=test&userIdKey=$encoded&ptno=p")

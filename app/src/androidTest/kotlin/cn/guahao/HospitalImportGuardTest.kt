@@ -31,8 +31,9 @@ class HospitalImportGuardTest {
         try {
             graph.importSession("invalid-link-for-local-validation")
             fail("Invalid link accepted")
-        } catch (_: IllegalArgumentException) {
+        } catch (e: HospitalException) {
             // Reaching local link validation proves demo state did not block connection.
+            assertTrue(e.safeMessage.contains("HTTPS 页面链接"))
         } catch (e: IllegalStateException) {
             fail("Task records blocked hospital connection: ${e.message}")
         } finally {

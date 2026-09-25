@@ -1,0 +1,44 @@
+INSTRUMENTATION_STATUS: class=cn.guahao.SessionImportErrorTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+cn.guahao.SessionImportErrorTest:
+INSTRUMENTATION_STATUS: test=invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=cn.guahao.SessionImportErrorTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Observed the user's exact generic failure instead of a link validation message
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at cn.guahao.SessionImportErrorTest.invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure(SessionImportErrorTest.kt:22)
+
+INSTRUMENTATION_STATUS: stream=
+Error in invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure(cn.guahao.SessionImportErrorTest):
+java.lang.AssertionError: Observed the user's exact generic failure instead of a link validation message
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at cn.guahao.SessionImportErrorTest.invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure(SessionImportErrorTest.kt:22)
+
+INSTRUMENTATION_STATUS: test=invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 5.602
+There was 1 failure:
+1) invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure(cn.guahao.SessionImportErrorTest)
+java.lang.AssertionError: Observed the user's exact generic failure instead of a link validation message
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at cn.guahao.SessionImportErrorTest.invalidPasteShowsActionableLinkErrorInsteadOfGenericFailure(SessionImportErrorTest.kt:22)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

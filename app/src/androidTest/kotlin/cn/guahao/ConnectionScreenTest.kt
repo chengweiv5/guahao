@@ -119,7 +119,7 @@ class ConnectionScreenTest {
                     attempt = if (phase in setOf(TaskPhase.RECONCILING, TaskPhase.NEEDS_ATTENTION))
                         SubmissionAttempt("synthetic", task.id, candidate, Instant.now().minusSeconds(180), emptySet()) else null) }
                 try { graph.importSession("not-a-real-link"); fail("Invalid link accepted") }
-                catch (_: IllegalArgumentException) { /* Reached local parser despite task state. */ }
+                catch (e: HospitalException) { assertTrue(e.safeMessage.contains("HTTPS 页面链接")) }
                 assertEquals(before, graph.store.get(task.id))
                 assertEquals(patient.reference, graph.store.get(task.id).task.condition.patient)
             }
