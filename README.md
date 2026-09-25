@@ -42,7 +42,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 回到 App 或进入连接设置时复查挂号权限，同一会话的自动复查至少间隔 60 秒；该会话存在等待、执行或未决的真实任务时跳过额外自动复查，演示任务和其他会话不影响连接检查，仍保留启用与提交前检查。重启进程或上次成功校验超过 5 分钟，显示“会话已保存，待校验”（5 分钟是显示的新鲜度，不是医院会话有效期）。断网、维护或响应异常显示“暂未确认连接状态”并保留凭据；医院权限校验未通过单独显示“挂号权限待核对”。明确未授权响应或微信授权跳转才持久标记“需重新连接”。新增连接不受任务状态限制，已有任务继续使用创建时绑定的就诊人和会话；需要更换就诊人时复用条件新建，连接更新不自动恢复或重复提交任务。该流程已通过模拟响应及真机界面/存储测试，医院自然过期的实际响应仍待实测。
 
-多医院并行执行框架已实现：不同医院独立启用、唤醒、查询、提交、停止和通知；同一平台账户的未决提交持久保护，重新导入不能绕过。设置可管理多个就诊人连接，新任务固定所选医院与凭据版本。当前真实适配器仍只有佑安服务号，测试版提供演示医院 A/B；第二家真实医院待确定与协议验收。设计与验证见 [多医院连接与并行任务设计](docs/design/2026-09-25-multi-hospital-connections.md) 和 [并行执行验收](docs/testing/2026-09-25-multi-hospital-execution.md)。数据库升级到 v2 后不得直接安装 v1 旧包或覆盖新增业务数据。
+多医院并行执行框架已实现：不同医院独立启用、唤醒、查询、提交、停止和通知；同一平台账户的未决提交持久保护，重新导入不能绕过。设置可管理多个就诊人连接，新任务固定所选医院与凭据版本。当前真实适配器仍只有佑安服务号，测试版提供演示医院 A/B；第二家真实医院已确定为首都医科大学宣武医院，[官方入口已核验](docs/research/2026-09-25-xuanwu-entry-verification.md)，认证、查询及订单协议仍待手机实测，尚不支持宣武自动挂号。设计与验证见 [多医院连接与并行任务设计](docs/design/2026-09-25-multi-hospital-connections.md) 和 [并行执行验收](docs/testing/2026-09-25-multi-hospital-execution.md)。数据库升级到 v2 后不得直接安装 v1 旧包或覆盖新增业务数据。
 
 构建类型在编译期决定模式，应用内没有正式包演示开关：`assembleDebug` 保留演示，`assembleRelease` 禁用演示。正式构建命令为 `./gradlew :app:testReleaseUnitTest :app:lintRelease :app:assembleRelease`，产物 `app/build/outputs/apk/release/app-release-unsigned.apk` 尚需正式签名后才可分发。本轮只在模拟器使用本地测试签名验收正式构建；Mate 60 Pro 保持测试包。两种构建沿用相同应用 ID，不清空数据、不要求重新配置华为后台权限。
 
@@ -73,7 +73,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据、平台适配与独立接入的验证边界。
 - [v0.2 最新查询核验](docs/research/2026-09-25-xweb-read-query-verification.md)：手机微信内置调试已验证 114 两家医院的科室与排班、7 种核心查询端点，并确认京通复用同组查询协议；独立客户端认证、请求构造与预约提交仍待验证。
 - [v0.2 入口核验](docs/research/2026-09-25-114-mobile-entry-and-web-closure.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：网站预约已关闭；京通与 114 的登录态和凭据按入口隔离。
-- [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计；新增抢号性能与策略优化及显著付款提醒任务，其余方向仍为候选，开发均未排期。
+- [宣武医院接入核验](docs/research/2026-09-25-xuanwu-entry-verification.md)：第二家医院的官方入口、取号与支付区别，以及真实适配的通过条件。
+- [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计，宣武医院接入核验已开始；抢号性能与策略优化及显著付款提醒等其他任务保持原状态。
 - [服务号 v0.1 开发计划](docs/superpowers/plans/2026-09-24-service-account-v01.md)：会话导入、自动预约、锁屏执行、付款通知与设备验收。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。
 - [服务号固定入口与首次连接核对](docs/research/2026-09-25-service-account-connection.md)：现有会话可保存复用，首次免粘贴授权和回传仍未验证。

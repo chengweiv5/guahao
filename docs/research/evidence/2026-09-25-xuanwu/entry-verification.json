@@ -1,0 +1,100 @@
+{
+  "observed_at": "2026-09-25T13:04:57+08:00",
+  "status": "blocked_pending_phone_entry",
+  "hospital_name": "首都医科大学宣武医院",
+  "selected_by_user": true,
+  "sample_department": "眼科",
+  "sample_department_is_booking_intent": false,
+  "channel_choice": "awaiting_user; official mini program examined first based on prior WeChat preference",
+  "sources": [
+    {
+      "id": "hospital_booking_guide",
+      "url": "https://www.xwhosp.com.cn/Html/News/Articles/10004068.html",
+      "published": "2023-10-08",
+      "verified_via": "in_app_browser_visible_text",
+      "facts": [
+        "Official App and 114 listed as booking channels",
+        "On-day kiosk collection with identity/social-security card",
+        "Self-pay official App users may collect electronic ticket online"
+      ]
+    },
+    {
+      "id": "official_wechat_guide",
+      "url": "https://mp.weixin.qq.com/s/4dWzU5svETVSfbB9Bdk3Tw",
+      "published": "2023-06-06",
+      "verified_via": "hospital_official_site_link_and_in_app_browser_visible_text",
+      "facts": [
+        "WeChat and Alipay mini program named 首都医科大学宣武医院",
+        "Registration and login precede booking",
+        "Historical 14-day range explicitly associated with kiosks and 114; current rule not verified"
+      ]
+    },
+    {
+      "id": "hospital_2024_guide",
+      "url": "https://www.xwhosp.com.cn/Html/News/Articles/10013884.html",
+      "published": "2024-12-03",
+      "verified_via": "in_app_browser_visible_text",
+      "facts": [
+        "Official App, same-name mini program, and 114 listed",
+        "Payment instructions apply to cross-province special chronic diseases, not generalized"
+      ]
+    },
+    {
+      "id": "official_app_overview",
+      "url": "https://www.xwhosp.com.cn/Html/News/Columns/10000675/Index.html",
+      "verified_via": "in_app_browser_visible_text",
+      "facts": [
+        "Official App overview describes phone/password login and adding patients; current protocol not verified"
+      ]
+    },
+    {
+      "id": "official_app_qr",
+      "url": "https://www.xwhosp.com.cn/Html/News/Articles/10010113.html",
+      "published": "2020-05-19",
+      "verified_via": "in_app_browser_image_src_then_host_download_and_offline_vision_decode",
+      "asset_url": "https://www.xwhosp.com.cn/Sites/Uploaded/Image/2023/04/046381623723051514659366695.png",
+      "sha256": "aef889f7b527d53e2656141a2003a90000d3fe9be17d74b552579d128e3e0f11",
+      "decoded_url": "https://a.app.qq.com/o/simple.jsp?pkgname=com.founder.xwyypatientapp&fromcase=40002"
+    },
+    {
+      "id": "official_app_store",
+      "url": "https://sj.qq.com/appdetail/com.founder.xwyypatientapp",
+      "verified_via": "in_app_browser_visible_text_and_public_page_metadata",
+      "package_name": "com.founder.xwyypatientapp",
+      "version": "3.0.3",
+      "displayed_update_date": "2026-09-22",
+      "developer": "首都医科大学宣武医院（北京市老年保健及疾病防治中心、北京功能神经外科研究所）",
+      "apk_downloaded": false,
+      "apk_executed": false
+    }
+  ],
+  "verified_capabilities": [
+    "official_channel_identity"
+  ],
+  "unverified_capabilities": [
+    "mini_program_business_entry",
+    "remote_hospital_and_department_ids",
+    "independent_android_authentication",
+    "independent_query_construction",
+    "live_schedules_and_release_rules",
+    "submission_and_order_correlation",
+    "insurance_payment_and_ticket_collection",
+    "two_real_hospital_parallel_device_acceptance"
+  ],
+  "device_check": {
+    "physical_device_connected": false,
+    "emulator_connected": true,
+    "result": "Target physical phone absent; package check returned device not found"
+  },
+  "safety": {
+    "patient_data_read": false,
+    "login_performed": false,
+    "hospital_booking_requests": 0,
+    "hospital_payment_requests": 0,
+    "device_settings_changed": false,
+    "capture_started": false,
+    "app_installed": false,
+    "production_adapter_added": false
+  },
+  "next_step": "Connect phone and open the selected official registration entry at ophthalmology; verify actual authentication and read-only queries before implementing adapter"
+}
