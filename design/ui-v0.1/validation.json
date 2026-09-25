@@ -3962,7 +3962,7 @@
     "image lightbox",
     "visual review"
   ],
-  "pencilSourceBytes": 384497,
+  "pencilSourceBytes": 384280,
   "department": "眼科",
   "departmentReplacements": 14,
   "departmentScreens": 10,
@@ -3972,5 +3972,7 @@
     "statusBeforePayment": "锁号成功，待付款",
     "unchangedOfficialMenu": "就诊服务 → 预约挂号",
     "textNodesUpdated": 34
-  }
+  },
+  "blankFrameRemoved": true,
+  "designScreensUnchangedAfterBlankFrameRemoval": true
 }
