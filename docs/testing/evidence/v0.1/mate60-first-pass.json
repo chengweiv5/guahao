@@ -21,45 +21,104 @@
     "apkSha256": "5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e",
     "install": "passed",
     "coldStart": "passed",
-    "coldStartMillis": 966
+    "coldStartMillis": 966,
+    "productionCodeChangedThisPass": false,
+    "testCodeChangedThisPass": false,
+    "finalColdStartMillis": 766
   },
   "passedInstrumentationTests": [
     "keystoreCipherUsesUniqueIvAndBoundContext",
     "databaseReopenRetainsAttemptAndClaimsAreExclusive",
-    "simulatedInsuranceFlowPersistsThroughCompletion"
+    "simulatedInsuranceFlowPersistsThroughCompletion",
+    "createSixtyMinuteDraftFromVisibleUi"
   ],
   "ui": {
     "manualForegroundLaunch": "passed",
     "homeHierarchy": "readable",
-    "composeAutomation": "failed - no Compose hierarchy; Huawei background activity interception observed; foreground launch workaround also timed out; workaround reverted"
+    "composeAutomation": "passed with original test after normal notification authorization",
+    "durationMillis": 2324,
+    "draftRuntimeMinutes": 60,
+    "deadlineOffsetSeconds": 3600,
+    "screenshot": "mate60-task-detail.jpeg",
+    "secureWindowFlagRetained": true,
+    "earlierFailure": "No Compose hierarchy with keyguard/permission screen; Huawei background Activity interception observed; temporary test workaround reverted"
   },
   "screenOffAlarm": {
-    "status": "incomplete",
-    "reason": "test hung while device was locked and permission UI active; stopped without claiming pass"
+    "status": "failed final screen-off assertion; submission and pending-payment assertions passed",
+    "scheduledReleaseUtc": "2026-09-25T01:53:48.836Z",
+    "syntheticAttemptUtc": "2026-09-25T01:53:52.164Z",
+    "attemptDelayMillis": 3328,
+    "attemptDelayIsAlarmDeliveryLatency": false,
+    "taskPhase": "AWAITING_PAYMENT",
+    "orderPhase": "INSURANCE_PENDING",
+    "screenOffEventUtc": "2026-09-25T01:53:39.291Z",
+    "screenWakeEventUtc": "2026-09-25T01:53:50.711Z",
+    "screenOnEventUtc": "2026-09-25T01:53:51.180Z",
+    "screenOnAtFinalAssertion": true,
+    "wakeReason": "not established",
+    "durationMillis": 15958,
+    "rawEvidence": "mate60-alarm-evidence.txt",
+    "screenEventEvidence": "mate60-screen-events.txt",
+    "usbPowered": true,
+    "existingStayOnWhilePluggedIn": 7,
+    "systemStayAwakeSettingChanged": false,
+    "deepDozeTested": false,
+    "interpretation": "Release time fell inside a screen-off interval, but the screen was awake before the synthetic attempt. This does not prove continuous screen-off execution or prolonged lock-screen reliability."
   },
   "permissions": {
     "scheduleExactAlarm": "granted",
     "foregroundService": "granted",
     "wakeLock": "granted",
-    "postNotifications": "not granted at observation",
-    "batteryOptimizationWhitelist": false
+    "postNotifications": "granted; USER_SET",
+    "batteryOptimizationWhitelist": false,
+    "notificationChannels": {
+      "execution": "enabled",
+      "results": "enabled"
+    },
+    "appRuntimeSettings": {
+      "notifications": "ready",
+      "exactAlarm": "ready",
+      "battery": "still restricted; acknowledgment false"
+    }
   },
   "cleanup": {
     "appDataCleared": false,
     "appUninstalled": false,
     "temporaryBatteryAcknowledgedRestored": true,
-    "testProcessStopped": true
+    "testProcessStopped": true,
+    "temporaryBatteryAcknowledgedFinalValue": false,
+    "huaweiBackgroundManagementChanged": false,
+    "syntheticTestRecordsRetained": true,
+    "appLeftAt": "hospital connection page"
   },
-  "nextRequiredUserAction": "Unlock phone, handle system permission prompt, open Guahao app",
+  "nextRequiredUserAction": "Actively import own service-account page link inside app; arrange Huawei background setup and prolonged screen-off test",
   "realHospitalCalls": 0,
   "realOrdersCreated": 0,
   "remaining": [
-    "UI automation",
-    "notification permission verification",
-    "short and prolonged screen-off scheduling",
+    "continuous short screen-off execution",
+    "prolonged lock-screen scheduling and deep Doze",
     "service-account import and real read-only data",
     "Huawei battery setup",
     "network switching",
-    "process recovery and reboot"
-  ]
+    "process recovery and reboot",
+    "real Android booking/payment integration when user has a genuine visit need"
+  ],
+  "instrumentationSummary": {
+    "passed": 4,
+    "failed": 1,
+    "failure": "exactAlarmStartsServiceWithScreenOff: final screen-off assertion at UiAndAlarmTest.kt:77",
+    "earlierInterruptedRunsIncludedInPassCount": false
+  },
+  "notification": {
+    "status": "verified on physical device",
+    "channel": "results",
+    "title": "演示 · 锁号成功，请在 10:23 前付款",
+    "visibility": "PRIVATE",
+    "publicText": "解锁后查看详情",
+    "containsRealPatientData": false
+  },
+  "delivery": {
+    "localBranch": "codex/android-v01",
+    "pushedThisPass": false
+  }
 }

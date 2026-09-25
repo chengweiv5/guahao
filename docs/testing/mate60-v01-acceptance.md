@@ -1,6 +1,6 @@
 # 挂号 v0.1 Android 验收记录
 
-2026-09-25。已实现首版代码并形成调试安装包，已在 Mate 60 Pro 安装和完成首批核心测试。**真机界面自动化、通知与锁屏执行尚未通过，不能宣称真实手机自动挂号全流程通过。** 原有普通/医保真实付款证据继续有效，本轮不重复占号。
+2026-09-25。已实现首版代码并形成调试安装包，Mate 60 Pro 安装、4 项真机测试及实际演示付款提醒通过。**短时定时任务已执行，但请求前屏幕已亮，末尾灭屏断言失败；长时间锁屏和真实服务号 Android 集成尚未通过。** 原有普通/医保真实付款证据继续有效，本轮不重复占号。
 
 ## 安装包
 
@@ -12,7 +12,7 @@
 
 ```bash
 ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+# 以下 connected 流程用于模拟器，可能在结束时卸载应用
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
@@ -51,21 +51,51 @@ APK 不入库；同一机器可按上述命令重建。调试签名不是长期�
 
 实际设备：华为 `ALN-AL00`（Mate 60 Pro），鸿蒙 `4.2.0.223(C00E215R10P2)`，Android 12 / API 31；1260×2720，520 dpi，arm64。设备序列号不入库。
 
-- **通过**：调试 APK 安装；冷启动返回 Status ok（966ms）；前台首页 UI 层级可读，出现“挂号任务”“新建挂号任务”等正确内容。
-- **通过**：直接用 `adb -s <serial> shell am instrument` 运行 StorageAndRuntimeTest，3/3 成功，包括 Keystore 随机 IV/AAD、数据库重开与独占执行权、演示医保流程。未使用会在结束时卸载应用的 Gradle connected 流程。
-- **未通过**：Compose UI 自动化未找到界面层级。华为日志出现对测试 Activity 的 BACKGROUND 启动拦截；添加 shell 前台启动仍超时，试验性修改已撤回，不能将 UI 断言记为通过。
-- **未完成**：短时灭屏闹钟测试挂起。检测到手机锁屏、系统权限界面，停止测试进程后其返回 Process crashed；这是人为结束测试的结果，不作为 App 自发崩溃证据，也不能算闹钟成功或失败的完整验收。
-- **权限实测**：精确闹钟、前台服务和唤醒锁 granted；该鸿蒙设备虽报告 API 31，仍有独立 POST_NOTIFICATIONS 权限，观察时未授权；App 不在系统电池优化白名单。
-- **清理**：测试过程中临时设置的 batteryAcknowledged 已恢复 false 并回读验证；未清除应用数据、未卸载、未自动更改华为后台管理开关。虚构测试记录保留且明确标记演示。
-- **当前需要用户操作**：正常解锁手机、处理系统权限提示并打开“挂号”，然后继续核对通知、后台设置及服务号接入。已通过 punk-12 发出并回读介入通知。
+- **通过**：调试 APK 安装；首次冷启动返回 Status ok（966ms），收尾重新打开为 766ms；首页显示“挂号任务”“新建挂号任务”。APK 与原实现交付哈希一致，本轮未修改生产或测试代码。
+- **通过**：直接运行 StorageAndRuntimeTest，`OK (3 tests)`，包括 Keystore 随机 IV/AAD、数据库重开与独占执行权、演示医保流程。
+- **通过**：原始 `createSixtyMinuteDraftFromVisibleUi` 测试，`OK (1 test)`（2.324s）。三步创建并保存 60 分钟草稿，开始/截止差 3600 秒；[真机详情页](evidence/v0.1/mate60-task-detail.jpeg)已目视检查，眼科、虚构医生、60 分钟与白字主按钮可读。截图仅绘制本 App 虚构内容，未关闭 FLAG_SECURE。
+- **通过**：系统设置中仅开启本 App 的通知开关并回读 POST_NOTIFICATIONS granted=true；execution、results 两个类别启用。实际读到 results 通知“演示 · 锁号成功，请在 10:23 前付款”，PRIVATE 可见性、公开文本为“解锁后查看详情”。App 运行准备页通知和精确定时均显示就绪。
+- **部分行为通过、测试失败**：原始 `exactAlarmStartsServiceWithScreenOff` 在 15.958s 结束，前三个断言通过（已持久化 attempt、订单为 INSURANCE_PENDING、未提前提交）；最后 `assertFalse(device.isScreenOn)` 失败。任务已到 AWAITING_PAYMENT，不能将整个测试记为通过。
 
-结构化记录：[mate60-first-pass.json](evidence/v0.1/mate60-first-pass.json)。本轮没有真实医院请求、锁号或付款。
+该短时测试的时序（北京时间）：
+
+| 事件 | 时间 / 结果 |
+| --- | --- |
+| 系统完成灭屏 | 09:53:39.291，power_screen_state=0 |
+| 计划放号 | 09:53:48.836 |
+| 系统开始亮屏 | 09:53:50.711，screen_toggled=1 |
+| 系统完成亮屏 | 09:53:51.180，power_screen_state=1 |
+| 模拟提交记录 | 09:53:52.164，比计划晚 3328ms |
+| 结果 | AWAITING_PAYMENT / INSURANCE_PENDING，screenOn=true |
+
+计划放号时处于灭屏阶段，但模拟请求前已亮屏。现有日志未确定唤醒原因，不能归因为付款通知，也不能把 3328ms 直接认作 AlarmManager 唤醒延迟。测试时 USB 供电，系统已有 `stay_on_while_plugged_in=7`；未修改该设置，也未进入深度 Doze。原始时间证据：[mate60-alarm-evidence.txt](evidence/v0.1/mate60-alarm-evidence.txt)；限定电源事件：[mate60-screen-events.txt](evidence/v0.1/mate60-screen-events.txt)。
+
+前序失败与复验：首次 UI 测试受锁屏/系统权限页干扰，曾观察到华为 BACKGROUND Activity 拦截；临时前台启动试验未解决且已撤回。处理通知授权后，原代码 UI 测试通过，不能再将该问题记为当前页面缺陷。授权前的闹钟测试被主动结束，Process crashed 是停止测试的结果；另一个 `uiautomator dump` 进程出现 `UiAutomationService already registered`，属于与 instrumentation 并发注册冲突，不是 App 自发崩溃证据。
+
+精确闹钟、前台服务和唤醒锁均 granted。该鸿蒙设备虽报告 API 31，仍提供独立 POST_NOTIFICATIONS 权限；App 通过通知总开关能正确识别未授权。App 不在电池优化白名单；华为后台管理开关未自动更改。临时 `batteryAcknowledged` 已恢复 false 并回读；未清除应用数据、未卸载。虚构测试记录保留且明确标记演示。
+
+共 **4 项真机 instrumentation 测试完整通过，1 项末尾灭屏断言失败**。不能与先前模拟器的 5/5 混为同一组结果。结构化记录：[mate60-first-pass.json](evidence/v0.1/mate60-first-pass.json)。本轮没有真实医院请求、锁号或付款。
+
+真机复现命令（显式选择设备，避免影响同时连接的模拟器）：
+
+```bash
+./gradlew :app:assembleDebug :app:assembleDebugAndroidTest
+adb -s <serial> install -r app/build/outputs/apk/debug/app-debug.apk
+adb -s <serial> install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb -s <serial> shell am instrument -w -r -e class cn.guahao.StorageAndRuntimeTest cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
+adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#createSixtyMinuteDraftFromVisibleUi' cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
+# 当前真机结果：业务状态已到待付款，末尾 screenOn=false 断言失败
+adb -s <serial> shell am instrument -w -r -e class 'cn.guahao.UiAndAlarmTest#exactAlarmStartsServiceWithScreenOff' cn.guahao.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+请先正常解锁、处理本 App 系统权限提示；不要在 instrumentation 运行中同时执行 `uiautomator dump`。真机直接运行 instrumentation，避免 Gradle connected 流程结束时卸载应用。
 
 ## 真机剩余验收
 
 | 检查 | 后续操作与通过标准 |
 | --- | --- |
 | Mate 60 Pro 安装与 API | 已通过：ALN-AL00、鸿蒙 4.2.0.223、Android API 31，安装及冷启动成功 |
+| 短时全程灭屏 | 已观察到自动执行和提醒；请求前屏幕已亮，需在用户确认的测试条件下复验，记录实际闹钟接收和亮屏原因 |
 | 服务号独立会话 | 用户在手机主动粘贴本人页面链接；确认医院返回的姓名、ptno、功能权限一致 |
 | 真实只读数据 | 科室/医生/号源及既有订单读取；确认 `actdate/ampm/reserved_date/invalidtime` 的实际格式。当前解析拒绝未知结构，不退化为空列表 |
 | 长时间锁屏 | 演示任务设为至少 30 分钟后，锁屏等待；记录实际唤醒与通知。手机省电、自启动和后台联网以实测为准 |
@@ -74,7 +104,7 @@ APK 不入库；同一机器可按上述命令重建。调试签名不是长期�
 | 权限改变 | 拒绝/撤销通知、通知类别、精确闹钟、省电设置后，页面明确说明未就绪 |
 | 微信返回 | 用户完成已有订单付款后，App 同单回查确认；未回跳时手动刷新可用 |
 
-真实提交的 Android 集成验收只在用户安排下一次真实就医需求时进行。当前手机已连接；上表除安装/API 外尚未完成，不计入本轮通过数量。
+真实提交的 Android 集成验收只在用户安排下一次真实就医需求时进行。已打开手机“连接医院”页，等待用户主动粘贴本人的服务号链接；不从旧对话或微信私有数据自动导入。上表除安装/API 外尚未完成，不计入本轮通过数量。长时间锁屏、后台设置和网络切换需要用户配合安排测试时段。
 
 ## 实现取舍与风险
 
@@ -85,4 +115,4 @@ APK 不入库；同一机器可按上述命令重建。调试签名不是长期�
 
 ## 回滚
 
-源码在独立分支提交；如需撤回，对本次实现提交创建反向提交，按项目规则快进推送，保留远端已有设计/调研。修改前 README/计划备份位于 `/tmp/guahao-v01-before-docs/`。撤回代码或停止任务不等于取消医院订单；卸载会删除本机加密数据，因此不作为默认回滚步骤。
+源码及本轮验收文档在独立分支本地提交；项目当前规则要求用户明确要求后才可推送，本轮未推送。如需撤回，对相应提交创建反向提交；只有获得当次推送授权才按快进规则交付，保留远端已有设计/调研。本轮文档修改前备份位于 `/tmp/guahao-mate60-acceptance/before-final-095704/`；原开发备份位于 `/tmp/guahao-v01-before-docs/`。撤回代码或停止任务不等于取消医院订单；卸载会删除本机加密数据，因此不作为默认回滚步骤。

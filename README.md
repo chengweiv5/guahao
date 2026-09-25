@@ -8,7 +8,7 @@
 
 v0.1 Android 工程与调试 APK 已实现：三步设置挂号任务、服务号会话导入、条件查号、提交恢复、精确定时与前台服务、医保准备和微信付款交接。默认演示模式。服务号为主通路，互联网医院保留为独立研究渠道。
 
-已通过本机单元测试与 Android 12 / API 31 模拟器测试，包括灭屏后定时触发演示锁号。Mate 60 Pro / 鸿蒙 4.2.0.223 已实测 API 31，安装、启动及 3 项存储/演示流程测试通过；界面自动化、通知权限、真实服务号独立导入和锁屏联网等仍待完成。详见 [验收记录](docs/testing/mate60-v01-acceptance.md)。
+已通过本机单元测试与 Android 12 / API 31 模拟器测试。Mate 60 Pro / 鸿蒙 4.2.0.223 已实测 API 31，安装、启动及 4 项存储/演示流程/界面测试通过，通知权限与实际付款提醒已验证。短时定时任务比计划晚 3.328 秒发出模拟请求，但请求前屏幕已被唤醒，末尾灭屏断言失败；全程灭屏、长时间锁屏联网与真实服务号独立导入仍待验证。详见 [验收记录](docs/testing/mate60-v01-acceptance.md)。
 
 - 微信服务号：已有会话下的就诊人、科室、排班和分时余号查询，以及一次锁号、手机订单可见和同一订单“已预约”状态回查已有验证记录。v0.1 当前采用该渠道，付款由用户在微信服务号完成。
 - 互联网医院 App / 网页：独立短信登录、会话检查、就诊人和号源查询已验证，保留为独立研究渠道。两个渠道的会话、就诊人列表和订单可见性不能视为互通。
@@ -30,11 +30,11 @@ sdk.dir=/你的路径/Android/sdk
 ```bash
 ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-# 设备测试仅生成虚构任务，不请求医院
+# 模拟器设备测试仅生成虚构任务，不请求医院
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-应用 ID：`cn.guahao`；版本：`0.1.0`（1）；minSdk 26，targetSdk 36。正式使用前须验证目标手机实际 Android API，不依据鸿蒙版本推断。
+真机测试使用 `:app:assembleDebugAndroidTest` 构建测试 APK，`adb -s <serial> install -r` 安装后直接运行 `am instrument`，避免 Gradle connected 流程结束时卸载应用；具体命令见验收记录。应用 ID：`cn.guahao`；版本：`0.1.0`（1）；minSdk 26，targetSdk 36。目标 Mate 60 Pro 已确认 API 31，不依据鸿蒙版本推断。
 
 首次启动可先创建**演示任务**。真实使用先到设置连接医院：在微信服务号确认本人就诊人，复制官方页面链接，主动粘贴导入；只有返回身份一致、凭据完整且挂号功能通过校验，才显示已连接。身份链接不要发到仓库或日志。
 

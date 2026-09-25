@@ -1,0 +1,7 @@
+# Physical Huawei Mate 60 Pro; 2026-09-25, Asia/Shanghai (+08:00)
+# Filtered power event buffer only. Wake reason was not established.
+09-25 09:53:38.876 power_sleep_requested: 0
+09-25 09:53:39.291 power_screen_state: [0,2,0,0,427]
+09-25 09:53:39.291 screen_toggled: 0
+09-25 09:53:50.711 screen_toggled: 1
+09-25 09:53:51.180 power_screen_state: [1,0,0,0,438]
