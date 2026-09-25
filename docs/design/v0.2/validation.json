@@ -220,5 +220,14 @@
       },
       "complete": true
     }
+  },
+  "publication_authorization": {
+    "date": "2026-09-25",
+    "user_request": "推送",
+    "target": "origin/main",
+    "scope": "current v0.2 design and sanitized verification artifacts",
+    "historical_local_only_fields": "record the publication boundary at the time of each verification",
+    "future_pushes_require_explicit_request": true,
+    "integration": "rebased onto latest remote v0.1; application code and build configuration unchanged"
   }
 }

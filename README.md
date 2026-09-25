@@ -70,8 +70,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [领域术语](CONTEXT.md)：就诊人、号源、预约任务和付款时限等概念。
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
 - [v0.2 北京通用平台设计](docs/design/v0.2/2026-09-25-beijing-platform-design.md)：统一平台选择、多医院与渠道模型、认证/订单流程、兼容与验收条件；本任务仅完成设计，待评审。
-- [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据与真实接口尚待验证的边界。
-- [v0.2 最新入口核验](docs/research/2026-09-25-114-mobile-entry-and-web-closure.md) · [前次续验](docs/research/2026-09-25-beijing-platform-live-verification.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：仅本地；微信业务首页已确认，复制链接不可用，桌面网站预约已关闭；医疗 API 仍未验证。
+- [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据、平台适配与独立接入的验证边界。
+- [v0.2 最新查询核验](docs/research/2026-09-25-xweb-read-query-verification.md)：手机微信内置调试已验证 114 两家医院的科室与排班、7 种核心查询端点，并确认京通复用同组查询协议；独立客户端认证、请求构造与预约提交仍待验证。
+- [v0.2 入口核验](docs/research/2026-09-25-114-mobile-entry-and-web-closure.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：网站预约已关闭；京通与 114 的登录态和凭据按入口隔离。
 - [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计；其余方向仍为候选，开发均未排期。
 - [服务号 v0.1 开发计划](docs/superpowers/plans/2026-09-24-service-account-v01.md)：会话导入、自动预约、锁屏执行、付款通知与设备验收。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。
