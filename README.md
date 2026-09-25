@@ -58,7 +58,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## 文档
 
-- [项目规则](AGENTS.md)：飞书目录和直接推送 `origin/main` 的约定。
+- [项目规则](AGENTS.md)：飞书目录和 Git 操作约定。
 - [领域术语](CONTEXT.md)：就诊人、号源、预约任务和付款时限等概念。
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
 - [后续开发计划候选](docs/development-candidates.md)：医院扩展、北京通用挂号平台、接口来源选择及其他城市平台，均未排期。
