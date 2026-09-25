@@ -117,13 +117,54 @@
     "adapter_ready_for_implementation": false,
     "phone_modified": false,
     "new_user_action_needed_for_this_check": false,
-    "next_gate": "platform-supported third-party access or user authorization contract, then two-hospital department/schedule readback",
+    "next_gate": "continue scoped official-channel verification after proxy repair; independent authorization and two-hospital readback remain product acceptance criteria",
     "scope_change": "none; links/reminders do not replace original registration goal",
     "checks": {
       "json": "passed",
       "exact_gateway_urls_from_official_assets": "passed",
       "no_secret_or_signed_download_url_saved": "passed",
       "community_repos_checked": 4
+    }
+  },
+  "latest_proxy_repair_verification": {
+    "date": "2026-09-25",
+    "publication": "local_only",
+    "status": "proxy_repair_verified_business_api_blocked_by_client_trust",
+    "record": "../../research/2026-09-25-proxy-repair-and-client-trust.md",
+    "evidence": "../../research/evidence/2026-09-25-beijing/proxy-repair-and-client-trust.json",
+    "proxy_transport_and_restore_verified": true,
+    "114_client_tls": "certificate unknown",
+    "jingtong_client_tls": "certificate unknown",
+    "wechat_user_ca_trust": "not_declared_in_installed_config",
+    "business_api_success_count": 0,
+    "user_session_observation": {
+      "source": "explicit_user_report",
+      "jingtong": "logged_in",
+      "beijing_114": "not_logged_in",
+      "pages": "look_the_same",
+      "api_auth_independently_verified": false,
+      "design_decision": "separate credential scopes; no credential reuse or propagation of logged-in status",
+      "backend_shared": "unverified"
+    },
+    "cleanup": {
+      "at": "2026-09-25T04:01:39.092254+00:00",
+      "phone_settings_match_baseline": true,
+      "runtime_temporary_proxy_absent": true,
+      "reverse_match_baseline": true,
+      "runner_and_proxy_exited": true,
+      "listener_absent": true,
+      "phone_downloaded_certificate_deleted": true,
+      "phone_probe_jar_deleted": true,
+      "all_retry_ca_directories_deleted": true,
+      "installed_user_ca_removed": "user_confirmed",
+      "official_page_restored": "user_confirmed",
+      "wechat_apk_temporary_copy_deleted": true
+    },
+    "checks": {
+      "json": "passed",
+      "local_links": "passed",
+      "evidence_consistency": "passed",
+      "controller_regression": "old_fails_fixed_passes"
     }
   }
 }

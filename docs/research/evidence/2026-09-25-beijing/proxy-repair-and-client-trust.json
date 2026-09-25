@@ -1,0 +1,443 @@
+{
+  "recorded_at": "2026-09-25T04:03:21.577539+00:00",
+  "publication": "local_only",
+  "scope": "design and scoped read-only verification; no patient/order/report/booking/payment actions",
+  "status": "proxy_repair_verified_business_api_blocked_by_client_trust",
+  "business_api_success_count": 0,
+  "proxy_repair": {
+    "usb_tunnel_tests": [
+      {
+        "connect": true,
+        "server_tls_verified": true,
+        "test_ca_used": false,
+        "status": 202,
+        "elapsed_ms": 666
+      },
+      {
+        "connect": true,
+        "server_tls_verified": true,
+        "test_ca_used": false,
+        "status": 202,
+        "elapsed_ms": 269
+      },
+      {
+        "connect": true,
+        "server_tls_verified": true,
+        "test_ca_used": false,
+        "status": 202,
+        "elapsed_ms": 182
+      }
+    ],
+    "shutdown_regression": {
+      "old_teardown_stale_client": {
+        "connect": false,
+        "category": "proxy_transport_error",
+        "exception": "ConnectException"
+      },
+      "preserved_passthrough_stale_client": {
+        "connect": true,
+        "server_tls_verified": true,
+        "test_ca_used": false,
+        "status": 202,
+        "elapsed_ms": 240
+      },
+      "scope": "real USB transport probe; does not reproduce WeChat internal caching"
+    },
+    "eager_task_regression": {
+      "old": {
+        "task_failed": true,
+        "exception": "AttributeError",
+        "message": "'Control' object has no attribute 'mode'"
+      },
+      "fixed": {
+        "task_failed": false
+      }
+    },
+    "local_114_tls_regression": {
+      "at": "2026-09-25T03:52:30.013037+00:00",
+      "trusted_client": {
+        "issuer": "Guahao-114-retry-20260925",
+        "status": 202,
+        "server_tls_verified": true
+      },
+      "untrusted_client_rejected": true,
+      "after_failure": {
+        "issuer": "DigiCert Basic OV G2 TLS CN RSA4096 SHA256 2022 CA1",
+        "status": 202,
+        "server_tls_verified": true
+      },
+      "pass": true
+    },
+    "local_jingtong_tls_regression": {
+      "at": "2026-09-25T03:56:58.581981+00:00",
+      "trusted_client": {
+        "issuer": "Guahao-114-retry-20260925",
+        "status": 302,
+        "server_tls_verified": true
+      },
+      "untrusted_client_rejected": true,
+      "after_failure": {
+        "issuer": "GlobalSign GCC R3 DV TLS CA 2020",
+        "status": 302,
+        "server_tls_verified": true
+      },
+      "pass": true
+    },
+    "sanitization": {
+      "synthetic_secrets_absent": true,
+      "private_routes_excluded": true,
+      "non_target_excluded": true,
+      "business_status_scalar_allowlist": true
+    }
+  },
+  "phone_114": {
+    "events": [
+      {
+        "event": "tls_client_failed",
+        "at": "2026-09-25T03:54:01.590553+00:00",
+        "host": "www.114yygh.com",
+        "error_markers": [
+          "certificate unknown",
+          "certificate"
+        ]
+      }
+    ],
+    "runner_events": [
+      {
+        "event": "phone_proxy_enabled",
+        "at": "2026-09-25T03:52:38.635152+00:00",
+        "result": {
+          "enabled": true
+        }
+      },
+      {
+        "event": "passthrough_baseline_ready",
+        "at": "2026-09-25T03:52:38.637078+00:00",
+        "maximum_wait_seconds": 600
+      },
+      {
+        "event": "capture_started",
+        "at": "2026-09-25T03:53:42.221902+00:00",
+        "maximum_seconds": 600
+      },
+      {
+        "event": "decryption_stopped",
+        "at": "2026-09-25T03:54:01.791066+00:00",
+        "reason": "tls_client_failed"
+      },
+      {
+        "event": "phone_settings_restored",
+        "at": "2026-09-25T03:54:07.750555+00:00",
+        "result": {
+          "settings_match_baseline": true,
+          "runtime_temporary_proxy_absent": true,
+          "at": "2026-09-25T03:54:07.741935+00:00"
+        }
+      },
+      {
+        "event": "passthrough_grace_period",
+        "at": "2026-09-25T03:54:07.765262+00:00",
+        "maximum_seconds": 180,
+        "settings_restored": true
+      },
+      {
+        "event": "reverse_restored",
+        "at": "2026-09-25T03:55:55.193637+00:00",
+        "result": {
+          "reverse_restored": true
+        }
+      },
+      {
+        "event": "proxy_exited",
+        "at": "2026-09-25T03:55:55.325297+00:00"
+      }
+    ],
+    "control_events": [
+      {
+        "event": "proxy_ready",
+        "at": "2026-09-25T03:52:36.069907+00:00",
+        "mode": "passthrough"
+      },
+      {
+        "event": "mode_changed",
+        "at": "2026-09-25T03:53:42.143414+00:00",
+        "mode": "capture"
+      },
+      {
+        "event": "mode_changed",
+        "at": "2026-09-25T03:54:01.649667+00:00",
+        "mode": "passthrough"
+      }
+    ],
+    "result": {
+      "baseline_homepage": "user_confirmed_normal",
+      "schedule_page": "user_reported_reached",
+      "after_restore_homepage": "user_confirmed_normal_after_reentry",
+      "business_response_count": 0,
+      "inference": "page completion occurred after automatic passthrough; no decrypted schedule API evidence",
+      "grace_period_probe": {
+        "connect": true,
+        "server_tls_verified": true,
+        "test_ca_used": false,
+        "status": 202,
+        "elapsed_ms": 373
+      }
+    }
+  },
+  "phone_jingtong": {
+    "events": [
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.050458+00:00",
+        "host": "js.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.053718+00:00",
+        "host": "js.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.073373+00:00",
+        "host": "js.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.082530+00:00",
+        "host": "js.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.089855+00:00",
+        "host": "js.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.096865+00:00",
+        "host": "js.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.105465+00:00",
+        "host": "event.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.309287+00:00",
+        "host": "jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.714487+00:00",
+        "host": "jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.725135+00:00",
+        "host": "jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.737120+00:00",
+        "host": "jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.748713+00:00",
+        "host": "jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.757938+00:00",
+        "host": "jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.766354+00:00",
+        "host": "event.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:31.929175+00:00",
+        "host": "event.jt.beijing.gov.cn",
+        "decryption_selected": false
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:34.806608+00:00",
+        "host": "zyff.bjt.beijing.gov.cn",
+        "decryption_selected": true
+      },
+      {
+        "event": "tls_client_failed",
+        "at": "2026-09-25T03:57:35.033372+00:00",
+        "host": "zyff.bjt.beijing.gov.cn",
+        "error_markers": [
+          "certificate unknown",
+          "certificate"
+        ]
+      },
+      {
+        "event": "official_tunnel_host",
+        "at": "2026-09-25T03:57:35.103480+00:00",
+        "host": "zyff.bjt.beijing.gov.cn",
+        "decryption_selected": false
+      }
+    ],
+    "runner_events": [
+      {
+        "event": "phone_proxy_enabled",
+        "at": "2026-09-25T03:57:20.812621+00:00",
+        "result": {
+          "enabled": true
+        }
+      },
+      {
+        "event": "passthrough_baseline_ready",
+        "at": "2026-09-25T03:57:20.814097+00:00",
+        "maximum_wait_seconds": 600
+      },
+      {
+        "event": "capture_started",
+        "at": "2026-09-25T03:57:23.672434+00:00",
+        "maximum_seconds": 600
+      },
+      {
+        "event": "decryption_stopped",
+        "at": "2026-09-25T03:57:35.119154+00:00",
+        "reason": "tls_client_failed"
+      },
+      {
+        "event": "phone_settings_restored",
+        "at": "2026-09-25T03:57:41.105551+00:00",
+        "result": {
+          "settings_match_baseline": true,
+          "runtime_temporary_proxy_absent": true,
+          "at": "2026-09-25T03:57:41.100358+00:00"
+        }
+      },
+      {
+        "event": "passthrough_grace_period",
+        "at": "2026-09-25T03:57:41.115637+00:00",
+        "maximum_seconds": 180,
+        "settings_restored": true
+      },
+      {
+        "event": "reverse_restored",
+        "at": "2026-09-25T03:58:33.173492+00:00",
+        "result": {
+          "reverse_restored": true
+        }
+      },
+      {
+        "event": "proxy_exited",
+        "at": "2026-09-25T03:58:33.303206+00:00"
+      }
+    ],
+    "control_events": [
+      {
+        "event": "proxy_ready",
+        "at": "2026-09-25T03:57:18.280881+00:00",
+        "mode": "passthrough"
+      },
+      {
+        "event": "mode_changed",
+        "at": "2026-09-25T03:57:23.659182+00:00",
+        "mode": "capture"
+      },
+      {
+        "event": "mode_changed",
+        "at": "2026-09-25T03:57:35.085809+00:00",
+        "mode": "passthrough"
+      }
+    ],
+    "result": {
+      "official_appointment_homepage": "user_confirmed_open",
+      "schedule_page": "user_reported_reached",
+      "after_restore_homepage": "user_confirmed_normal",
+      "business_response_count": 0,
+      "inference": "schedule page completed after automatic passthrough; no decrypted API response"
+    }
+  },
+  "client_trust": {
+    "wechat": {
+      "version_name": "8.0.78",
+      "version_code": 3180,
+      "target_sdk": 34,
+      "apk_sha256": "41f7dc1f720767fa78fa20dd13ea034b817bbf6ebd23dfd1324c647499c9c1ba",
+      "network_config_resource": "r/b/b7.xml",
+      "trust_anchors": [
+        "system",
+        "@raw/globalsign_root_r46"
+      ],
+      "user_ca_declared": false,
+      "source": "installed public APK read-only; no private app data"
+    },
+    "jingtong_native_static_only": {
+      "version_name": "1.0.6",
+      "target_sdk": 34,
+      "apk_sha256": "e0151ba069eb890f95c93a38994e7479eb9a7fe093cd0bf0912a60ef1adbd828",
+      "network_config_resource": "res/8G.xml",
+      "base_config": "cleartextTrafficPermitted=true; no custom trust anchors",
+      "user_ca_declared": false,
+      "installed_or_executed": false
+    },
+    "phone_clock": "2026-09-25T03:58:47+00:00",
+    "test_ca_valid_at_phone_time": true,
+    "certificate_pinning": "not_established",
+    "official_reference": "https://developer.android.com/privacy-and-security/security-config",
+    "official_reference_read": "direct_origin_success; Jina timeout",
+    "inference": "declared WeChat configuration excludes user CA; consistent with both observed certificate unknown alerts, exact TLS implementation not traced"
+  },
+  "user_session_observation": {
+    "source": "explicit_user_report",
+    "jingtong": "logged_in",
+    "beijing_114": "not_logged_in",
+    "pages": "look_the_same",
+    "api_auth_independently_verified": false,
+    "design_decision": "separate credential scopes; no credential reuse or propagation of logged-in status",
+    "backend_shared": "unverified"
+  },
+  "cleanup": {
+    "at": "2026-09-25T04:01:39.092254+00:00",
+    "phone_settings_match_baseline": true,
+    "runtime_temporary_proxy_absent": true,
+    "reverse_match_baseline": true,
+    "runner_and_proxy_exited": true,
+    "listener_absent": true,
+    "phone_downloaded_certificate_deleted": true,
+    "phone_probe_jar_deleted": true,
+    "all_retry_ca_directories_deleted": true,
+    "installed_user_ca_removed": "user_confirmed",
+    "official_page_restored": "user_confirmed",
+    "wechat_apk_temporary_copy_deleted": true
+  },
+  "remaining": [
+    "read-only medical API endpoints and schemas",
+    "independent authentication and expiry recovery",
+    "whether frontend/backend protocols are shared",
+    "same-platform two-hospital department/schedule validation"
+  ],
+  "next_path": "mobile WeChat only per user; requires a normally supported mobile debug/trust path or readable official mobile protocol evidence; current user-CA capture blocked",
+  "desktop_route": "excluded_by_user",
+  "mobile_debug_recheck": {
+    "at": "2026-09-25T04:07:01.652122+00:00",
+    "standard_webview_devtools_socket_count": 0,
+    "raw_socket_table_saved": false,
+    "scope": "normal public debug socket inventory only"
+  }
+}
