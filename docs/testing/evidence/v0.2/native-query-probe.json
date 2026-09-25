@@ -1,0 +1,17 @@
+{
+  "status": "blocked_client_verification",
+  "request_count": 1,
+  "method": "POST",
+  "url": "https://www.114yygh.com/jtjk/mobile-service/hospital/list",
+  "channel": "WE_CHAT",
+  "request_from": "host curl; no session or challenge emulation",
+  "http_status": 202,
+  "content_type": "text/html; charset=utf-8",
+  "business_code": null,
+  "contains_hospital_data": false,
+  "response_sha256": "78456daca48784925ac01b4757bb5efc0960718383f62fd2d4601fbb63317f93",
+  "credentials_used": false,
+  "patient_or_order_requests": false,
+  "booking_requests": false,
+  "raw_response_committed": false
+}

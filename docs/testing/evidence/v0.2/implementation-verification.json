@@ -1,0 +1,84 @@
+{
+  "status": "partial_implementation_blocked_on_native_platform",
+  "baseline": "3d58fb0d0a108fd5169a3fd9add34ded27d28ce5",
+  "unit_tests": {
+    "core": {
+      "tests": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "debug": {
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "release": {
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "build": {
+    "debug": true,
+    "release": true,
+    "androidTest": true
+  },
+  "lint": {
+    "debug": {
+      "severity_counts": {
+        "Warning": 13
+      },
+      "issue_counts": {
+        "UseKtx": 13
+      }
+    },
+    "release": {
+      "severity_counts": {
+        "Warning": 13
+      },
+      "issue_counts": {
+        "UseKtx": 13
+      }
+    }
+  },
+  "release_instrumentation": {
+    "tests": 2,
+    "failures": 0,
+    "local_test_signature_only": true
+  },
+  "real_phone_tested": false,
+  "actual_appointments_created": false,
+  "pushed": false,
+  "v03_started": false,
+  "source_files_sha256": {
+    "app/src/main/kotlin/cn/guahao/ui/HospitalChannelPicker.kt": "8010e659ee0e894a8ffb5dfb405b19fd19a58a35f67a6366922f2a505986d698",
+    "app/src/main/kotlin/cn/guahao/ui/TaskComponents.kt": "297b313923ab96876476aa00e2c9a2cc0ec150e2484a885474b462ab273fdf07",
+    "app/src/main/kotlin/cn/guahao/ui/DailySchedulePicker.kt": "c96964f3dfac79c571581f1b1eddac7b621a572fad75f6a783fbf2774879817a",
+    "app/src/main/kotlin/cn/guahao/ui/GuahaoApp.kt": "0ca782579bef690a16e7467447d4e2d572663f06edc55d124c92ece796978c4f",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingQueryClient.kt": "edebe700ac2c689f87637b5dada8196a87eb591b994076a94cea7f7ff7defa26"
+  },
+  "debug_instrumentation": {
+    "tests": 26,
+    "failures": 0,
+    "width_dp": 360,
+    "font_scale": 1.0,
+    "source": "final 26-class-related test run; log checked"
+  },
+  "large_font_instrumentation": {
+    "tests": 7,
+    "failures": 0,
+    "width_dp": 412,
+    "font_scale": 1.3
+  },
+  "visual_check": {
+    "manual_review": true,
+    "images": "synthetic emulator captures; local only",
+    "ocr": {
+      "line_count": 47,
+      "host_cpu_vision": true
+    }
+  }
+}

@@ -28,9 +28,9 @@ object DateSerializer : KSerializer<LocalDate> {
 @Serializable data class ConnectionBinding(
     val hospitalId: String, val hospitalName: String, val providerId: String, val providerName: String,
     val accountKey: String, val patientKey: String, val connectionId: String, val credentialVersionId: String,
-    val submissionScope: SubmissionScope
+    val submissionScope: SubmissionScope, val campusId: String? = null, val campusName: String? = null
 ) {
-    fun samePrincipal(other: ConnectionBinding) = hospitalId == other.hospitalId && providerId == other.providerId &&
+    fun samePrincipal(other: ConnectionBinding) = hospitalId == other.hospitalId && campusId == other.campusId && providerId == other.providerId &&
         accountKey == other.accountKey && patientKey == other.patientKey
 }
 val PatientRef.isDemo: Boolean get() = sessionId == "demo" || sessionId.startsWith("demo-")

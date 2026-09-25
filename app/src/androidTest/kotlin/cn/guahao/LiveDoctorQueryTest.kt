@@ -41,6 +41,7 @@ class LiveDoctorQueryTest {
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithText("＋ 新建挂号任务").performClick()
             compose.onNodeWithText("真实挂号 · 使用本人服务号", useUnmergedTree = true).performScrollTo().performClick()
+            compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
             compose.waitUntil(10000) { compose.onAllNodesWithText("就诊人（请核对）").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
             compose.onNodeWithText("科室：请选择科室").performScrollTo().assertIsEnabled().performClick()
@@ -70,7 +71,7 @@ class LiveDoctorQueryTest {
                 compose.onNodeWithText("预选目标医生").performScrollTo().performClick()
             assertTrue("Expected verified doctor options", compose.onAllNodesWithText(" · 选择 ○", substring = true).fetchSemanticsNodes().isNotEmpty())
             compose.onAllNodesWithText(" · 选择 ○", substring = true)[0].performScrollTo().performClick()
-            compose.onNodeWithText("下一步 · 执行设置").performScrollTo().assertIsEnabled().performClick()
+            compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().assertIsEnabled().performClick()
             val expectedRelease = args.getString("expectedHospitalRelease")
             if (expectedRelease != null) {
                 compose.onNodeWithText("医院放号时间：$expectedRelease（北京时间）").assertExists()
@@ -107,12 +108,12 @@ class LiveDoctorQueryTest {
                     root.findViewById<View>(android.R.id.button1).performClick()
                 }
             }
-            compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
+            compose.onNodeWithText("下一步 · 核对并启用").assertIsDisplayed().performClick()
             args.getString("expectedStatus")?.let { compose.onNodeWithText("最近查询：${DateAvailability.valueOf(it).label}").assertExists() }
             compose.onNodeWithText(if (preselected) "目标日排班待确认" else "目标日医生排班已确认").assertExists()
             expectedRelease?.let { compose.onNodeWithText("医院放号时间：$it（北京时间）").assertExists() }
-            compose.onNodeWithText("‹ 返回").performScrollTo().performClick()
-            compose.onNodeWithText("‹ 返回").performScrollTo().performClick()
+            compose.onNodeWithText("‹ 返回").assertIsDisplayed().performClick()
+            compose.onNodeWithText("‹ 返回").assertIsDisplayed().performClick()
             assertEquals(1, compose.onAllNodesWithText(" · 已选择 ✓", substring = true).fetchSemanticsNodes().size)
             // MainActivity's existing foreground payment refresh updates lastEventAt.
             // Compare business data without dumping patient records into failure output.

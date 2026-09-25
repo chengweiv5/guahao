@@ -28,11 +28,12 @@ class UiAndAlarmTest {
         val zone = ZoneId.of("Asia/Shanghai")
         val selected = Instant.now().plusSeconds(3600).atZone(zone).withSecond(0).withNano(0)
         compose.onNodeWithText("＋ 新建挂号任务").performClick()
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
         compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
         compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
         compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
-        compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().performClick()
         compose.onNodeWithText("放号日期：", substring = true).performScrollTo().performClick()
         compose.runOnUiThread {
             val root = WindowInspector.getGlobalWindowViews().single { findView<android.widget.DatePicker>(it) != null }
@@ -52,8 +53,8 @@ class UiAndAlarmTest {
             compose.onNodeWithText("快捷设置为 1 分钟后").performScrollTo().assertHasClickAction()
             capturePreview("ui-demo-release-settings.png")
         }
-        compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
-        compose.onNodeWithText("先保存草稿").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 核对并启用").assertIsDisplayed().performClick()
+        compose.onNodeWithText("先保存草稿").assertIsDisplayed().performClick()
         compose.waitUntil(5000) { compose.activity.graph.store.all().any { it.task.id !in beforeIds } }
         val saved = compose.activity.graph.store.all().single { it.task.id !in beforeIds }
         assertTrue(saved.task.demo)
@@ -68,13 +69,14 @@ class UiAndAlarmTest {
         compose.onNodeWithText("＋ 新建挂号任务").performClick()
         compose.onNodeWithText("演示医院 B", useUnmergedTree = true).performScrollTo().performClick()
         capturePreview("ui-parallel-hospital-picker.png")
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
         compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
         compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
         compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
-        compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
-        compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
-        compose.onNodeWithText("先保存草稿").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().performClick()
+        compose.onNodeWithText("下一步 · 核对并启用").assertIsDisplayed().performClick()
+        compose.onNodeWithText("先保存草稿").assertIsDisplayed().performClick()
         compose.waitUntil(5000) { compose.activity.graph.store.all().any { it.task.id !in before } }
         val saved = compose.activity.graph.store.all().single { it.task.id !in before }
         assertEquals("demo-b", saved.task.binding!!.hospitalId)
@@ -98,22 +100,61 @@ class UiAndAlarmTest {
     }
 
     @Test fun createSixtyMinuteDraftFromVisibleUi() {
+        val before = compose.activity.graph.store.all().map { it.task.id }.toSet()
         compose.onNodeWithText("＋ 新建挂号任务").performClick()
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
         compose.onNodeWithText("否",useUnmergedTree=true).performScrollTo().performClick()
         compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
         compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
-        compose.onNodeWithText("下一步 · 执行设置").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().performClick()
         compose.onNodeWithText("最长运行时长（分钟）").performScrollTo().performTextReplacement("60")
-        compose.onNodeWithText("下一步 · 核对并启用").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 核对并启用").assertIsDisplayed().performClick()
         compose.onNodeWithText("60 分钟").assertExists()
-        compose.onNodeWithText("先保存草稿").performScrollTo().performClick()
+        compose.onNodeWithText("先保存草稿").assertIsDisplayed().performClick()
         compose.waitUntil(5000) { compose.onAllNodesWithText("确认开启自动挂号").fetchSemanticsNodes().isNotEmpty() }
-        val task = compose.activity.graph.store.all().first { it.phase==TaskPhase.DRAFT }
+        val task = compose.activity.graph.store.all().single { it.task.id !in before }
         assertEquals(60,task.task.maxRuntimeMinutes)
         assertEquals(3600,Duration.between(task.task.releaseAt,task.task.deadline).seconds)
         compose.onNodeWithText("任务详情").performScrollTo()
         capturePreview("ui-task-detail.png")
+    }
+
+    @Test fun changingHospitalRequiresANewDoctorSelectionAndKeepsFooterVisible() {
+        compose.onNodeWithText("＋ 新建挂号任务").assertIsDisplayed().performClick()
+        compose.onNodeWithText("1 / 4  ·  医院与渠道").assertIsDisplayed()
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
+        compose.onNodeWithText("否", useUnmergedTree = true).performScrollTo().performClick()
+        compose.onNodeWithText("查询当日排班").performScrollTo().performClick()
+        compose.waitUntil(5000) { compose.onAllNodesWithText("林医生（虚构） · 选择 ○").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("林医生（虚构） · 选择 ○").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().performClick()
+        compose.onNodeWithText("‹ 返回").performClick()
+        compose.onNodeWithText("林医生（虚构） · 已选择 ✓").assertExists()
+        compose.onNodeWithText("‹ 返回").performClick()
+        compose.onNodeWithText("演示医院 B", useUnmergedTree = true).performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
+        compose.onNodeWithText("查询当日排班").assertExists()
+        compose.onNodeWithText("林医生（虚构） · 已选择 ✓").assertDoesNotExist()
+        compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().assertIsNotEnabled()
+        capturePreview("v02-hospital-change.png")
+    }
+
+    @Test fun unconnectedPlatformCannotReuseYouanAndBackFromConnectionPreservesStep() {
+        compose.onNodeWithText("＋ 新建挂号任务").performClick()
+        compose.onNodeWithText("真实挂号 · 使用本人服务号", useUnmergedTree = true).performScrollTo().performClick()
+        compose.onNodeWithText("北京 114").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().assertIsNotEnabled()
+        compose.onNodeWithText("京通").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 就诊条件").assertIsNotEnabled()
+        compose.onNodeWithText("佑安微信服务号").performScrollTo().performClick()
+        compose.onNodeWithText("下一步 · 就诊条件").performClick()
+        compose.onNodeWithText("2 / 4  ·  就诊条件").assertIsDisplayed()
+        compose.onNodeWithText("先连接医院").performScrollTo().performClick()
+        compose.onNodeWithText("连接医院").assertExists()
+        compose.onAllNodesWithText("‹ 返回").onLast().performClick()
+        compose.onNodeWithText("2 / 4  ·  就诊条件").assertIsDisplayed()
+        capturePreview("v02-connect-return.png")
     }
 
     private fun capturePreview(name: String) {

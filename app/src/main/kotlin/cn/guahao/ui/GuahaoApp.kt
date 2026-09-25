@@ -27,6 +27,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import cn.guahao.AppGraph
 import cn.guahao.core.*
 import cn.guahao.hospital.DemoGateway
@@ -39,15 +41,15 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-private val Teal = Color(0xFF176B5B)
-private val Ink = Color(0xFF17342F)
-private val Muted = Color(0xFF60726D)
-private val Warm = Color(0xFFF5F6F2)
-private val Amber = Color(0xFFFFEAC3)
+internal val Teal = Color(0xFF176B5B)
+internal val Ink = Color(0xFF173B33)
+internal val Muted = Color(0xFF5C6F67)
+internal val Warm = Color(0xFFF4F6F2)
+internal val Amber = Color(0xFFFFEAC3)
 private val zone = ZoneId.of("Asia/Shanghai")
-private fun timestamp(i: Instant) = i.atZone(zone).format(DateTimeFormatter.ofPattern("MM月dd日 HH:mm:ss"))
+internal fun timestamp(i: Instant) = i.atZone(zone).format(DateTimeFormatter.ofPattern("MM月dd日 HH:mm:ss"))
 private fun money(fen: Long) = "¥" + java.math.BigDecimal.valueOf(fen, 2).toPlainString()
-private fun phaseLabel(p: TaskPhase) = when(p) {
+internal fun phaseLabel(p: TaskPhase) = when(p) {
     TaskPhase.DRAFT -> "草稿"; TaskPhase.WAITING -> "等待查号"; TaskPhase.SEARCHING -> "正在查号"
     TaskPhase.SUBMITTING -> "正在提交"; TaskPhase.RECONCILING -> "结果待确认"
     TaskPhase.AWAITING_PAYMENT -> "锁号成功，待付款"; TaskPhase.BOOKED -> "挂号已完成"
@@ -70,6 +72,8 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         var error by remember { mutableStateOf<String?>(null) }
         var busy by remember { mutableStateOf(false) }
         var resolveTask by remember { mutableStateOf<String?>(null) }
+        var editorConnection by remember { mutableStateOf(false) }
+        var hospitalFilter by remember { mutableStateOf<String?>(null) }
         var now by remember { mutableStateOf(Instant.now()) }
         val snackbar = remember { SnackbarHostState() }
         suspend fun reload() {
@@ -97,9 +101,14 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         BackHandler(page !in setOf("home", "history", "settings")) { page = "home" }
         Scaffold(containerColor = Warm, snackbarHost = { SnackbarHost(snackbar) },
             bottomBar = {
-                if (page in setOf("home", "history", "settings")) NavigationBar(containerColor = Color.White) {
-                    listOf("home" to "挂号任务", "history" to "挂号记录", "settings" to "设置").forEachIndexed { i, (id, title) ->
-                        NavigationBarItem(selected = page == id, onClick = { page = id }, icon = { Text(listOf("◷", "▤", "⚙")[i], fontSize = 22.sp) }, label = { Text(title) })
+                if (page in setOf("home", "history", "settings")) Column {
+                    if (page == "home") ActionFooter {
+                        Primary("＋ 新建挂号任务", !busy) { reuse = null; editorKey++; page = "editor" }
+                    }
+                    NavigationBar(containerColor = Color.White) {
+                        listOf("home" to "任务", "history" to "记录", "settings" to "设置").forEachIndexed { i, (id, title) ->
+                            NavigationBarItem(selected = page == id, onClick = { page = id }, icon = { Text(listOf("◷", "▤", "⚙")[i], fontSize = 22.sp) }, label = { Text(title) })
+                        }
                     }
                 }
             }) { padding ->
@@ -110,8 +119,16 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         Text("按医院独立执行 · 到点自动挂号", color = Muted, fontSize = 13.sp)
                         Heading(if (page == "home") "挂号任务" else "挂号记录")
                         Text(if (page == "home") "提前设置，到点自动挂号" else "任务结果和医院付款状态", color = Muted)
-                        if (page == "home") Primary("＋ 新建挂号任务", !busy) { reuse = null; editorKey++; page = "editor" }
-                        val display = if (page == "history") records else records.filter { it.phase !in setOf(TaskPhase.BOOKED, TaskPhase.EXPIRED, TaskPhase.STOPPED) }
+                        val relevant = if (page == "history") records else records.filter { it.phase !in setOf(TaskPhase.BOOKED, TaskPhase.EXPIRED, TaskPhase.STOPPED) }
+                        if (page == "home" && relevant.isNotEmpty()) Text(
+                            "${relevant.count { it.phase == TaskPhase.WAITING }} 个等待查号 · ${relevant.count { it.phase == TaskPhase.DRAFT }} 个草稿", color = Muted)
+                        val hospitals = relevant.map { it.task.hospitalName }.distinct()
+                        if (hospitals.size > 1) Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(selected = hospitalFilter == null, onClick = { hospitalFilter = null }, label = { Text("全部医院") })
+                            hospitals.forEach { hospital -> FilterChip(selected = hospitalFilter == hospital,
+                                onClick = { hospitalFilter = hospital }, label = { Text(hospital) }) }
+                        }
+                        val display = relevant.filter { hospitalFilter == null || hospitalFilter !in hospitals || it.task.hospitalName == hospitalFilter }
                         if (display.isEmpty()) Panel {
                             Text("◷", fontSize = 54.sp, color = Teal)
                             Text(if (page == "home") "把守候放号交给任务" else "暂时没有挂号记录", fontSize = 21.sp, fontWeight = FontWeight.Bold)
@@ -119,26 +136,10 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                             if (page == "home" && graph.mode.demoEnabled) Text("首次使用可选择演示模式，体验完整流程。演示不会连接医院。", color = Muted)
                         }
                         display.forEach { r ->
-                            Panel(onClick = { selected = r.task.id; page = "detail" }) {
-                                Text(r.task.hospitalName, color = Muted)
-                                Badge((if (r.task.demo) "演示 · " else "") + phaseLabel(r.phase), r.order != null || r.phase == TaskPhase.NEEDS_ATTENTION)
-                                if (r.phase == TaskPhase.WAITING) {
-                                    Text(r.task.releaseAt.atZone(zone).format(DateTimeFormatter.ofPattern("HH:mm:ss")), fontSize = 42.sp, fontWeight = FontWeight.SemiBold)
-                                    Text("${timestamp(r.task.releaseAt)} 计划查号 · 北京时间", color = Muted)
-                                }
-                                Text("${r.task.condition.department.name} · ${r.task.condition.doctorName}", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                                Text("${r.task.condition.visitDate}  ·  ${periodLabel(r.task.condition.startMinute, r.task.condition.endMinute)}", color = Muted)
-                                ScheduleSummary(r.latestSchedule ?: r.task.initialSchedule)
-                                Text("${r.task.maxRuntimeMinutes} 分钟内尝试 · ${money(r.task.condition.maxFeeFen)} 以内", color = Muted)
-                                Text("查看任务详情  →", color = Teal)
-                            }
+                            TaskListCard(r) { selected = r.task.id; page = "detail" }
                         }
-                        if (page == "home") Panel {
-                            Text("执行准备", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                            Text(if (session == null) { if (graph.mode.demoEnabled) "医院尚未连接，可先体验演示" else "请先连接医院并确认就诊人" } else "${connection.title} · ${session.patientName}")
-                            if (session != null) Text(connection.description, color = Muted, fontSize = 13.sp)
-                            Text("通知、精确定时和华为后台管理需提前准备。", color = Muted)
-                            TextButton(onClick = { page = "settings" }) { Text("检查运行设置 →") }
+                        if (page == "home") TextButton(onClick = { page = "settings" }, modifier = Modifier.heightIn(min = 48.dp)) {
+                            Text(if (session == null) "连接医院与检查运行设置 →" else "检查医院连接与运行准备 →")
                         }
                     }
                     "session" -> Content {
@@ -165,7 +166,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                     }
                     "editor" -> key(editorKey) {
                         TaskEditorScreen(graph, connection, connections, reuse, busy, onBack = { page = "home" },
-                            onConnect = { page = "session" },
+                            onConnect = { editorConnection = true },
                             onSave = { task, enable -> work {
                                     withContext(Dispatchers.IO) { graph.saveDraft(task) }
                                 reload()
@@ -203,13 +204,14 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                                     Primary("确认开启自动挂号", !busy && (r.task.demo || !taskConnection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
                                     OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("修改条件并另存为任务") }
                                 }
-                                if (r.order != null) {
+                                if (r.order != null && r.phase != TaskPhase.BOOKED) {
                                     Panel(tint = Amber) {
                                         Text("去微信完成付款", fontSize = 21.sp, fontWeight = FontWeight.Bold)
                                         Text(OfficialPaymentHandoff.instructions)
                                         Text("打开微信后需按以上步骤找到本单。", color = Muted)
                                         if (!r.task.demo) Primary("打开微信") { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "未安装微信，请在手机打开服务号" }
-                                        Primary("刷新付款结果", !busy) { work { withContext(Dispatchers.IO) { graph.refreshPayment(r.task.id) } } }
+                                        OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.refreshPayment(r.task.id) } } },
+                                            enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("刷新付款结果") }
                                         if (r.task.demo && r.phase != TaskPhase.BOOKED) OutlinedButton(onClick = {
                                             work { withContext(Dispatchers.IO) {
                                                 graph.store.update(r.task.id) { it.copy(order = it.order!!.copy(phase = if (it.task.paymentPreference == PaymentPreference.INSURANCE_FIRST) OrderPhase.INSURANCE_PAID else OrderPhase.BOOKED,
@@ -237,6 +239,21 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                 }
             }
         }
+        if (editorConnection) Dialog(onDismissRequest = { if (!busy) editorConnection = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Surface(Modifier.fillMaxSize(), color = Warm) {
+                Content {
+                    BackTitle("连接医院") { if (!busy) editorConnection = false }
+                    SessionScreen(connection, busy,
+                        onCheck = { work { withContext(Dispatchers.IO) { graph.checkConnection(true) } } },
+                        onImport = { raw -> work {
+                            withContext(Dispatchers.IO) { graph.importSession(raw) }
+                            reload(); editorConnection = false
+                        } },
+                        onWeChat = { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "请在手机微信中打开北京佑安医院服务号" })
+                }
+            }
+        }
         error?.let { message -> AlertDialog(onDismissRequest = { error = null }, title = { Text("需要处理") }, text = { Text(message) }, confirmButton = { TextButton(onClick = { error = null }) { Text("知道了") } }) }
         resolveTask?.let { id -> AlertDialog(onDismissRequest = { resolveTask = null }, title = { Text("确认已人工核对") },
             text = { Text("请先在微信服务号检查本次提交是否已生成订单，并处理付款或取消。结束本任务仅解除后续任务限制，保留原提交记录，不代表医院无订单，也不会取消医院挂号。") },
@@ -250,14 +267,14 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
     verticalArrangement = Arrangement.spacedBy(18.dp), content = content)
 @Composable private fun Heading(text: String) { Text(text, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Ink) }
 @Composable private fun BackTitle(text: String, back: () -> Unit) { Row(verticalAlignment = Alignment.CenterVertically) { TextButton(onClick = back, contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) { Text("‹ 返回") }; Spacer(Modifier.width(12.dp)); Heading(text) } }
-@Composable private fun Panel(tint: Color = Color.White, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
+@Composable internal fun Panel(tint: Color = Color.White, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxWidth().background(tint, RoundedCornerShape(20.dp)).then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
         .padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
 }
-@Composable private fun Primary(text: String, enabled: Boolean = true, click: () -> Unit) { Button(onClick = click, enabled = enabled, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text(text, fontSize = 16.sp, color = if (enabled) Color.White else Muted) } }
-@Composable private fun Badge(text: String, attention: Boolean = false) { Text(text, color = if (attention) Color(0xFF795519) else Teal, fontSize = 13.sp, modifier = Modifier.background(if (attention) Amber else Color(0xFFE7F1EA), RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 6.dp)) }
+@Composable internal fun Primary(text: String, enabled: Boolean = true, click: () -> Unit) { Button(onClick = click, enabled = enabled, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text(text, fontSize = 16.sp, color = if (enabled) Color.White else Muted) } }
+@Composable internal fun Badge(text: String, attention: Boolean = false) { Text(text, color = if (attention) Color(0xFF795519) else Teal, fontSize = 13.sp, modifier = Modifier.background(if (attention) Amber else Color(0xFFE7F1EA), RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 6.dp)) }
 @Composable private fun Value(label: String, value: String) { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) { Text(label, color = Muted, fontSize = 13.sp); Text(value, fontSize = 16.sp) } }
-private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -> "全天"; 0 to 720 -> "上午"; 720 to 1440 -> "下午"; else -> "%02d:%02d–%02d:%02d".format(start/60, start%60, end/60, end%60) }
+internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -> "全天"; 0 to 720 -> "上午"; 720 to 1440 -> "下午"; else -> "%02d:%02d–%02d:%02d".format(start/60, start%60, end/60, end%60) }
 
 @Composable private fun ConnectionPicker(connections: List<HospitalConnection>, selected: PatientRef?, busy: Boolean,
     onSelect: (PatientRef) -> Unit) {
@@ -373,6 +390,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     }
     Panel {
         Value("医院 / 渠道", "${t.hospitalName} · ${t.binding?.providerName ?: if (t.demo) "本机演示" else "微信服务号"}")
+        t.binding?.campusName?.let { Value("院区", it) }
         Value("科室 / 医生", "${t.condition.department.name} · ${t.condition.doctorName}")
         Value("就诊日期 / 时段", "${t.condition.visitDate} · ${periodLabel(t.condition.startMinute, t.condition.endMinute)}")
         ScheduleSummary(r.latestSchedule ?: t.initialSchedule)
@@ -390,8 +408,11 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     val scope = rememberCoroutineScope()
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     var step by rememberSaveable { mutableIntStateOf(1) }
+    BackHandler { if (step > 1) step-- else onBack() }
+    var channel by remember { mutableStateOf(RegistrationChannel.YOUAN_WECHAT) }
+    var selectedHospital by remember { mutableStateOf<cn.guahao.hospital.beijing.BeijingHospital?>(null) }
     var chosenRef by remember { mutableStateOf(reuse?.condition?.patient?.takeUnless { it.isDemo } ?: defaultConnection.session?.reference) }
-    val connection = chosenRef?.let { graph.sessions.connection(it) } ?: defaultConnection
+    val connection = chosenRef?.let { graph.sessions.connection(it) } ?: HospitalConnection()
     var demoPatient by remember { mutableStateOf(reuse?.condition?.patient?.takeIf { it.isDemo } ?: DemoGateway.patient) }
     val reusable = reuse?.takeIf { graph.mode.allows(it) }
     var demo by remember { mutableStateOf(graph.mode.demoEnabled && (reusable?.demo ?: true)) }
@@ -412,8 +433,13 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     var loadError by remember { mutableStateOf<String?>(null) }
     var pick by remember { mutableStateOf<String?>(null) }
     var search by remember { mutableStateOf("") }
+    LaunchedEffect(defaultConnection.session?.reference) {
+        if (chosenRef == null) chosenRef = defaultConnection.session?.reference
+    }
     val session = connection.session
-    val patient = if (demo) demoPatient else session?.reference?.takeUnless { connection.needsReconnect }
+    val patient = if (demo) demoPatient else session?.reference?.takeUnless {
+        connection.needsReconnect || channel != RegistrationChannel.YOUAN_WECHAT
+    }
     val currentPatient by rememberUpdatedState(patient)
     fun condition(): VisitCondition? = runCatching { VisitCondition(patient ?: return null, department, doctorCode, doctorName, date, start, end, purpose, yuanToFen(fee)) }.getOrNull()
     fun loadDepartments() {
@@ -435,15 +461,36 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     val hospitalRelease = currentSelection?.observation?.takeIf { it.availability == DateAvailability.NOT_RELEASED }?.hospitalReleaseAt?.atZone(zone)
     val release = manualRelease ?: hospitalRelease ?: demoRelease.takeIf { demo }
     val scheduleState = remember(query) { SchedulePickerState() }
-    LaunchedEffect(query) { doctorSelection = null; doctorCode = ""; doctorName = ""; accepted = false; loadError = null; if (step > 1) step = 1 }
-    Content {
-        BackTitle("新建挂号任务") { if (step > 1) step-- else onBack() }
-        Text("$step / 3  ·  ${listOf("就诊条件", "执行设置", "确认启用")[step-1]}", color = Teal, fontWeight = FontWeight.SemiBold)
+    LaunchedEffect(query) { doctorSelection = null; doctorCode = ""; doctorName = ""; accepted = false; loadError = null; if (step > 2) step = 2 }
+    var priorVisit by remember { mutableStateOf(Triple(patient, department, date)) }
+    LaunchedEffect(patient, department, date) {
+        val visit = Triple(patient, department, date)
+        if (visit != priorVisit) { start = 0; end = 1440; accepted = false; priorVisit = visit }
+    }
+    fun save(enable: Boolean) {
+        val c = condition() ?: return
+        val selected = currentSelection ?: return
+        val at = release?.toInstant() ?: return
+        val runtime = minutes.toIntOrNull()?.takeIf { it > 0 } ?: return
+        onSave(BookingTask(UUID.randomUUID().toString(), c, at, runtime,
+            if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER,
+            demo = demo, binding = graph.gateway.binding(c.patient), initialSchedule = selected.observation), enable)
+    }
+    val readyToSave = currentSelection != null && condition() != null &&
+        minutes.toIntOrNull()?.let { it > 0 } == true && release?.toInstant()?.isAfter(Instant.now()) == true
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            BackTitle("新建挂号任务") { if (step > 1) step-- else onBack() }
+            EditorProgress(step)
+        }
+        val stageScroll = key(step) { rememberScrollState() }
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(stageScroll).padding(horizontal = 24.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)) {
         if (loading) LinearProgressIndicator(Modifier.fillMaxWidth())
         loadError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (step == 1) {
             Panel {
-                Text(if (graph.mode.demoEnabled) "运行模式" else "就诊人", fontWeight = FontWeight.SemiBold)
+                Text(if (graph.mode.demoEnabled) "运行模式" else "选择医院与渠道", fontWeight = FontWeight.SemiBold)
                 if (graph.mode.demoEnabled) {
                     Choice("演示模式 · 不连接医院", demo) { demo = true; department = DemoGateway.department; doctorSelection = null; doctorCode = ""; doctorName = "" }
                     Choice("真实挂号 · 使用本人服务号", !demo) { demo = false; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = "" }
@@ -453,9 +500,15 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                     Choice("演示医院 A", demoPatient == DemoGateway.patient) { demoPatient = DemoGateway.patient }
                     Choice("演示医院 B", demoPatient == DemoGateway.patientB) { demoPatient = DemoGateway.patientB }
                 } else {
-                    ConnectionPicker(connections, chosenRef, busy || loading) { ref ->
-                        chosenRef = ref; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = ""
-                    }
+                    HospitalChannelPicker(channel, selectedHospital, graph.beijingQueries::hospitals,
+                        onChannel = { channel = it; chosenRef = null; department = DepartmentRef("", "", "", "请选择科室", "") },
+                        onHospital = { selectedHospital = it })
+                }
+            }
+        } else if (step == 2) {
+            if (!demo) Panel {
+                ConnectionPicker(connections.filter { it.binding?.providerId == channel.id }, chosenRef, busy || loading) { ref ->
+                    chosenRef = ref; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = ""
                 }
                 if (!demo && session == null) Primary("先连接医院", !busy, onConnect)
                 else if (!demo && session != null) {
@@ -467,7 +520,8 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 }
             }
             Panel {
-                Value("医院", if (demo) cn.guahao.hospital.demoBinding(demoPatient).hospitalName else connection.binding?.hospitalName ?: "请选择医院连接")
+                Value("医院", if (demo) cn.guahao.hospital.demoBinding(demoPatient).hospitalName else connection.binding?.hospitalName ?: "北京佑安医院")
+                if (!demo) Value("渠道", channel.title)
                 Text("是否专程来京就医", fontWeight = FontWeight.SemiBold)
                 Choice("是", purpose == "1") { purpose = "1" }
                 Choice("否", purpose == "2") { purpose = "2" }
@@ -488,8 +542,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                     if (!currentSelection.observation.doctorConfirmed) Text("目标日排班待确认", color = Muted)
                 }
             }
-            Primary("下一步 · 执行设置", patient != null && currentSelection != null && !loading && department.code.isNotBlank() && doctorCode.isNotBlank() && purpose.isNotBlank() && start < end && !date.isBefore(LocalDate.now(zone))) { step = 2 }
-        } else if (step == 2) {
+        } else if (step == 3) {
             Panel {
                 Text("何时开始查号", fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
                 hospitalRelease?.let {
@@ -521,7 +574,6 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 Choice("我在微信全额付款", !insurance) { insurance=false }
                 Text("医保不可用时提醒你处理，不自动切换支付方式。付款由你在微信完成。", color = Muted)
             }
-            Primary("下一步 · 核对并启用", currentSelection != null && condition() != null && minutes.toIntOrNull()?.let { it>0 } == true && release?.toInstant()?.isAfter(Instant.now()) == true) { step=3 }
         } else {
             val condition = condition()
             if (condition != null && currentSelection != null && release != null) {
@@ -529,6 +581,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                     Badge(if (demo) "演示任务" else "将自动提交真实医院挂号", !demo)
                     Value("就诊人", if (demo) "演示就诊人（虚构）" else session?.patientName ?: "尚未连接")
                     Value("医院", patient?.let { graph.gateway.binding(it).hospitalName } ?: "尚未连接")
+                    Value("渠道", if (demo) "本机演示" else channel.title)
                     Value("科室 / 医生", "${department.name} · $doctorName")
                     Value("就诊日期 / 时段", "$date · ${periodLabel(start,end)}")
                     ScheduleSummary(currentSelection?.observation)
@@ -538,9 +591,22 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 }
                 RuntimeSettings(graph)
                 Choice("我已核对就诊人和条件，允许到点自动提交一次符合条件的挂号", accepted) { accepted = !accepted }
-                fun save(enable: Boolean) { onSave(BookingTask(UUID.randomUUID().toString(), condition, release.toInstant(), minutes.toInt(), if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER, demo=demo, binding=graph.gateway.binding(condition.patient), initialSchedule=currentSelection?.observation), enable) }
-                Primary(if (demo) "开启演示挂号任务" else "确认开启自动挂号", accepted && !busy && readiness(context, patient != null).ready) { save(true) }
-                OutlinedButton(onClick = { save(false) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("先保存草稿") }
+            }
+        }
+        }
+        ActionFooter {
+            when (step) {
+                1 -> Primary("下一步 · 就诊条件", (demo || channel == RegistrationChannel.YOUAN_WECHAT) && !busy && !loading) { step = 2 }
+                2 -> Primary("下一步 · 执行设置", patient != null && currentSelection != null && !busy && !loading &&
+                    department.code.isNotBlank() && doctorCode.isNotBlank() && purpose.isNotBlank() &&
+                    start < end && !date.isBefore(LocalDate.now(zone))) { step = 3 }
+                3 -> Primary("下一步 · 核对并启用", readyToSave && !busy) { step = 4 }
+                4 -> {
+                    Primary(if (demo) "开启演示挂号任务" else "确认开启自动挂号",
+                        readyToSave && accepted && !busy && readiness(context, patient != null).ready) { save(true) }
+                    OutlinedButton(onClick = { save(false) }, enabled = readyToSave && !busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("先保存草稿") }
+                }
             }
         }
     }

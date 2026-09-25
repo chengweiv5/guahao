@@ -40,11 +40,13 @@ class StorageAndRuntimeTest {
     }
     @Test fun simulatedInsuranceFlowPersistsThroughCompletion() = runBlocking {
         val graph=context.graph
-        val condition=VisitCondition(DemoGateway.patient,DemoGateway.department,"demo-doctor","林医生（虚构）",LocalDate.now().plusDays(7),0,1440,"2",8000)
+        val usedDates = graph.store.all().map { it.task.condition.visitDate }.toSet()
+        val date = generateSequence(LocalDate.now().plusDays(100)) { it.plusDays(1) }.first { it !in usedDates }
+        val condition=VisitCondition(DemoGateway.patient,DemoGateway.department,"demo-doctor","林医生（虚构）",date,0,1440,"2",8000)
         val task=BookingTask(UUID.randomUUID().toString(),condition,Instant.now().minusSeconds(1))
         graph.store.save(TaskRecord(task,TaskPhase.WAITING))
         graph.engine.run(task.id,1,"instrumentation")
-        assertEquals(TaskPhase.AWAITING_PAYMENT,graph.store.get(task.id).phase)
+        assertEquals(graph.store.get(task.id).note, TaskPhase.AWAITING_PAYMENT,graph.store.get(task.id).phase)
         graph.preparePayment(task.id)
         assertEquals(OrderPhase.INSURANCE_PENDING,graph.store.get(task.id).order?.phase)
         graph.store.update(task.id) { it.copy(order=it.order!!.copy(phase=OrderPhase.INSURANCE_PAID,rawStatus="6")) }

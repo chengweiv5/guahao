@@ -38,19 +38,20 @@ class BuildModeTest {
         graph.store.save(TaskRecord(task, note = "构建隔离界面测试"))
         if (expectedDemo) assertTrue(graph.visibleRecords().any { it.task.id == task.id })
         else assertTrue(graph.visibleRecords().none { it.task.id == task.id })
-        compose.onNodeWithText("挂号记录", useUnmergedTree = true).performClick()
+        compose.onNodeWithText("记录", useUnmergedTree = true).performClick()
         if (!expectedDemo) compose.onAllNodesWithText("演示", substring = true).assertCountEquals(0)
-        compose.onNodeWithText("挂号任务", useUnmergedTree = true).performClick()
+        compose.onNodeWithText("任务", useUnmergedTree = true).performClick()
         compose.onNodeWithText("＋ 新建挂号任务").performClick()
         if (expectedDemo) compose.onNodeWithText("演示模式 · 不连接医院").assertExists()
         else {
             compose.onAllNodesWithText("演示", substring = true).assertCountEquals(0)
+            compose.onNodeWithText("下一步 · 就诊条件").assertIsDisplayed().performClick()
             compose.onNodeWithText("先连接医院").assertExists()
             compose.onNodeWithText("科室：请选择科室").assertExists()
-            compose.onNodeWithText("医生：请选择医生").assertExists()
-            compose.onNodeWithText("下一步 · 执行设置").performScrollTo().assertIsNotEnabled()
+            compose.onNodeWithText("查询当日排班").assertExists()
+            compose.onNodeWithText("下一步 · 执行设置").assertIsDisplayed().assertIsNotEnabled()
         }
-        compose.onNodeWithText("新建挂号任务").performScrollTo()
+        compose.onNodeWithText("新建挂号任务").assertIsDisplayed()
         capture("build-mode-${if (expectedDemo) "debug" else "release"}.png")
     }
 
@@ -64,7 +65,8 @@ class BuildModeTest {
         }
         val task = syntheticTask()
         // Simulate a demo task retained by an upgrade, without creating a live booking.
-        val original = TaskRecord(task, TaskPhase.WAITING, note = "旧演示任务隔离测试")
+        val original = TaskRecord(task.copy(binding = cn.guahao.hospital.demoBinding(task.condition.patient)),
+            TaskPhase.WAITING, note = "旧演示任务隔离测试")
         graph.store.save(original)
         expectRejected { graph.saveDraft(syntheticTask()) }
         expectRejected { graph.enable(task.id) }

@@ -6,6 +6,8 @@
 
 ## 当前状态
 
+v0.2 已在 v0.1.0 基线上开始实现。当前开发版本包含四步任务设置、固定底部操作、紧凑任务卡与医院筛选，以及北京 114／京通的独立渠道选择和医院目录、科室、日历查询客户端。查询客户端已通过模拟响应测试，但真实独立目录请求仍收到 `HTTP 202 + HTML` 校验页；认证、患者、医生排班请求构造、提交与订单核对尚未打通，**不能据此宣称已支持新增医院自动挂号**。当前代码未启用这两个渠道的任务创建，仍需完成真实接入验收。见 [v0.2 实施与验证记录](docs/testing/2026-09-25-v02-implementation.md)。
+
 v0.1 Android 工程与调试 APK 已实现：三步设置挂号任务、服务号会话导入、条件查号、提交恢复、精确定时与前台服务、医保准备和微信付款交接。测试包默认演示模式；正式构建直接进入真实挂号流程。服务号为主通路，互联网医院保留为独立研究渠道。
 
 已通过本机单元测试与 Android 12 / API 31 模拟器测试。Mate 60 Pro / 鸿蒙 4.2.0.223 已实测 API 31，安装、存储、演示流程和任务创建通过；用户开启华为自启动、关联启动和后台活动后，短时锁屏测试连续两次通过，模拟提交分别比计划晚 760ms、887ms，执行期间屏幕保持关闭，付款提醒已验证。复验同时修正了测试数据重复导致的防重复保护误报，生产 APK 未改动。30 分钟以上锁屏、深度 Doze、真实服务号独立导入及锁屏联网仍待验证。详见 [验收记录](docs/testing/mate60-v01-acceptance.md)。
@@ -69,7 +71,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [项目规则](AGENTS.md)：飞书目录和 Git 操作约定。
 - [领域术语](CONTEXT.md)：就诊人、号源、预约任务和付款时限等概念。
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
-- [v0.2 北京通用平台设计](docs/design/v0.2/2026-09-25-beijing-platform-design.md)：统一平台选择、多医院与渠道模型、认证/订单流程、兼容与验收条件；本任务仅完成设计，待评审。
+- [v0.2 北京通用平台设计](docs/design/v0.2/2026-09-25-beijing-platform-design.md)：设计已确认，已开始 UI 和客户端实现；完整接入待验收。
 - [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据、平台适配与独立接入的验证边界。
 - [v0.2 最新查询核验](docs/research/2026-09-25-xweb-read-query-verification.md)：手机微信内置调试已验证 114 两家医院的科室与排班、7 种核心查询端点，并确认京通复用同组查询协议；独立客户端认证、请求构造与预约提交仍待验证。
 - [v0.2 入口核验](docs/research/2026-09-25-114-mobile-entry-and-web-closure.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：网站预约已关闭；京通与 114 的登录态和凭据按入口隔离。

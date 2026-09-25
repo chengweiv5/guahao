@@ -162,8 +162,10 @@ class ParallelRuntimeTest {
         val manager = context.getSystemService(NotificationManager::class.java)
         val used = graph.store.all().map { it.task.condition.visitDate }.toSet()
         val date = generateSequence(LocalDate.now().plusDays(100)) { it.plusDays(1) }.first { it !in used }
-        val release = Instant.now().plusSeconds(5)
-        val a = task("parallel-test-${UUID.randomUUID()}").copy(releaseAt = release)
+        val release = Instant.now().plusSeconds(6)
+        val a = task("parallel-test-${UUID.randomUUID()}").let {
+            it.copy(releaseAt = release, condition = it.condition.copy(visitDate = date))
+        }
         val b = task("parallel-test-${UUID.randomUUID()}", DemoGateway.patientB).copy(releaseAt = release,
             condition = task("condition", DemoGateway.patientB).condition.copy(visitDate = date))
         graph.store.save(TaskRecord(a, TaskPhase.WAITING)); graph.store.save(TaskRecord(b, TaskPhase.WAITING))
@@ -172,8 +174,12 @@ class ParallelRuntimeTest {
             fun start(t: BookingTask) = context.startForegroundService(Intent(context, BookingService::class.java)
                 .putExtra("taskId", t.id).putExtra("generation", t.generation))
             start(a); start(b); start(b)
-            Thread.sleep(1000)
-            assertTrue(manager.activeNotifications.any { it.id == 1 && it.notification.extras.getString("android.title") == "2 个挂号任务运行中" })
+            val summaryDeadline = SystemClock.elapsedRealtime() + 3000
+            fun showsBoth() = manager.activeNotifications.any {
+                it.id == 1 && it.notification.extras.getString("android.title") == "2 个挂号任务运行中"
+            }
+            while (!showsBoth() && SystemClock.elapsedRealtime() < summaryDeadline) Thread.sleep(50)
+            assertTrue("Both workers must be visible before their release time", showsBoth())
             graph.stop(a.id)
             val end = SystemClock.elapsedRealtime() + 15000
             while (graph.store.get(b.id).order == null && SystemClock.elapsedRealtime() < end) Thread.sleep(100)
