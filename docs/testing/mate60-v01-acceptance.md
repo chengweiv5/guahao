@@ -1,13 +1,13 @@
 # 挂号 v0.1 Android 验收记录
 
-2026-09-25。已实现首版代码并形成调试安装包，进入目标手机验收。**本轮未连接 Mate 60 Pro，不能宣称真实手机自动挂号全流程通过。** 原有普通/医保真实付款证据继续有效，本轮不重复占号。
+2026-09-25。已实现首版代码并形成调试安装包，已在 Mate 60 Pro 安装和完成首批核心测试。**真机界面自动化、通知与锁屏执行尚未通过，不能宣称真实手机自动挂号全流程通过。** 原有普通/医保真实付款证据继续有效，本轮不重复占号。
 
 ## 安装包
 
 - 应用：挂号，`cn.guahao`，`0.1.0`（versionCode 1）。
 - APK：`app/build/outputs/apk/debug/app-debug.apk`，约 11 MB，Android Debug 签名，v2 签名验证通过。
 - SHA-256：`5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e`。
-- minSdk 26 / targetSdk 36 / compileSdk 36；不依赖 Google 服务。目标手机实际 API 待 USB 调试连接后读取。
+- minSdk 26 / targetSdk 36 / compileSdk 36；不依赖 Google 服务。目标手机已实测 Android API 31，详见下方真机首轮记录。
 - 构建环境：macOS arm64，JDK 21.0.7（编译目标 17），Gradle 8.13，AGP 8.13.2，Kotlin 2.0.21。
 
 ```bash
@@ -47,11 +47,25 @@ APK 不入库；同一机器可按上述命令重建。调试签名不是长期�
 
 结构化结果：[verification.json](evidence/v0.1/verification.json)。本机构建报告在 `core/build/reports/tests/`、`app/build/reports/tests/`、`app/build/reports/androidTests/connected/debug/`；模拟器附加产物在 `app/build/outputs/connected_android_test_additional_output/`。
 
-## 真机待验（未执行）
+## 真机首轮验收（2026-09-25）
+
+实际设备：华为 `ALN-AL00`（Mate 60 Pro），鸿蒙 `4.2.0.223(C00E215R10P2)`，Android 12 / API 31；1260×2720，520 dpi，arm64。设备序列号不入库。
+
+- **通过**：调试 APK 安装；冷启动返回 Status ok（966ms）；前台首页 UI 层级可读，出现“挂号任务”“新建挂号任务”等正确内容。
+- **通过**：直接用 `adb -s <serial> shell am instrument` 运行 StorageAndRuntimeTest，3/3 成功，包括 Keystore 随机 IV/AAD、数据库重开与独占执行权、演示医保流程。未使用会在结束时卸载应用的 Gradle connected 流程。
+- **未通过**：Compose UI 自动化未找到界面层级。华为日志出现对测试 Activity 的 BACKGROUND 启动拦截；添加 shell 前台启动仍超时，试验性修改已撤回，不能将 UI 断言记为通过。
+- **未完成**：短时灭屏闹钟测试挂起。检测到手机锁屏、系统权限界面，停止测试进程后其返回 Process crashed；这是人为结束测试的结果，不作为 App 自发崩溃证据，也不能算闹钟成功或失败的完整验收。
+- **权限实测**：精确闹钟、前台服务和唤醒锁 granted；该鸿蒙设备虽报告 API 31，仍有独立 POST_NOTIFICATIONS 权限，观察时未授权；App 不在系统电池优化白名单。
+- **清理**：测试过程中临时设置的 batteryAcknowledged 已恢复 false 并回读验证；未清除应用数据、未卸载、未自动更改华为后台管理开关。虚构测试记录保留且明确标记演示。
+- **当前需要用户操作**：正常解锁手机、处理系统权限提示并打开“挂号”，然后继续核对通知、后台设置及服务号接入。已通过 punk-12 发出并回读介入通知。
+
+结构化记录：[mate60-first-pass.json](evidence/v0.1/mate60-first-pass.json)。本轮没有真实医院请求、锁号或付款。
+
+## 真机剩余验收
 
 | 检查 | 后续操作与通过标准 |
 | --- | --- |
-| Mate 60 Pro 安装与 API | 连接并正常授权 USB 调试，记录实际型号/API，安装启动 |
+| Mate 60 Pro 安装与 API | 已通过：ALN-AL00、鸿蒙 4.2.0.223、Android API 31，安装及冷启动成功 |
 | 服务号独立会话 | 用户在手机主动粘贴本人页面链接；确认医院返回的姓名、ptno、功能权限一致 |
 | 真实只读数据 | 科室/医生/号源及既有订单读取；确认 `actdate/ampm/reserved_date/invalidtime` 的实际格式。当前解析拒绝未知结构，不退化为空列表 |
 | 长时间锁屏 | 演示任务设为至少 30 分钟后，锁屏等待；记录实际唤醒与通知。手机省电、自启动和后台联网以实测为准 |
@@ -60,7 +74,7 @@ APK 不入库；同一机器可按上述命令重建。调试签名不是长期�
 | 权限改变 | 拒绝/撤销通知、通知类别、精确闹钟、省电设置后，页面明确说明未就绪 |
 | 微信返回 | 用户完成已有订单付款后，App 同单回查确认；未回跳时手动刷新可用 |
 
-真实提交的 Android 集成验收只在用户安排下一次真实就医需求时进行。无手机连接并不阻止代码/APK交付，但上述项目仍属于未执行，不计入本轮通过数量。
+真实提交的 Android 集成验收只在用户安排下一次真实就医需求时进行。当前手机已连接；上表除安装/API 外尚未完成，不计入本轮通过数量。
 
 ## 实现取舍与风险
 

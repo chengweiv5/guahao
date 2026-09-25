@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-25",
+  "device": {
+    "manufacturer": "HUAWEI",
+    "model": "ALN-AL00",
+    "platform": "HarmonyOS 4.2.0.223(C00E215R10P2)",
+    "androidRelease": "12",
+    "androidApi": 31,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ],
+    "screenPixels": "1260x2720",
+    "densityDpi": 520
+  },
+  "package": {
+    "applicationId": "cn.guahao",
+    "versionName": "0.1.0",
+    "versionCode": 1,
+    "apkSha256": "5778ca9fd33c267aaf51d6c6baafcc5bc2fe017b4da4bb5b75f9fd24582ed32e",
+    "install": "passed",
+    "coldStart": "passed",
+    "coldStartMillis": 966
+  },
+  "passedInstrumentationTests": [
+    "keystoreCipherUsesUniqueIvAndBoundContext",
+    "databaseReopenRetainsAttemptAndClaimsAreExclusive",
+    "simulatedInsuranceFlowPersistsThroughCompletion"
+  ],
+  "ui": {
+    "manualForegroundLaunch": "passed",
+    "homeHierarchy": "readable",
+    "composeAutomation": "failed - no Compose hierarchy; Huawei background activity interception observed; foreground launch workaround also timed out; workaround reverted"
+  },
+  "screenOffAlarm": {
+    "status": "incomplete",
+    "reason": "test hung while device was locked and permission UI active; stopped without claiming pass"
+  },
+  "permissions": {
+    "scheduleExactAlarm": "granted",
+    "foregroundService": "granted",
+    "wakeLock": "granted",
+    "postNotifications": "not granted at observation",
+    "batteryOptimizationWhitelist": false
+  },
+  "cleanup": {
+    "appDataCleared": false,
+    "appUninstalled": false,
+    "temporaryBatteryAcknowledgedRestored": true,
+    "testProcessStopped": true
+  },
+  "nextRequiredUserAction": "Unlock phone, handle system permission prompt, open Guahao app",
+  "realHospitalCalls": 0,
+  "realOrdersCreated": 0,
+  "remaining": [
+    "UI automation",
+    "notification permission verification",
+    "short and prolonged screen-off scheduling",
+    "service-account import and real read-only data",
+    "Huawei battery setup",
+    "network switching",
+    "process recovery and reboot"
+  ]
+}
