@@ -68,6 +68,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [后续开发计划候选](docs/development-candidates.md)：医院扩展、北京通用挂号平台、接口来源选择及其他城市平台，均未排期。
 - [服务号 v0.1 开发计划](docs/superpowers/plans/2026-09-24-service-account-v01.md)：会话导入、自动预约、锁屏执行、付款通知与设备验收。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。
+- [服务号固定入口与首次连接核对](docs/research/2026-09-25-service-account-connection.md)：现有会话可保存复用，首次免粘贴授权和回传仍未验证。
 - [服务号单笔预约验证摘要](docs/research/2026-09-24-youan-service-account-booking-result.md)。
 - [医保支付分支核对](docs/research/2026-09-24-youan-medical-insurance-payment.md)。
 - [脱敏证据](docs/research/evidence/2026-09-24-youan/)：接口状态、响应结构和查询样例；真实订单证据仅保留技术摘要。

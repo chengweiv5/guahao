@@ -1,0 +1,115 @@
+{
+  "checked_date": "2026-09-25",
+  "recorded_at": "2026-09-25T03:42:28.806285+00:00",
+  "status": "bounded_investigation_complete; first_login_handoff_unverified",
+  "source_commit": "e652c490d671ebf3015baeb8363068f83b186292",
+  "scope": {
+    "public_http_only": true,
+    "hospital_login_performed": false,
+    "patient_mutation_performed": false,
+    "booking_performed": false,
+    "payment_performed": false,
+    "wechat_private_storage_read": false,
+    "phone_test_performed": false,
+    "product_code_changed": false
+  },
+  "hospital_pages": [
+    {
+      "method": "GET",
+      "url": "https://psc.hkinfo.net/admin/youmanage",
+      "identity_parameters_sent": false,
+      "cookies_sent": false,
+      "http_status": 400,
+      "safe_headers": {
+        "date": "Fri, 25 Sep 2026 03:34:06 GMT",
+        "content-type": "application/json"
+      },
+      "location_present": false,
+      "body_sha256": "16b725ad5a83b45cfbb702f04457f30a8b0399299dd5f6e24597ecc61662d062",
+      "observation": "Bad Request; no login redirect"
+    },
+    {
+      "method": "GET",
+      "url": "https://psc.hkinfo.net/regis/initDept",
+      "identity_parameters_sent": false,
+      "cookies_sent": false,
+      "http_status": 400,
+      "safe_headers": {
+        "date": "Fri, 25 Sep 2026 03:34:06 GMT",
+        "content-type": "application/json"
+      },
+      "location_present": false,
+      "body_sha256": "cefa62146230566f8e6bdc87515c6f31fe80a9c334bb5f2237e5e90c19f80e85",
+      "observation": "Bad Request; no login redirect"
+    },
+    {
+      "method": "GET",
+      "url": "https://psc.hkinfo.net/",
+      "identity_parameters_sent": false,
+      "cookies_sent": false,
+      "http_status": 200,
+      "safe_headers": {
+        "date": "Fri, 25 Sep 2026 03:34:09 GMT",
+        "content-type": "text/html;charset=UTF-8"
+      },
+      "location_present": false,
+      "body_sha256": "4b2f448ae50086f3640d105fbe09b1b0058f8b5f2a4cfcf63d9bf2b588cb3be3",
+      "observation": "Root page says 此功能正在维护，稍后发布; not a service-wide availability check"
+    }
+  ],
+  "official_wechat_rules": {
+    "url": "https://developers.weixin.qq.com/doc/service/guide/h5/auth",
+    "retrieval": "direct public HTML",
+    "body_sha256": "f4e977dfbb2ae09054b48293c58f128beda44b108cafd7378ddd0ac733a3940d",
+    "excerpts": [
+      "如果用户在微信客户端中访问第三方网页，服务号可以通过微信网页授权机制，来获取用户基本信息，进而实现业务逻辑。",
+      "授权后重定向的回调链接地址， 请使用 urlEncode 对链接进行处理；必须要和在微信公众平台「设置与开发 - 账号设置 - 功能设置 - 网页授权域名」的配置一致",
+      "：作为换取access_token的票据，每次用户授权带上的code将不一样，code只能使用一次，5分钟未被使用自动过期。",
+      "注意：由于服务号的 secret 和获取到的 access_token 安全级别都非常高，必须只保存在服务器，不允许传给客户端。后续刷新access_token、通过access_token获取用户信息等步骤，也必须从服务器发起。"
+    ]
+  },
+  "official_guide": {
+    "url": "https://bjyayy.com.cn/Html/News/Articles/44135.html",
+    "body_sha256": "49b8e1c9a80dba253821cf5c5904b056a4743fc42c559f1435b599286f26c368",
+    "described_path": "微信搜索北京佑安医院服务号或扫码关注 → 就诊服务 → 预约挂号"
+  },
+  "public_qr": {
+    "image_url": "https://www.bjyayy.com.cn/Sites/Uploaded/Image/2023/03/286381560069654746137465915.jpg",
+    "image_sha256": "bd042bc155dd47cced1f85a276f80d1a903f8b43367693ac309b57d83624b40d",
+    "decoded_url": "http://weixin.qq.com/r/fkjUzNDEj43wrZSv9x1s",
+    "decoder": "macOS Vision VNDetectBarcodesRequest, host, offline",
+    "http_observation": {
+      "first_status": 302,
+      "location": "https://weixin.qq.com/r/fkjUzNDEj43wrZSv9x1s",
+      "final_status": 200,
+      "body_sha256": "5770a5f6483cb779c3f5b93f3a11c2527821b203a6273d09fd88b96ab9cfb766",
+      "body_observation": "Language-based JavaScript redirect to WeChat download page; script not executed"
+    },
+    "tested_in_wechat_on_phone": false
+  },
+  "current_source_review": {
+    "successful_import_persists_session": true,
+    "keystore_aes_gcm": true,
+    "storage": "noBackupFilesDir",
+    "session_expiry_duration_verified": false,
+    "open_wechat_only_launches_app": true,
+    "first_import_still_requires_paste": true,
+    "files": [
+      "app/src/main/kotlin/cn/guahao/hospital/SessionRepository.kt",
+      "app/src/main/kotlin/cn/guahao/storage/EncryptedVault.kt",
+      "core/src/main/kotlin/cn/guahao/core/psc/SessionImport.kt",
+      "app/src/main/kotlin/cn/guahao/ui/GuahaoApp.kt",
+      "app/src/main/kotlin/cn/guahao/payment/OfficialPaymentHandoff.kt"
+    ]
+  },
+  "user_input": "用户确认只能复制登录后的挂号页链接；未获得原始菜单入口。",
+  "unverified": [
+    "service-account menu first-login URL",
+    "official hospital callback to independent app",
+    "fresh login inside independent app",
+    "expiry and reconnect behavior",
+    "WeChat Android system-share to app",
+    "public QR deep-link behavior on target phone"
+  ],
+  "redaction": "No Cookie values, personal identity URLs, patient data or order data retained; no raw private page bodies copied."
+}
