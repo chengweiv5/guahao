@@ -123,4 +123,24 @@ class BookingEngineTest {
         val g=FakeGateway(); BookingEngine(g,s,FakeClock()).run("task",1,"a")
         assertEquals(0,g.locks); assertEquals(TaskPhase.NEEDS_ATTENTION,s.record.phase)
     }
+    @Test fun expiredSessionStopsBeforeLockAndKeepsUncertainSubmissionForReview() = runBlocking {
+        val s = store()
+        val g = object : FakeGateway() {
+            override suspend fun candidates(condition: VisitCondition): List<Candidate> =
+                throw HospitalException("医院要求重新连接", reconnectRequired = true)
+            override suspend fun querySubmission(patient: PatientRef): AsyncReply =
+                throw HospitalException("医院要求重新连接", reconnectRequired = true)
+        }
+        val clock = FakeClock()
+        BookingEngine(g, s, clock).run("task", 1, "first")
+        assertEquals(0, g.locks)
+        assertEquals(TaskPhase.NEEDS_ATTENTION, s.record.phase)
+        assertEquals("医院要求重新连接", s.record.note)
+        val attempt = SubmissionAttempt("existing", "task", fixtureCandidate(), clock.now(), emptySet())
+        s.record = s.record.copy(phase = TaskPhase.RECONCILING, attempt = attempt)
+        BookingEngine(g, s, clock).run("task", 1, "second")
+        assertEquals(0, g.locks)
+        assertEquals(attempt, s.record.attempt)
+        assertEquals(TaskPhase.NEEDS_ATTENTION, s.record.phase)
+    }
 }

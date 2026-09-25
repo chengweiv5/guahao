@@ -59,11 +59,19 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         check(!hasUnresolvedOrActive()) { "请先停止任务并处理未决提交，再重新连接医院" }
         return sessions.importAndVerify(raw)
     }
+    suspend fun checkConnection(force: Boolean = false) {
+        // Do not insert foreground preflight requests into a running booking/reconciliation window.
+        if (!force && hasUnresolvedOrActive()) return
+        sessions.checkCurrent(force)
+    }
     suspend fun enable(id: String) {
         check(!hasUnresolvedOrActive(id)) { "已有任务正在等待、执行或核对，请先处理" }
         val r = store.get(id)
         mode.requireAllowed(r.task)
         check(r.phase == TaskPhase.DRAFT && r.attempt == null)
+        if (!r.task.demo) check(r.task.condition.patient == sessions.current()?.reference) {
+            "医院连接已更新，请复用条件新建任务，重新核对就诊人后启用"
+        }
         check(r.task.releaseAt.isAfter(clock.now())) { "放号时间已过，请调整后重新启用" }
         val sessionValid = r.task.demo || runCatching { sessions.load(r.task.condition.patient) }.isSuccess
         check(readiness(context, sessionValid).ready) { "请先补齐医院连接、通知、精确定时和后台运行准备" }

@@ -1,0 +1,97 @@
+{
+  "date": "2026-09-25",
+  "status": "implementation_and_synthetic_device_acceptance_passed",
+  "base_commit": "4bb1f90d2943a23088e47f4381179815cd23276f",
+  "unit_tests": {
+    "core": {
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "debug": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "release": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "debug": {
+      "errors": 0,
+      "warnings": 9,
+      "warning_ids": [
+        "UseKtx"
+      ]
+    },
+    "release": {
+      "errors": 0,
+      "warnings": 9,
+      "warning_ids": [
+        "UseKtx"
+      ]
+    }
+  },
+  "builds": [
+    "debug",
+    "release unsigned",
+    "debug androidTest"
+  ],
+  "device_tests": {
+    "mate60": {
+      "tests": 4,
+      "seconds": 6.643,
+      "result": "passed",
+      "receipt": "connection-state-physical.txt"
+    },
+    "emulator": {
+      "tests": 4,
+      "seconds": 9.284,
+      "result": "passed",
+      "receipt": "connection-state-emulator.txt"
+    }
+  },
+  "test_scope": [
+    "saved-session status and retry UI",
+    "encrypted reconnect state across repository reopen",
+    "401 and official WeChat OAuth redirect without following",
+    "network/server/malformed reply retains credentials",
+    "403, general redirects and functionControl denial not labeled login expiry",
+    "same-session automatic check throttle and concurrency",
+    "fresh import changes current pointer only; failed import keeps old session",
+    "old session response cannot invalidate new session",
+    "old connection draft rejected; unresolved attempt blocks import",
+    "core engine stops before lock on auth failure; uncertain attempt preserved"
+  ],
+  "test_iteration": "Initial added task-guard device case was blocked by pre-existing unresolved synthetic records. Isolated the test database/vault without deleting historical tasks; final 4 cases passed on both devices. Production code unchanged by this test correction.",
+  "installation": {
+    "debug_sha256": "c92ce942bc7d835374962a3f7fa232e11a579b96843cbe89f36ebf61119cbd98",
+    "installed_sha256": "c92ce942bc7d835374962a3f7fa232e11a579b96843cbe89f36ebf61119cbd98",
+    "package_hash_matches": true,
+    "release_unsigned_sha256": "1782e54fac4e3ffa18a90d9e1463010bd6efe4b199836460a7a17565a13340c9",
+    "booking_service_inactive": true
+  },
+  "ui_visual_check": "Final Mate 60 synthetic verified/reconnect panels checked; text and buttons readable, no overlap or clipped controls in captured content.",
+  "network_boundary": {
+    "real_hospital_requests": false,
+    "real_login": false,
+    "patient_switch": false,
+    "real_booking": false,
+    "payment": false,
+    "wechat_private_data_read": false
+  },
+  "limitations": [
+    "Actual hospital natural-expiry response and full first import on Android remain unverified",
+    "Real hospital may use other auth failure representations; unrecognized failures show unknown/permission status rather than guessed expiry",
+    "Long lockscreen/Doze/reboot acceptance not rerun",
+    "Release built and unit/lint checked; this delivery installed debug on phone/emulator only"
+  ],
+  "backup": "/tmp/guahao-connection-fix-before",
+  "rollback": "Reverse this delivery commit or reinstall backed-up debug APK with adb install -r after checking there is no active task. Keep app data."
+}

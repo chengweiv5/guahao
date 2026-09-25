@@ -29,8 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.guahao.AppGraph
 import cn.guahao.core.*
-import cn.guahao.core.psc.PscSession
 import cn.guahao.hospital.DemoGateway
+import cn.guahao.hospital.HospitalConnection
+import cn.guahao.hospital.ConnectionStatus
 import cn.guahao.payment.OfficialPaymentHandoff
 import cn.guahao.runtime.*
 import kotlinx.coroutines.*
@@ -59,7 +60,8 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
             bodyMedium = androidx.compose.ui.text.TextStyle(fontSize = 14.sp, color = Ink))) {
         val scope = rememberCoroutineScope()
         var records by remember { mutableStateOf(emptyList<TaskRecord>()) }
-        var session by remember { mutableStateOf<PscSession?>(null) }
+        var connection by remember { mutableStateOf(HospitalConnection()) }
+        val session = connection.session
         var page by rememberSaveable { mutableStateOf(if (initialTask != null) "detail" else "home") }
         var selected by rememberSaveable { mutableStateOf(initialTask) }
         var editorKey by rememberSaveable { mutableIntStateOf(0) }
@@ -69,7 +71,7 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         var resolveTask by remember { mutableStateOf<String?>(null) }
         var now by remember { mutableStateOf(Instant.now()) }
         val snackbar = remember { SnackbarHostState() }
-        suspend fun reload() = withContext(Dispatchers.IO) { graph.visibleRecords() to graph.sessions.current() }.let { records = it.first; session = it.second }
+        suspend fun reload() = withContext(Dispatchers.IO) { graph.visibleRecords() to graph.sessions.connection() }.let { records = it.first; connection = it.second }
         fun work(block: suspend () -> Unit) {
             if (busy) return
             busy = true
@@ -84,6 +86,9 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
         }
         LaunchedEffect(Unit) {
             while (isActive) { runCatching { reload() }.onFailure { error = "本机数据暂不可读，请解锁手机后重试" }; now = Instant.now(); delay(1000) }
+        }
+        LaunchedEffect(page) {
+            if (page in setOf("settings", "session")) withContext(Dispatchers.IO) { graph.checkConnection() }
         }
         BackHandler(page !in setOf("home", "history", "settings")) { page = "home" }
         Scaffold(containerColor = Warm, snackbarHost = { SnackbarHost(snackbar) },
@@ -124,29 +129,35 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                         }
                         if (page == "home") Panel {
                             Text("执行准备", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                            Text(if (session == null) { if (graph.mode.demoEnabled) "医院尚未连接，可先体验演示" else "请先连接医院并确认就诊人" } else "已连接 · ${session!!.patientName}")
+                            Text(if (session == null) { if (graph.mode.demoEnabled) "医院尚未连接，可先体验演示" else "请先连接医院并确认就诊人" } else "${connection.title} · ${session.patientName}")
+                            if (session != null) Text(connection.description, color = Muted, fontSize = 13.sp)
                             Text("通知、精确定时和华为后台管理需提前准备。", color = Muted)
                             TextButton(onClick = { page = "settings" }) { Text("检查运行设置 →") }
                         }
                     }
                     "session" -> Content {
                         BackTitle("连接医院") { page = "settings" }
-                        SessionScreen(session, busy, onImport = { raw -> work { withContext(Dispatchers.IO) { graph.importSession(raw) }; snackbar.showSnackbar("已核验就诊人，请确认姓名") } }, onWeChat = { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "未安装微信，请在手机微信中打开北京佑安医院服务号" })
+                        SessionScreen(connection, busy, onCheck = { work { withContext(Dispatchers.IO) { graph.checkConnection(true) } } },
+                            onImport = { raw -> work { withContext(Dispatchers.IO) { graph.importSession(raw) }; reload(); snackbar.showSnackbar("连接已更新，请核对就诊人；旧任务不会自动恢复") } },
+                            onWeChat = { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "未安装微信，请在手机微信中打开北京佑安医院服务号" })
                     }
                     "settings" -> Content {
                         Heading("设置")
                         Panel {
                             Text("医院连接", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                             Text("北京佑安医院 · 微信服务号", color = Muted)
-                            Text(session?.let { "已核验：${it.patientName}" } ?: "尚未连接")
-                            Primary(if (session == null) "连接医院" else "重新导入当前就诊人", !busy) { page = "session" }
+                            ConnectionSummary(connection)
+                            if (session != null && !connection.needsReconnect) OutlinedButton(
+                                onClick = { work { withContext(Dispatchers.IO) { graph.checkConnection(true) } } },
+                                enabled = !busy && !connection.checking, modifier = Modifier.fillMaxWidth()) { Text("重新校验连接") }
+                            Primary(if (session == null) "连接医院" else if (connection.needsReconnect) "重新连接医院" else "管理医院连接", !busy) { page = "session" }
                         }
                         RuntimeSettings(graph)
                         DefaultSettings(graph.context)
                         Panel { Text("数据留在本机", fontWeight = FontWeight.SemiBold); Text("会话、就诊资料与任务加密保存，不进行系统备份。不会自动读取剪贴板、读取微信数据或自动付款。", color = Muted) }
                     }
                     "editor" -> key(editorKey) {
-                        TaskEditorScreen(graph, session, reuse, busy, onBack = { page = "home" },
+                        TaskEditorScreen(graph, connection, reuse, busy, onBack = { page = "home" },
                             onConnect = { page = "session" },
                             onSave = { task, enable -> work {
                                     withContext(Dispatchers.IO) { graph.saveDraft(task) }
@@ -160,8 +171,14 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                             BackTitle("任务详情") { page = "home" }
                             if (r == null) Text("任务不存在或此版本不可用，请返回任务列表。") else {
                                 TaskStatus(r, now)
+                                val oldConnection = !r.task.demo && r.task.condition.patient != session?.reference
+                                if (!r.task.demo && (connection.needsReconnect || oldConnection)) Panel(tint = Amber) {
+                                    Text(if (oldConnection) "此任务使用先前的医院连接" else "医院需要重新连接", fontWeight = FontWeight.SemiBold)
+                                    Text("旧任务和提交记录会保留。先处理未决订单；重新导入后，复用条件新建任务并核对就诊人，不会自动恢复提交。")
+                                    Primary("管理医院连接", !busy) { page = "session" }
+                                }
                                 if (r.phase == TaskPhase.DRAFT) {
-                                    Primary("确认开启自动挂号", !busy) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
+                                    Primary("确认开启自动挂号", !busy && !oldConnection && (r.task.demo || !connection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
                                     OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("修改条件并另存为任务") }
                                 }
                                 if (r.order != null) {
@@ -188,7 +205,9 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
                                     if (r.phase == TaskPhase.NEEDS_ATTENTION && !now.isBefore(r.attempt!!.sentAt.plusSeconds(120))) TextButton(onClick = { resolveTask = r.task.id }) { Text("已在医院人工核对，结束本任务") }
                                 }
                                 if (r.phase in setOf(TaskPhase.WAITING, TaskPhase.SEARCHING, TaskPhase.SUBMITTING, TaskPhase.RECONCILING)) OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.stop(r.task.id) } } }, modifier = Modifier.fillMaxWidth(), enabled = !busy) { Text("停止本次挂号任务") }
-                                if (r.phase in setOf(TaskPhase.BOOKED, TaskPhase.EXPIRED, TaskPhase.STOPPED)) OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("复用条件新建任务") }
+                                if (r.phase in setOf(TaskPhase.BOOKED, TaskPhase.EXPIRED, TaskPhase.STOPPED) ||
+                                    (r.phase == TaskPhase.NEEDS_ATTENTION && r.attempt == null && r.order == null))
+                                    OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("复用条件新建任务") }
                                 Text("停止任务不会取消医院订单。取消或退款请在医院官方渠道操作。", color = Muted, fontSize = 13.sp)
                             }
                         }
@@ -218,18 +237,41 @@ private fun phaseLabel(p: TaskPhase) = when(p) {
 @Composable private fun Value(label: String, value: String) { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) { Text(label, color = Muted, fontSize = 13.sp); Text(value, fontSize = 16.sp) } }
 private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -> "全天"; 0 to 720 -> "上午"; 720 to 1440 -> "下午"; else -> "%02d:%02d–%02d:%02d".format(start/60, start%60, end/60, end%60) }
 
-@Composable private fun SessionScreen(session: PscSession?, busy: Boolean, onImport: (String) -> Unit, onWeChat: () -> Unit) {
+@Composable private fun ConnectionSummary(connection: HospitalConnection) {
+    Badge(connection.title, connection.needsReconnect || connection.health.status == ConnectionStatus.BOOKING_UNAVAILABLE)
+    connection.session?.let { Value("当前就诊人（请核对）", it.patientName) }
+    Text(connection.description, color = Muted)
+    connection.health.verifiedAt?.let { runCatching { timestamp(Instant.parse(it)) }.getOrNull() }?.let {
+        Text("上次校验通过：$it", color = Muted, fontSize = 13.sp)
+    }
+}
+
+@Composable internal fun SessionScreen(connection: HospitalConnection, busy: Boolean, onCheck: () -> Unit,
+    onImport: (String) -> Unit, onWeChat: () -> Unit) {
     var raw by remember { mutableStateOf("") }
+    var showImport by remember(connection.session?.reference, connection.needsReconnect) {
+        mutableStateOf(connection.session == null || connection.needsReconnect)
+    }
+    Panel {
+        Text("北京佑安医院 · 微信服务号", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        ConnectionSummary(connection)
+        if (connection.session != null && !connection.needsReconnect) OutlinedButton(onClick = onCheck,
+            enabled = !busy && !connection.checking, modifier = Modifier.fillMaxWidth()) { Text("重新校验连接") }
+        if (!showImport) OutlinedButton(onClick = { showImport = true }, enabled = !busy,
+            modifier = Modifier.fillMaxWidth()) { Text("重新导入 / 更换就诊人") }
+    }
+    if (showImport) {
     Panel {
         Text("使用你在医院登记的就诊人", fontSize = 21.sp, fontWeight = FontWeight.Bold)
         Text("1. 打开北京佑安医院微信服务号。\n2. 进入「就诊服务 → 预约挂号」，确认就诊人。\n3. 复制当前官方页面链接，主动粘贴到下方。", lineHeight = 26.sp)
         OutlinedButton(onClick = onWeChat, modifier = Modifier.fillMaxWidth()) { Text("打开微信") }
         OutlinedTextField(value = raw, onValueChange = { raw = it }, label = { Text("粘贴服务号页面链接") }, visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri))
-        Primary("连接并核验就诊人", raw.isNotBlank() && !busy) { val value = raw; raw = ""; onImport(value) }
+        Primary("连接并核验就诊人", raw.isNotBlank() && !busy && !connection.checking) { val value = raw; raw = ""; onImport(value) }
         Text("链接包含身份凭据，仅用于本机接入。不会自动读取剪贴板。", fontSize = 13.sp, color = Muted)
+        Text("重新导入前请停止等待或执行中的任务，处理未决提交。连接更新后，旧任务不会自动恢复。", fontSize = 13.sp, color = Muted)
     }
-    session?.let { Panel { Badge("医院已核验"); Value("当前就诊人", it.patientName); Text("请核对姓名。切换就诊人需先在微信切换，再导入对应页面。", color = Muted) } }
+    }
 }
 
 @Composable private fun RuntimeSettings(graph: AppGraph) {
@@ -304,7 +346,7 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     }
 }
 
-@Composable private fun TaskEditorScreen(graph: AppGraph, session: PscSession?, reuse: BookingTask?, busy: Boolean,
+@Composable private fun TaskEditorScreen(graph: AppGraph, connection: HospitalConnection, reuse: BookingTask?, busy: Boolean,
     onBack: () -> Unit, onConnect: () -> Unit, onSave: (BookingTask, Boolean) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -330,7 +372,8 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
     var loadError by remember { mutableStateOf<String?>(null) }
     var pick by remember { mutableStateOf<String?>(null) }
     var search by remember { mutableStateOf("") }
-    val patient = if (demo) DemoGateway.patient else session?.reference
+    val session = connection.session
+    val patient = if (demo) DemoGateway.patient else session?.reference?.takeUnless { connection.needsReconnect }
     fun condition(): VisitCondition? = runCatching { VisitCondition(patient ?: return null, department, doctorCode, doctorName, date, start, end, purpose, yuanToFen(fee)) }.getOrNull()
     fun loadDepartments() {
         if (patient == null) return
@@ -362,7 +405,13 @@ private fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 -
                 }
                 if (demo) Text("演示使用眼科虚构人物和 50 元示例号源。", color = Muted)
                 else if (session == null) Primary("先连接医院", !busy, onConnect)
-                else Value("就诊人（请核对）", session.patientName)
+                else {
+                    Value("就诊人（请核对）", session.patientName)
+                    Text(connection.title, color = if (connection.needsReconnect) MaterialTheme.colorScheme.error else Muted)
+                    if (connection.needsReconnect) Primary("重新连接医院", !busy, onConnect)
+                    if (reuse != null && reuse.condition.patient != session.reference)
+                        Text("将使用当前连接新建任务，请重新核对就诊人和条件；原任务保留。", color = Muted)
+                }
             }
             Panel {
                 Value("医院", "北京佑安医院")

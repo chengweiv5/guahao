@@ -76,4 +76,5 @@ sealed interface AsyncReply {
     data class Unknown(val code: String) : AsyncReply
 }
 enum class InsuranceReply { ACCEPTED, PENDING, PAID, UNKNOWN, REJECTED }
-class HospitalException(val safeMessage: String, val retryAfterMillis: Long? = null, val retryable: Boolean = false) : Exception(safeMessage)
+class HospitalException(val safeMessage: String, val retryAfterMillis: Long? = null, val retryable: Boolean = false,
+    val reconnectRequired: Boolean = false) : Exception(safeMessage)

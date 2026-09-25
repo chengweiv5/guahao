@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         graph.scope.launch {
             runCatching { graph.recover() }
+            runCatching { graph.checkConnection() }
             graph.visibleRecords().filter { it.order != null && it.phase != cn.guahao.core.TaskPhase.BOOKED }.forEach {
                 runCatching { graph.refreshPayment(it.task.id) }
             }

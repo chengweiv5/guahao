@@ -10,7 +10,7 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import android.util.AtomicFile
 
-class EncryptedVault(context: Context) {
+class EncryptedVault(context: Context) : SecretStore {
     private val directory = context.noBackupFilesDir
     private val alias = "guahao.v01.local"
     @Synchronized private fun key(): SecretKey {
@@ -35,14 +35,14 @@ class EncryptedVault(context: Context) {
         cipher.updateAAD(context.toByteArray(Charsets.UTF_8))
         return String(cipher.doFinal(bytes, 13, bytes.size - 13), Charsets.UTF_8)
     }
-    @Synchronized fun write(name: String, text: String) {
+    @Synchronized override fun write(name: String, text: String) {
         require(Regex("[a-zA-Z0-9._-]+").matches(name))
         val file = AtomicFile(java.io.File(directory, name))
         val stream = file.startWrite()
         try { stream.write(encrypt(text, name)); file.finishWrite(stream) }
         catch (e: Exception) { file.failWrite(stream); throw e }
     }
-    @Synchronized fun read(name: String): String? {
+    @Synchronized override fun read(name: String): String? {
         require(Regex("[a-zA-Z0-9._-]+").matches(name))
         val file = AtomicFile(java.io.File(directory, name))
         return if (file.baseFile.exists()) decrypt(file.readFully(), name) else null

@@ -3,6 +3,7 @@ package cn.guahao.hospital
 import cn.guahao.core.*
 import cn.guahao.core.psc.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -34,7 +35,14 @@ class PscTransport(cookieJar: CookieJar, private val gate: Mutex,
                 .apply { if (body != null) post(body.toRequestBody("application/json; charset=utf-8".toMediaType())) }.build()
             try {
                 client.newCall(request).execute().use { response ->
-                    if (response.code in 300..399) throw HospitalException("医院要求重新登录或跳转，请重新接入服务号")
+                    if (response.code == 401) throw HospitalException("医院要求重新登录，请重新连接服务号", reconnectRequired = true)
+                    if (response.code in 300..399) {
+                        val target = response.header("Location")?.let { url.resolve(it) }
+                        val login = target?.scheme == "https" && target.host == "open.weixin.qq.com" &&
+                            target.encodedPath == "/connect/oauth2/authorize"
+                        throw HospitalException(if (login) "医院要求微信授权，请重新连接服务号" else "医院页面发生跳转，请重试校验或到微信核对",
+                            reconnectRequired = login)
+                    }
                     if (response.code == 429 || response.code == 503) {
                         val wait = response.header("Retry-After")?.let { raw -> raw.toLongOrNull()?.takeIf { it >= 0 }?.let { Math.multiplyExact(it, 1000) }
                             ?: runCatching { java.time.Duration.between(java.time.Instant.now(), java.time.ZonedDateTime.parse(raw, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()).toMillis().coerceAtLeast(0) }.getOrNull() }
@@ -63,51 +71,48 @@ fun insurancePayload(s: PscSession, order: String) = mapOf("userId" to s.userId,
     "userIdKey" to URLEncoder.encode(s.userKey, "UTF-8").replace("+", "%20"), "orderNo" to order)
 
 class PscClient(private val sessions: SessionRepository) : BookingGateway {
-    private fun pair(ref: PatientRef) = sessions.load(ref).let { it to sessions.transport(ref.sessionId) }
-    override suspend fun departments(patient: PatientRef): List<DepartmentRef> {
-        val (s, http) = pair(patient)
-        return PscPageParser.departments(http.get("/regis/initDept", sessionQuery(s)))
+    private suspend fun <T> withSession(ref: PatientRef, block: suspend (PscSession, PscTransport) -> T): T = try {
+        block(sessions.load(ref), sessions.transport(ref.sessionId))
+    } catch (e: CancellationException) { throw e }
+    catch (e: Exception) { sessions.recordFailure(ref, e); throw e }
+    override suspend fun departments(patient: PatientRef): List<DepartmentRef> = withSession(patient) { s, http ->
+        PscPageParser.departments(http.get("/regis/initDept", sessionQuery(s)))
     }
-    override suspend fun candidates(condition: VisitCondition): List<Candidate> {
-        val (s, http) = pair(condition.patient)
+    override suspend fun candidates(condition: VisitCondition): List<Candidate> = withSession(condition.patient) { s, http ->
         val d = condition.department
-        return PscPageParser.schedule(http.get("/regis/initRegis", sessionQuery(s) + mapOf(
+        PscPageParser.schedule(http.get("/regis/initRegis", sessionQuery(s) + mapOf(
             "deptCode1" to d.parentCode, "deptCode2" to d.code, "deptNm1" to d.parentName,
             "deptNm2" to d.name, "purpose" to condition.purpose, "oriDeptTwo" to d.originCode)), d).flatMap { it.candidates }
     }
-    private suspend fun access(patient: PatientRef, function: String): Boolean {
-        val (s, http) = pair(patient)
+    private suspend fun access(patient: PatientRef, function: String): Boolean = withSession(patient) { s, http ->
         val reply = http.post("/function/functionControl", mapOf("functionid" to function, "ptno" to s.ptno, "ptnoKey" to s.ptnoKey))
-        return reply.text("code") == "0"
+        val available = reply.text("code") == "0"
+        if (function == "002") sessions.recordAccess(patient, available)
+        available
     }
     override suspend fun validateBookingAccess(patient: PatientRef) = access(patient, "002")
     override suspend fun insuranceAvailable(patient: PatientRef) = access(patient, "001")
-    override suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate): List<OrderSnapshot> {
-        val (s, http) = pair(patient)
-        return parseOrders(http.post("/regis/getRegisList", mapOf("ptno" to s.ptno, "ptnoKey" to s.ptnoKey,
+    override suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate): List<OrderSnapshot> = withSession(patient) { s, http ->
+        parseOrders(http.post("/regis/getRegisList", mapOf("ptno" to s.ptno, "ptnoKey" to s.ptnoKey,
             "actdate" to from.toString(), "enddate" to to.toString())), patient)
     }
-    override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply {
-        val (s, http) = pair(task.condition.patient)
+    override suspend fun lock(task: BookingTask, candidate: Candidate): LockReply = withSession(task.condition.patient) { s, http ->
         require(!task.demo && candidate.remaining > 0 && !candidate.standby)
-        return decodeLockCode(http.post("/regis/lockRegis", lockPayload(s, task, candidate)).text("code"))
+        decodeLockCode(http.post("/regis/lockRegis", lockPayload(s, task, candidate)).text("code"))
     }
-    override suspend fun querySubmission(patient: PatientRef): AsyncReply {
-        val (s, http) = pair(patient)
-        return decodeAsync(http.post("/regis/queryRegisStat", mapOf("userId" to s.userId)))
+    override suspend fun querySubmission(patient: PatientRef): AsyncReply = withSession(patient) { s, http ->
+        decodeAsync(http.post("/regis/queryRegisStat", mapOf("userId" to s.userId)))
     }
-    override suspend fun initializeInsurance(patient: PatientRef, orderNo: String): InsuranceReply {
-        val (s, http) = pair(patient)
+    override suspend fun initializeInsurance(patient: PatientRef, orderNo: String): InsuranceReply = withSession(patient) { s, http ->
         val result = http.post("/order/sxPayCN", insurancePayload(s, orderNo))
-        if (result.text("code") != "0") return InsuranceReply.REJECTED
+        if (result.text("code") != "0") return@withSession InsuranceReply.REJECTED
         val data = responseObject(result.text("data"))
         // Temporary authorization values are validated in memory and never persisted or opened as a URL.
-        if (listOf("pageAuthCode", "sceneId", "transId").any { data.optional(it).isNullOrBlank() }) return InsuranceReply.UNKNOWN
-        return InsuranceReply.ACCEPTED
+        if (listOf("pageAuthCode", "sceneId", "transId").any { data.optional(it).isNullOrBlank() }) return@withSession InsuranceReply.UNKNOWN
+        InsuranceReply.ACCEPTED
     }
-    override suspend fun paymentState(patient: PatientRef, orderNo: String): InsuranceReply {
-        val (s, http) = pair(patient)
-        return when(http.post("/order/queryRegisYbPayState", insurancePayload(s, orderNo)).text("code")) {
+    override suspend fun paymentState(patient: PatientRef, orderNo: String): InsuranceReply = withSession(patient) { s, http ->
+        when(http.post("/order/queryRegisYbPayState", insurancePayload(s, orderNo)).text("code")) {
             "0" -> InsuranceReply.PAID; "2" -> InsuranceReply.PENDING; else -> InsuranceReply.UNKNOWN
         }
     }
