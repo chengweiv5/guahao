@@ -1,0 +1,182 @@
+[
+  {
+    "id": "PWb0F",
+    "name": "01 · 任务首页 / 等待放号",
+    "nodes": 51,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "首页",
+    "note": "下一次放号作为首页主视觉，显示等待状态、就诊目标和运行上限。",
+    "group": "任务"
+  },
+  {
+    "id": "e5WPt",
+    "name": "02 · 连接医院 / 就诊人确认",
+    "nodes": 50,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "连接确认",
+    "note": "连接成功后确认就诊人和医院绑定的医保身份。",
+    "group": "创建"
+  },
+  {
+    "id": "hS1n3",
+    "name": "03 · 新建任务 / 就诊条件",
+    "nodes": 61,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "就诊条件",
+    "note": "先确定医院、就诊人、科室、医生、日期和接受时段。",
+    "group": "创建"
+  },
+  {
+    "id": "BmKqC",
+    "name": "04 · 新建任务 / 执行设置",
+    "nodes": 55,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "执行设置",
+    "note": "放号时间精确到秒；执行时长与付款期限分开；支持医保及普通支付。",
+    "group": "创建"
+  },
+  {
+    "id": "Jq7ii",
+    "name": "05 · 确认任务 / 启用前检查",
+    "nodes": 62,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "确认启用",
+    "note": "复核目标与执行准备，明确启用后会自动提交挂号。",
+    "group": "创建"
+  },
+  {
+    "id": "WypjR",
+    "name": "06 · 执行中 / 等待号源",
+    "nodes": 54,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "执行中",
+    "note": "展示运行计时、结束时间和最近动态，保留停止入口。",
+    "group": "任务"
+  },
+  {
+    "id": "HdyHY",
+    "name": "07 · 待付款 / 医保接力",
+    "nodes": 52,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "医保待付款",
+    "note": "突出医院付款截止时间，通过微信完成医保授权与付款。",
+    "group": "付款"
+  },
+  {
+    "id": "Mx2qf",
+    "name": "08 · 已付款 / 挂号完成",
+    "nodes": 46,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "挂号完成",
+    "note": "只有医院确认支付成功后，才展示已付款和就诊安排。",
+    "group": "付款"
+  },
+  {
+    "id": "d4rqop",
+    "name": "09 · 执行准备 / 需要处理",
+    "nodes": 38,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "需要处理",
+    "note": "登录失效和后台运行设置逐项给出恢复入口。",
+    "group": "异常"
+  },
+  {
+    "id": "l83Axf",
+    "name": "10 · 提交结果待确认 / 防止重复",
+    "nodes": 39,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "结果待确认",
+    "note": "提交响应不明确时先查订单，暂停重复提交。",
+    "group": "异常"
+  },
+  {
+    "id": "nec4U",
+    "name": "11 · 任务记录 / 完成与超时",
+    "nodes": 52,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "挂号记录",
+    "note": "区分已付款和未挂到；可复用条件创建新任务。",
+    "group": "辅助"
+  },
+  {
+    "id": "WEvDQ",
+    "name": "12 · 设置 / 后台与通知",
+    "nodes": 73,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "设置",
+    "note": "统一管理医院连接、执行默认值、后台权限与锁屏隐私。",
+    "group": "辅助"
+  },
+  {
+    "id": "iYy66",
+    "name": "13 · 首次连接 / 官方服务号",
+    "nodes": 52,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "首次连接",
+    "note": "按服务号路径引导确认身份；手机连接方案仍需落地验证。",
+    "group": "创建"
+  },
+  {
+    "id": "k69NQz",
+    "name": "14 · 任务详情 / 等待放号",
+    "nodes": 52,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "任务详情",
+    "note": "查看完整条件、编辑任务或停用自动挂号。",
+    "group": "任务"
+  },
+  {
+    "id": "r0OBIl",
+    "name": "15 · 选择医生 / 限定科室",
+    "nodes": 49,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "选择医生",
+    "note": "限定科室内单选医生，支持搜索。全部为虚构示例。",
+    "group": "创建"
+  },
+  {
+    "id": "o65Si",
+    "name": "16 · 首页空状态 / 创建首个任务",
+    "nodes": 44,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "首次使用",
+    "note": "空状态说明核心用途，引导创建首个挂号任务。",
+    "group": "任务"
+  },
+  {
+    "id": "qLLf2",
+    "name": "17 · 自定义运行时长 / 底部面板",
+    "nodes": 40,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "自定义时长",
+    "note": "底部面板预览自定义 45 分钟，并显示对应执行截止时刻。",
+    "group": "创建"
+  },
+  {
+    "id": "O9rvY",
+    "name": "18 · 锁屏通知 / 付款提醒",
+    "nodes": 21,
+    "clipped": [],
+    "siblingOverlaps": [],
+    "short": "锁屏通知",
+    "note": "显示付款提醒与期限，默认隐藏患者、科室和医生。",
+    "group": "付款"
+  }
+]
