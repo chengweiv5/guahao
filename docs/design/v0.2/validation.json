@@ -40,5 +40,17 @@
       "local_links": "passed",
       "evidence_json": "passed"
     }
+  },
+  "latest_mobile_verification": {
+    "date": "2026-09-25",
+    "publication": "local_only",
+    "mobile_homepage": "user_screenshot_observed",
+    "displayed_hospital_count": 309,
+    "hospital_count_enumerated": false,
+    "copy_link_required": false,
+    "desktop_web_booking": "officially_closed_since_2023-12-08",
+    "source": "../../research/2026-09-25-114-mobile-entry-and-web-closure.md",
+    "business_api": "unverified",
+    "proxy_or_certificate_changed": false
   }
 }

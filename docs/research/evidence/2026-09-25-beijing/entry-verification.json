@@ -2,7 +2,7 @@
   "verified_at": "2026-09-25T10:00:08.079215+08:00",
   "mode": "public_read_only",
   "publication": "local_only",
-  "status": "partial_blocked_on_mobile_medical_entry",
+  "status": "mobile_ui_observed_protocol_unverified",
   "observations": [
     {
       "id": "114-root-http",
@@ -58,5 +58,6 @@
     "submit": "not_executed",
     "payment": "not_executed"
   },
-  "next_input": "official mobile medical entry or page-stage description; no passwords, OTPs or identity documents"
+  "next_input": "optional explicit approval for scoped local network sampling; copy-link request withdrawn",
+  "superseding_evidence": "mobile-ui-and-web-closure.json"
 }

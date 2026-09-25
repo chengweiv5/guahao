@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-25",
+  "publication": "local_only",
+  "user_screenshot": {
+    "source": "20260925-102319.jpeg",
+    "sha256": "98d6ae50a27b54ed8f0ee12327cfa420ac9a0d7a032e03c35ebd6eeffb465ce8",
+    "image_copied_into_repository": false,
+    "observed": [
+      "WeChat medical homepage under www.114yygh.com",
+      "personal-center entry displays masked identity",
+      "hospital directory section displays 309",
+      "visible overflow menu lacks copy-link and share entries"
+    ],
+    "unverified": [
+      "full URL including path",
+      "server-side authentication",
+      "actual hospital list completeness",
+      "anonymous access",
+      "business API responses"
+    ]
+  },
+  "official_desktop_notice": {
+    "page_url": "https://www.114yygh.com/",
+    "resource_url": "https://img.114yygh.com/image/web-offline/cont.png",
+    "resource_sha256": "7e849891ff386711bc5beaea27c90c0871e48270ca646e9a242c6ed2ea6f957e",
+    "verified_via": [
+      "normal Google Chrome UI",
+      "view-source resource link",
+      "direct image retrieval and visual inspection"
+    ],
+    "announced_web_booking_shutdown_date": "2023-12-08",
+    "replacement_channels": [
+      "北京114预约挂号微信公众号",
+      "京通小程序健康服务",
+      "010-114"
+    ]
+  },
+  "device_check": {
+    "transport": "USB",
+    "device_identifier_saved": false,
+    "debug_socket_count": 0,
+    "debug_enabled_by_agent": false,
+    "application_data_read": false,
+    "proxy_or_certificate_changed": false
+  },
+  "medical_api": "unverified",
+  "next_step": {
+    "copy_link_required": false,
+    "mobile_business_ui": "user screenshot observed",
+    "protocol_capture": "not_started_requires_specific_user_approval"
+  }
+}
