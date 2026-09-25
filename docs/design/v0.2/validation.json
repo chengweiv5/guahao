@@ -1,0 +1,28 @@
+{
+  "validated_at": "2026-09-25T09:23:28.107104+08:00",
+  "scope": "v0.2 design only; no Android product implementation or booking",
+  "base_commit": "a4f99d7e8b0442e7654beadeed790eab1277b62d",
+  "checks": {
+    "markdown_local_links": "passed",
+    "research_reference_ids": {
+      "count": 13,
+      "unregistered": []
+    },
+    "design_sections": 12,
+    "design_placeholders": "none",
+    "archify_schema_and_layout": "passed",
+    "archify_generated_html": "passed",
+    "browser_light_and_dark_visual": "passed: labels, edges and canvas boundaries inspected",
+    "browser_theme_toggle": "passed",
+    "browser_export_menu": "passed: PNG/JPEG/WebP/SVG entries visible; file export not exercised",
+    "source_json_editability": "passed: source parses and renderer reproduces checked HTML",
+    "design_self_review": "reviewed platform evidence, entry credential isolation, identity scope, order semantics, unknown submission, migration, rollback and acceptance"
+  },
+  "limitations": [
+    "114 business API, authentication, Android integration and real bookings not verified",
+    "Government coverage reports are not live hospital or app capability counts",
+    "Research S12 remains search-index-only after origin 418; not a verified current API",
+    "v0.1 code and database must be rechecked against its final delivery before v0.2 implementation",
+    "No Feishu document created; delivery is repository design and research files"
+  ]
+}

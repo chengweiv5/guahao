@@ -69,7 +69,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [项目规则](AGENTS.md)：飞书目录和 Git 操作约定。
 - [领域术语](CONTEXT.md)：就诊人、号源、预约任务和付款时限等概念。
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
-- [后续开发计划候选](docs/development-candidates.md)：医院扩展、北京通用挂号平台、接口来源选择及其他城市平台，均未排期。
+- [v0.2 北京通用平台设计](docs/design/v0.2/2026-09-25-beijing-platform-design.md)：统一平台选择、多医院与渠道模型、认证/订单流程、兼容与验收条件；本任务仅完成设计，待评审。
+- [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据与真实接口尚待验证的边界。
+- [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计；其余方向仍为候选，开发均未排期。
 - [服务号 v0.1 开发计划](docs/superpowers/plans/2026-09-24-service-account-v01.md)：会话导入、自动预约、锁屏执行、付款通知与设备验收。
 - [两条数据链路的可行性研究](docs/research/2026-09-24-youan-api-feasibility.md)。
 - [服务号固定入口与首次连接核对](docs/research/2026-09-25-service-account-connection.md)：现有会话可保存复用，首次免粘贴授权和回传仍未验证。
