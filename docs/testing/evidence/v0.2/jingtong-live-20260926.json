@@ -1,0 +1,134 @@
+{
+  "date": "2026-09-26",
+  "production_commit": "d6891f99dc36c01e0ed3e320fdb4bff400a34e25",
+  "temporary_package": "cn.guahao.platformprobe",
+  "identity_output": "counts_and_booleans_only",
+  "two_hospital_result": {
+    "epoch": 1790424756,
+    "readOnly": true,
+    "results": [
+      {
+        "operation": "account",
+        "passed": true,
+        "patientCount": 1,
+        "cardCount": 2,
+        "realNameVerified": true,
+        "channelMatches": true
+      },
+      {
+        "operation": "departments-H02110002",
+        "passed": true,
+        "departmentCount": 109
+      },
+      {
+        "operation": "calendar-H02110002",
+        "passed": true,
+        "dayCount": 9
+      },
+      {
+        "operation": "doctors-H02110002",
+        "passed": true,
+        "doctorCount": 12,
+        "candidateCount": 54,
+        "completeCandidateIdentity": true
+      },
+      {
+        "operation": "orders-H02110002",
+        "passed": true,
+        "rangeDays": 30,
+        "orderCount": 0,
+        "ownershipMatches": true,
+        "nonemptyOrderOwnershipVerified": false
+      },
+      {
+        "operation": "departments-H05155001",
+        "passed": true,
+        "departmentCount": 52
+      },
+      {
+        "operation": "calendar-H05155001",
+        "passed": true,
+        "dayCount": 8
+      },
+      {
+        "operation": "doctors-H05155001",
+        "passed": true,
+        "doctorCount": 2,
+        "candidateCount": 2,
+        "completeCandidateIdentity": true
+      },
+      {
+        "operation": "orders-H05155001",
+        "passed": true,
+        "rangeDays": 30,
+        "orderCount": 0,
+        "ownershipMatches": true,
+        "nonemptyOrderOwnershipVerified": false
+      }
+    ],
+    "passed": true
+  },
+  "cold_start": {
+    "kind": "CLIENT_VERIFICATION",
+    "expected": true,
+    "epoch": 1790424887
+  },
+  "locked_screen_attempt": {
+    "completed": false,
+    "samples": 0,
+    "foreground_service_alive": true,
+    "browser_process_alive": true,
+    "force_released_wakelock_observed": true,
+    "wakelock_acquired": "20:15:05.888",
+    "wakelock_released": "20:15:10.034",
+    "cause_confirmed": false
+  },
+  "pending": [
+    "user_unlock",
+    "temporary_package_background_options",
+    "history_read_range_authorization",
+    "nonempty_order_schema",
+    "confirm_and_submit_contract"
+  ],
+  "changes_to_real_patient_or_orders": false,
+  "production_app_modified": false,
+  "wechat_modified": false,
+  "proxy_or_CA_changes": false,
+  "source_manifest": {
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingAccountClient.kt": "93efd2ef87b3db96d30fa4df7854b3ace4b08633e87b349547eba2a1cf9e53ec",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBrowserService.kt": "4c18f5e9cdcf556a9d5906d2c5e75709ff45be54cf10d57f35e18aba4d80edbc",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingDoctorSchedule.kt": "9969ed16286a5898d03b625cd1270137f0c4617abbaab14e691a72b1d4d1fd1a",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingWebQueryTransport.kt": "7372fb859694dff31062d530bd40533f474c766b9f61ae5f139b40e2d79202be",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/JingtongGateway.kt": "3370c61e868dea61c88a8a975a77897ce092780c7f159beaaf78c957f46034a1",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingScheduleAdapter.kt": "89c455b6747b8cf59090b42fae7649f6c11c6895a8a342f467f9134506ae647c",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBrowserClient.kt": "6f7328023ac99054f7d0b526920e16fa67cacd779faa3ec40b507e6a13ea4436",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingConnectionRepository.kt": "d7d95aeea9795ea338c4acb4985d27d1bae49be1bf67ec3320288dd7c0a6e5a3",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBrowserRuntime.kt": "cb6ef1e352822d4264243438bb3147cdd27bf6a466b2685df3f4394ec08cdb32",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingPatients.kt": "3136763fc570d41828db1032308ca915f50e96168e5985651f82e5503e1cdd44",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBookingSource.kt": "73375524d591d21473956b5b17d281b5f96331728c7105ca311afb13273b1d13",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingQueryClient.kt": "a73ba9aa43f4ba3b4e2462ee2ed68f5ab4df37e2f821ad5abf89645c489f9e00",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingQueryTransport.kt": "ba1996cbd4b21c9d941711bd6d8263f762e0ae78c5d12e33e487c465a641763e",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingOrders.kt": "6d86b45f2f13e666243f79acf004a879832b910cabd00262c0fd34d9b16f3797",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingSubmission.kt": "3b025b514bc754cf78e2fb05b734e1973f8fcd040fed4c41751992696c292c30",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingConnectActivity.kt": "c427fd65ec99d716d3813c0749dd11c0948be336434f4dd23557c84ac9c78199",
+    "app/src/main/kotlin/cn/guahao/hospital/HospitalIdentity.kt": "3ecdf776c821df48eb5d2dc225915e5558c54d3c55fb16a7616a3a9c337c8d2a",
+    "app/src/main/kotlin/cn/guahao/storage/SecretStore.kt": "0c2fb2a17a791d811a2a491c4f4a8422db9259629006341abf12e12f48c310e2",
+    "app/src/main/kotlin/cn/guahao/storage/EncryptedVault.kt": "681d106a485e091932003879c4817b74409baa85bd8e83256f85c608b391a71c"
+  },
+  "probe_adjustments": [
+    "temporary package resource namespace",
+    "retain existing isolated_JT_WECHAT browser data directory",
+    "read-only harness; no production capability flag change"
+  ],
+  "cleanup": {
+    "temporary_package_force_stopped": true,
+    "temporary_processes_and_services_absent": true,
+    "login_data_preserved": true,
+    "screen_woken_but_security_lock_still_showing": true
+  },
+  "background_control_start": {
+    "started": false,
+    "system_denied_foreground_start": true,
+    "security_keyguard_showing": true
+  }
+}
