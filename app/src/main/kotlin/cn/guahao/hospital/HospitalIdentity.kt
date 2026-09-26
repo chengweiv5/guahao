@@ -28,8 +28,22 @@ class HospitalIdentity(private val vault: SecretStore) {
             index("connection", "beijing-youan", provider, account, patient), session.reference.sessionId,
             SubmissionScope(provider, account))
     }
+    fun beijing(selection: cn.guahao.hospital.beijing.BeijingPatientSelection): ConnectionBinding {
+        val provider = selection.channel.id
+        val account = index(provider, "account", selection.accountId)
+        val patient = index(provider, "patient", selection.patient.id)
+        return ConnectionBinding(selection.hospitalId, selection.hospitalName, provider, selection.channel.title, account, patient,
+            index("connection", selection.hospitalId, selection.campusId.orEmpty(), provider, account, patient),
+            selection.reference.sessionId, SubmissionScope(provider, account), selection.campusId)
+    }
     fun resolve(ref: PatientRef): ConnectionBinding? {
         if (ref.isDemo) return demoBinding(ref)
+        if (ref.sessionId.startsWith("beijing-")) {
+            val rows = vault.read("beijing-patient-selections")?.let {
+                pscJson.decodeFromString<List<cn.guahao.hospital.beijing.BeijingPatientSelection>>(it)
+            }.orEmpty()
+            return rows.singleOrNull { it.reference == ref }?.let(::beijing)
+        }
         val session = vault.read("session-${ref.sessionId}")?.let { pscJson.decodeFromString<PscSession>(it) } ?: return null
         if (session.reference != ref || session.ptno != ref.patientId) return null
         return psc(session)

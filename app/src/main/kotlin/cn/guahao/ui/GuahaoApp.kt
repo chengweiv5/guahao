@@ -34,6 +34,7 @@ import cn.guahao.core.*
 import cn.guahao.hospital.DemoGateway
 import cn.guahao.hospital.HospitalConnection
 import cn.guahao.hospital.ConnectionStatus
+import cn.guahao.hospital.beijing.*
 import cn.guahao.payment.OfficialPaymentHandoff
 import cn.guahao.runtime.*
 import kotlinx.coroutines.*
@@ -180,15 +181,27 @@ internal fun phaseLabel(p: TaskPhase) = when(p) {
                             BackTitle("任务详情") { page = "home" }
                             if (r == null) Text("任务不存在或此版本不可用，请返回任务列表。") else {
                                 TaskStatus(r, now)
-                                val taskConnection = graph.sessions.connection(r.reconciliationPatient ?: r.task.condition.patient)
+                                val isJingtong = r.task.binding?.providerId == RegistrationChannel.JINGTONG.id
+                                val taskConnection = if (isJingtong) HospitalConnection() else graph.sessions.connection(r.reconciliationPatient ?: r.task.condition.patient)
                                 val oldConnection = !r.task.demo && r.task.condition.patient != session?.reference
-                                if (!r.task.demo && (taskConnection.needsReconnect || oldConnection)) Panel(tint = Amber) {
+                                if (isJingtong) Panel {
+                                    Text("京通连接", fontWeight = FontWeight.SemiBold)
+                                    Text("此任务保留创建时的账户、就诊人和卡。重新登录后需核验原身份。", color = Muted)
+                                    OutlinedButton(onClick = {
+                                        graph.beijingConnections.invalidate(RegistrationChannel.JINGTONG)
+                                        graph.context.startActivity(Intent(graph.context, JingtongConnectActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                                    }, enabled = !busy) { Text("打开京通官方页面") }
+                                    OutlinedButton(onClick = { work { withContext(Dispatchers.IO) {
+                                        graph.beijingConnections.validate(r.reconciliationPatient ?: r.task.condition.patient)
+                                    } } }, enabled = !busy) { Text("核验此任务的京通连接") }
+                                }
+                                if (!r.task.demo && !isJingtong && (taskConnection.needsReconnect || oldConnection)) Panel(tint = Amber) {
                                     Text(if (oldConnection) "此任务保留创建时的医院连接" else "医院需要重新连接", fontWeight = FontWeight.SemiBold)
                                     Text(if (oldConnection) "新增连接不改变此任务的就诊人或会话。启用时核验任务原有连接；若需更换就诊人，请复用条件新建。"
                                         else "可以重新连接医院，原任务和提交记录保留。重新连接不会恢复或重复提交原任务。")
                                     Primary("管理医院连接", !busy) { page = "session" }
                                 }
-                                if (!r.task.demo) {
+                                if (!r.task.demo && !isJingtong) {
                                     val replacement = connections.firstOrNull { fresh ->
                                         fresh.session?.reference != r.task.condition.patient && fresh.binding?.let { r.task.binding?.samePrincipal(it) } == true && !fresh.needsReconnect
                                     }
@@ -201,15 +214,24 @@ internal fun phaseLabel(p: TaskPhase) = when(p) {
                                     }
                                 }
                                 if (r.phase == TaskPhase.DRAFT) {
-                                    Primary("确认开启自动挂号", !busy && (r.task.demo || !taskConnection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
+                                    if (isJingtong && !JingtongCapabilities.automaticBookingVerified) Text(JingtongCapabilities.unavailableReason, color = Muted)
+                                    Primary("确认开启自动挂号", !busy && (if (isJingtong) JingtongCapabilities.automaticBookingVerified else r.task.demo || !taskConnection.needsReconnect)) { work { withContext(Dispatchers.IO) { graph.enable(r.task.id) } } }
                                     OutlinedButton(onClick = { reuse = r.task; editorKey++; page = "editor" }, modifier = Modifier.fillMaxWidth()) { Text("修改条件并另存为任务") }
                                 }
                                 if (r.order != null && r.phase != TaskPhase.BOOKED) {
                                     Panel(tint = Amber) {
-                                        Text("去微信完成付款", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                                        Text(OfficialPaymentHandoff.instructions)
-                                        Text("打开微信后需按以上步骤找到本单。", color = Muted)
-                                        if (!r.task.demo) Primary("打开微信") { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "未安装微信，请在手机打开服务号" }
+                                        Text(if (isJingtong) "在京通核对订单与付款" else "去微信完成付款", fontSize = 21.sp, fontWeight = FontWeight.Bold)
+                                        if (isJingtong) {
+                                            Text("打开京通官方页面，进入预约记录，按本页的医院、就诊日期和订单号找到本单；付款和取号要求以官方页面为准。")
+                                            Primary("打开京通官方页面") {
+                                                graph.beijingConnections.invalidate(RegistrationChannel.JINGTONG)
+                                                graph.context.startActivity(Intent(graph.context, JingtongConnectActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                                            }
+                                        } else {
+                                            Text(OfficialPaymentHandoff.instructions)
+                                            Text("打开微信后需按以上步骤找到本单。", color = Muted)
+                                            if (!r.task.demo) Primary("打开微信") { if (!OfficialPaymentHandoff.openWeChat(graph.context)) error = "未安装微信，请在手机打开服务号" }
+                                        }
                                         OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.refreshPayment(r.task.id) } } },
                                             enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("刷新付款结果") }
                                         if (r.task.demo && r.phase != TaskPhase.BOOKED) OutlinedButton(onClick = {
@@ -223,7 +245,7 @@ internal fun phaseLabel(p: TaskPhase) = when(p) {
                                 }
                                 if (r.attempt != null && r.order == null && !r.manuallyResolved) Panel(tint = Amber) {
                                     Text("提交结果需要核对", fontWeight = FontWeight.Bold)
-                                    Text("请在微信服务号「挂号结果查询」检查。本 App 不会因为列表暂时为空而再次锁号。")
+                                    Text(if (isJingtong) "请在京通官方页面的预约记录核对。本 App 不会因为列表暂时为空而再次提交。" else "请在微信服务号「挂号结果查询」检查。本 App 不会因为列表暂时为空而再次锁号。")
                                     OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.runTask(r.task.id, r.task.generation, UUID.randomUUID().toString()) } } }, enabled = !busy && now.isBefore(r.attempt!!.sentAt.plusSeconds(120))) { Text("继续有限核对") }
                                     OutlinedButton(onClick = { work { withContext(Dispatchers.IO) { graph.manualReconcile(r.task.id) } } }, enabled = !busy) { Text("手动查询同一订单") }
                                     if (r.phase == TaskPhase.NEEDS_ATTENTION && !now.isBefore(r.attempt!!.sentAt.plusSeconds(120))) TextButton(onClick = { resolveTask = r.task.id }) { Text("已在医院人工核对，结束本任务") }
@@ -374,7 +396,7 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
     val t = r.task
     if (t.demo) Badge("演示模式 · 所有就诊数据均为虚构")
     Panel(tint = if (r.order != null || r.phase == TaskPhase.NEEDS_ATTENTION) Amber else Color.White) {
-        Badge(phaseLabel(r.phase), r.order != null || r.phase == TaskPhase.NEEDS_ATTENTION)
+        Badge(if (r.order?.phase == OrderPhase.RESERVED_ONSITE) "预约成功，按医院要求取号" else phaseLabel(r.phase), r.order != null || r.phase == TaskPhase.NEEDS_ATTENTION)
         if (r.phase == TaskPhase.WAITING) {
             val seconds = Duration.between(now, t.releaseAt).seconds.coerceAtLeast(0)
             Text("%02d:%02d:%02d".format(seconds/3600, seconds/60%60, seconds%60), fontSize = 40.sp, fontWeight = FontWeight.SemiBold)
@@ -382,7 +404,11 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
         }
         Text(r.note.ifBlank { "核对条件后开启自动挂号" }, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         r.order?.let { o ->
-            Value("医院付款期限", o.invalidAt?.let(::timestamp) ?: "请尽快到医院页面核对付款期限")
+            if (o.phase == OrderPhase.LOCKED) Value("医院付款期限", o.invalidAt?.let(::timestamp) ?: "请到医院页面核对付款期限")
+            o.platform?.let { detail ->
+                Value("官方订单状态", detail.officialStatus)
+                detail.collectionInstructions?.let { Value("取号要求", it) }
+            }
             Value("医院订单金额", money(o.feeFen))
             Value("订单号", o.orderNo)
             if (o.insuranceVerified) Text("医保付款与医院挂号结果均已确认", color = Teal)
@@ -402,17 +428,20 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
     }
 }
 
-@Composable private fun TaskEditorScreen(graph: AppGraph, defaultConnection: HospitalConnection, connections: List<HospitalConnection>, reuse: BookingTask?, busy: Boolean,
+@Composable internal fun TaskEditorScreen(graph: AppGraph, defaultConnection: HospitalConnection, connections: List<HospitalConnection>, reuse: BookingTask?, busy: Boolean,
     onBack: () -> Unit, onConnect: () -> Unit, onSave: (BookingTask, Boolean) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     var step by rememberSaveable { mutableIntStateOf(1) }
     BackHandler { if (step > 1) step-- else onBack() }
-    var channel by remember { mutableStateOf(RegistrationChannel.YOUAN_WECHAT) }
-    var selectedHospital by remember { mutableStateOf<cn.guahao.hospital.beijing.BeijingHospital?>(null) }
+    val originalBeijing = remember(reuse) { reuse?.takeIf { it.binding?.providerId == RegistrationChannel.JINGTONG.id }
+        ?.let { runCatching { graph.beijingConnections.load(it.condition.patient) }.getOrNull() } }
+    var channel by remember { mutableStateOf(if (reuse?.binding?.providerId == RegistrationChannel.JINGTONG.id) RegistrationChannel.JINGTONG else RegistrationChannel.YOUAN_WECHAT) }
+    var selectedHospital by remember { mutableStateOf(originalBeijing?.let { BeijingHospital(it.hospitalId, it.hospitalName, null, null) }) }
+    var beijingPatient by remember { mutableStateOf<BeijingPatientSelection?>(null) }
     var chosenRef by remember { mutableStateOf(reuse?.condition?.patient?.takeUnless { it.isDemo } ?: defaultConnection.session?.reference) }
-    val connection = chosenRef?.let { graph.sessions.connection(it) } ?: HospitalConnection()
+    val connection = chosenRef?.takeUnless { it.sessionId.startsWith("beijing-") }?.let { graph.sessions.connection(it) } ?: HospitalConnection()
     var demoPatient by remember { mutableStateOf(reuse?.condition?.patient?.takeIf { it.isDemo } ?: DemoGateway.patient) }
     val reusable = reuse?.takeIf { graph.mode.allows(it) }
     var demo by remember { mutableStateOf(graph.mode.demoEnabled && (reusable?.demo ?: true)) }
@@ -437,7 +466,7 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
         if (chosenRef == null) chosenRef = defaultConnection.session?.reference
     }
     val session = connection.session
-    val patient = if (demo) demoPatient else session?.reference?.takeUnless {
+    val patient = if (demo) demoPatient else if (channel == RegistrationChannel.JINGTONG) beijingPatient?.reference else session?.reference?.takeUnless {
         connection.needsReconnect || channel != RegistrationChannel.YOUAN_WECHAT
     }
     val currentPatient by rememberUpdatedState(patient)
@@ -473,7 +502,7 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
         val at = release?.toInstant() ?: return
         val runtime = minutes.toIntOrNull()?.takeIf { it > 0 } ?: return
         onSave(BookingTask(UUID.randomUUID().toString(), c, at, runtime,
-            if (insurance) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER,
+            if (insurance && (demo || channel != RegistrationChannel.JINGTONG)) PaymentPreference.INSURANCE_FIRST else PaymentPreference.FULL_AMOUNT_BY_USER,
             demo = demo, binding = graph.gateway.binding(c.patient), initialSchedule = selected.observation), enable)
     }
     val readyToSave = currentSelection != null && condition() != null &&
@@ -501,17 +530,25 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
                     Choice("演示医院 B", demoPatient == DemoGateway.patientB) { demoPatient = DemoGateway.patientB }
                 } else {
                     HospitalChannelPicker(channel, selectedHospital, graph.beijingQueries::hospitals, graph.beijingConnections,
-                        onChannel = { channel = it; chosenRef = null; department = DepartmentRef("", "", "", "请选择科室", "") },
-                        onHospital = { selectedHospital = it })
+                        onChannel = { channel = it; chosenRef = null; beijingPatient = null; department = DepartmentRef("", "", "", "请选择科室", "") },
+                        onHospital = { selectedHospital = it; beijingPatient = null })
                 }
             }
         } else if (step == 2) {
             if (!demo) Panel {
+                if (channel == RegistrationChannel.JINGTONG && selectedHospital != null) {
+                    key(channel, selectedHospital!!.code) {
+                        BeijingPatientPicker(HospitalRoute(selectedHospital!!.code, channel), selectedHospital!!.name, graph.beijingConnections) {
+                            beijingPatient = it; department = DepartmentRef("", "", "", "请选择科室", ""); doctorSelection = null
+                        }
+                    }
+                } else {
                 ConnectionPicker(connections.filter { it.binding?.providerId == channel.id }, chosenRef, busy || loading) { ref ->
                     chosenRef = ref; department = DepartmentRef("", "", "", "请选择科室", ""); doctorCode = ""; doctorName = ""
                 }
-                if (!demo && session == null) Primary("先连接医院", !busy, onConnect)
-                else if (!demo && session != null) {
+                }
+                if (channel == RegistrationChannel.YOUAN_WECHAT && session == null) Primary("先连接医院", !busy, onConnect)
+                else if (channel == RegistrationChannel.YOUAN_WECHAT && session != null) {
                     Value("就诊人（请核对）", session.patientName)
                     Text(connection.title, color = if (connection.needsReconnect) MaterialTheme.colorScheme.error else Muted)
                     if (connection.needsReconnect) Primary("重新连接医院", !busy, onConnect)
@@ -520,11 +557,13 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
                 }
             }
             Panel {
-                Value("医院", if (demo) cn.guahao.hospital.demoBinding(demoPatient).hospitalName else connection.binding?.hospitalName ?: "北京佑安医院")
+                Value("医院", if (demo) cn.guahao.hospital.demoBinding(demoPatient).hospitalName else selectedHospital?.name ?: connection.binding?.hospitalName ?: "北京佑安医院")
                 if (!demo) Value("渠道", channel.title)
+                if (channel != RegistrationChannel.JINGTONG || demo) {
                 Text("是否专程来京就医", fontWeight = FontWeight.SemiBold)
                 Choice("是", purpose == "1") { purpose = "1" }
                 Choice("否", purpose == "2") { purpose = "2" }
+                }
                 OutlinedButton(onClick = ::loadDepartments, enabled = patient != null && !loading, modifier = Modifier.fillMaxWidth()) { Text("科室：${department.name}") }
                 OutlinedButton(onClick = { selectDate(context, date) { date = it } }, modifier = Modifier.fillMaxWidth()) { Text("就诊日期：$date") }
                 key(query) {
@@ -570,16 +609,21 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
             }
             Panel {
                 OutlinedTextField(fee, { fee=it }, label = { Text("费用上限（元）") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth(), isError = runCatching { yuanToFen(fee) }.isFailure)
-                Choice("优先医保移动支付", insurance) { insurance=true }
-                Choice("我在微信全额付款", !insurance) { insurance=false }
-                Text("医保不可用时提醒你处理，不自动切换支付方式。付款由你在微信完成。", color = Muted)
+                if (!demo && channel == RegistrationChannel.JINGTONG) {
+                    Text("付款与取号按京通官方订单要求，由你自行完成。App 不发起支付或切换支付方式。", color = Muted)
+                } else {
+                    Choice("优先医保移动支付", insurance) { insurance=true }
+                    Choice("我在微信全额付款", !insurance) { insurance=false }
+                    Text("医保不可用时提醒你处理，不自动切换支付方式。付款由你在微信完成。", color = Muted)
+                }
             }
         } else {
             val condition = condition()
             if (condition != null && currentSelection != null && release != null) {
                 Panel {
-                    Badge(if (demo) "演示任务" else "将自动提交真实医院挂号", !demo)
-                    Value("就诊人", if (demo) "演示就诊人（虚构）" else session?.patientName ?: "尚未连接")
+                    Badge(if (demo) "演示任务" else if (channel == RegistrationChannel.JINGTONG && !JingtongCapabilities.automaticBookingVerified) "京通任务草稿" else "将自动提交真实医院挂号", !demo)
+                    Value("就诊人", if (demo) "演示就诊人（虚构）" else beijingPatient?.patient?.displayName ?: session?.patientName ?: "尚未连接")
+                    beijingPatient?.let { Value("就诊卡", "${it.card.label} · ${it.card.displayNumber}") }
                     Value("医院", patient?.let { graph.gateway.binding(it).hospitalName } ?: "尚未连接")
                     Value("渠道", if (demo) "本机演示" else channel.title)
                     Value("科室 / 医生", "${department.name} · $doctorName")
@@ -587,23 +631,30 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
                     ScheduleSummary(currentSelection?.observation)
                     Value("计划查号时间", timestamp(release.toInstant()))
                     Value("最长运行", "$minutes 分钟")
-                    Value("费用 / 支付", "${money(condition.maxFeeFen)} 以内 · ${if (insurance) "优先医保" else "全额支付"}")
+                    Value("费用 / 支付", "${money(condition.maxFeeFen)} 以内 · ${if (!demo && channel == RegistrationChannel.JINGTONG) "按官方订单要求处理" else if (insurance) "优先医保" else "全额支付"}")
                 }
                 RuntimeSettings(graph)
-                Choice("我已核对就诊人和条件，允许到点自动提交一次符合条件的挂号", accepted) { accepted = !accepted }
+                if (demo || channel != RegistrationChannel.JINGTONG || JingtongCapabilities.automaticBookingVerified)
+                    Choice("我已核对就诊人和条件，允许到点自动提交一次符合条件的挂号", accepted) { accepted = !accepted }
             }
         }
         }
         ActionFooter {
             when (step) {
-                1 -> Primary("下一步 · 就诊条件", (demo || channel == RegistrationChannel.YOUAN_WECHAT) && !busy && !loading) { step = 2 }
+                1 -> Primary("下一步 · 就诊条件", (demo || channel == RegistrationChannel.YOUAN_WECHAT || (channel == RegistrationChannel.JINGTONG && selectedHospital != null)) && !busy && !loading) {
+                    if (!demo && channel == RegistrationChannel.JINGTONG) purpose = "2"
+                    step = 2
+                }
                 2 -> Primary("下一步 · 执行设置", patient != null && currentSelection != null && !busy && !loading &&
                     department.code.isNotBlank() && doctorCode.isNotBlank() && purpose.isNotBlank() &&
                     start < end && !date.isBefore(LocalDate.now(zone))) { step = 3 }
                 3 -> Primary("下一步 · 核对并启用", readyToSave && !busy) { step = 4 }
                 4 -> {
+                    if (!demo && channel == RegistrationChannel.JINGTONG && !cn.guahao.hospital.beijing.JingtongCapabilities.automaticBookingVerified)
+                        Text(cn.guahao.hospital.beijing.JingtongCapabilities.unavailableReason, color = Muted)
                     Primary(if (demo) "开启演示挂号任务" else "确认开启自动挂号",
-                        readyToSave && accepted && !busy && readiness(context, patient != null).ready) { save(true) }
+                        readyToSave && accepted && !busy && readiness(context, patient != null).ready &&
+                            (demo || channel != RegistrationChannel.JINGTONG || cn.guahao.hospital.beijing.JingtongCapabilities.automaticBookingVerified)) { save(true) }
                     OutlinedButton(onClick = { save(false) }, enabled = readyToSave && !busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("先保存草稿") }
                 }

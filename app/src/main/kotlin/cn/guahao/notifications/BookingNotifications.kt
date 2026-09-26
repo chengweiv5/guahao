@@ -61,7 +61,7 @@ class BookingNotifications(private val context: Context, private val mode: AppMo
         if (!mode.allows(record.task)) { cancelResult(record.task.id); return }
         val deadline = record.order?.invalidAt?.atZone(ZoneId.of("Asia/Shanghai"))?.format(DateTimeFormatter.ofPattern("HH:mm"))
         val title = when(record.phase) {
-            TaskPhase.BOOKED -> "挂号已完成"
+            TaskPhase.BOOKED -> if (record.order?.phase == OrderPhase.RESERVED_ONSITE) "预约成功，请按医院要求取号" else "挂号已完成"
             TaskPhase.AWAITING_PAYMENT -> if (deadline != null) "锁号成功，请在 $deadline 前付款" else "锁号成功，请核对付款期限"
             TaskPhase.EXPIRED -> "挂号任务已结束"
             else -> "挂号任务需要处理"

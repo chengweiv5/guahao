@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 /** Explicit read and card selection; it cannot create or enable a booking task. */
 @Composable internal fun BeijingPatientPicker(route: HospitalRoute, hospitalName: String,
-    repository: BeijingConnectionRepository) {
+    repository: BeijingConnectionRepository, onSelected: (BeijingPatientSelection?) -> Unit = {}) {
     val scope = rememberCoroutineScope()
     var account by remember { mutableStateOf<BeijingAccountSnapshot?>(null) }
     var patient by remember { mutableStateOf<BeijingPatient?>(null) }
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
     Text("就诊人和就诊卡", fontWeight = FontWeight.SemiBold)
     Text("在${route.channel.title}官方页面登录后，核验并选择本次使用的就诊人和卡。", color = Muted)
     OutlinedButton(onClick = {
-        busy = true; account = null; patient = null; card = null; error = null
+        busy = true; account = null; patient = null; card = null; error = null; onSelected(null)
         scope.launch {
             try { account = repository.refresh(route.channel) }
             catch (e: CancellationException) { throw e }
@@ -40,20 +40,20 @@ import kotlinx.coroutines.launch
         Text("登录已核验 · ${current.patients.size} 位就诊人", color = Teal)
         if (current.patients.isEmpty()) Text("此账户暂无已绑定就诊人，请先在官方页面管理就诊人。", color = Muted)
         current.patients.forEach { person ->
-            OutlinedButton(onClick = { patient = person; card = null }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            OutlinedButton(onClick = { patient = person; card = null; onSelected(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text("${if (patient === person) "✓ " else ""}${person.displayName}")
             }
         }
         patient?.let { person ->
             if (person.cards.isEmpty()) Text("此就诊人暂无可选卡，请在官方页面核对。", color = Muted)
             person.cards.forEach { option ->
-                OutlinedButton(onClick = { card = option }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                OutlinedButton(onClick = { card = option; onSelected(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("${if (card === option) "✓ " else ""}${option.label} · ${option.displayNumber}")
                 }
             }
         }
         Primary("保存本次就诊人和卡", patient != null && card != null && !busy) {
-            try { saved = repository.save(route, hospitalName, current, requireNotNull(patient), requireNotNull(card)); error = null }
+            try { saved = repository.save(route, hospitalName, current, requireNotNull(patient), requireNotNull(card)); onSelected(saved); error = null }
             catch (_: Exception) { error = "连接或就诊人已变化，请重新核验后选择" }
         }
     }

@@ -5,7 +5,9 @@ import kotlinx.coroutines.CancellationException
 enum class PaymentAction { BOOKED, OFFICIAL_PAYMENT, INSURANCE_PAYMENT, INITIALIZE_INSURANCE, NEEDS_ATTENTION }
 fun paymentAction(order: OrderSnapshot, preference: PaymentPreference) = when {
     order.specialPaymentCondition -> PaymentAction.NEEDS_ATTENTION
+    order.phase == OrderPhase.RESERVED_ONSITE -> PaymentAction.BOOKED
     order.phase == OrderPhase.BOOKED -> PaymentAction.BOOKED
+    order.platform != null -> if (order.phase == OrderPhase.LOCKED) PaymentAction.OFFICIAL_PAYMENT else PaymentAction.NEEDS_ATTENTION
     order.phase == OrderPhase.INSURANCE_PAID -> if (order.insuranceVerified) PaymentAction.BOOKED else PaymentAction.NEEDS_ATTENTION
     order.source != "2" -> PaymentAction.NEEDS_ATTENTION
     order.phase == OrderPhase.INSURANCE_PENDING -> PaymentAction.INSURANCE_PAYMENT
@@ -59,7 +61,7 @@ class PaymentCoordinator(private val gateway: BookingGateway, private val store:
         }
         val action = paymentAction(fresh, r.task.paymentPreference)
         val note = when {
-            action == PaymentAction.BOOKED -> "挂号已完成"
+            action == PaymentAction.BOOKED -> if (fresh.phase == OrderPhase.RESERVED_ONSITE) "预约成功，请按医院要求到院取号或缴费" else "挂号已完成"
             fresh.phase == OrderPhase.INSURANCE_PAID -> "医院已挂号，医保付款状态核对中"
             paid == InsuranceReply.PAID -> "医保支付成功，挂号结果核对中"
             action == PaymentAction.INSURANCE_PAYMENT -> "锁号成功，待医保付款"

@@ -1,7 +1,7 @@
 package cn.guahao.hospital.beijing
 
-import cn.guahao.core.HospitalRoute
-import cn.guahao.core.RegistrationChannel
+import cn.guahao.core.*
+import cn.guahao.hospital.HospitalIdentity
 import cn.guahao.storage.SecretStore
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -23,6 +23,7 @@ import java.util.UUID
     val card: BeijingPatientCard
 ) {
     override fun toString() = "BeijingPatientSelection(redacted)"
+    val reference get() = PatientRef("beijing-$id", "selected-patient")
 }
 
 class BeijingConnectionRepository(private val vault: SecretStore, private val source: BeijingAccountSource,
@@ -60,13 +61,26 @@ class BeijingConnectionRepository(private val vault: SecretStore, private val so
             patient.patientType, patient.faceVerification, patient.virtualPhone, listOf(card))
         val selection = BeijingPatientSelection(UUID.randomUUID().toString(), route.channel, route.hospitalId, hospitalName,
             route.campusId, current.accountId, selectedPatient, card)
-        val rows = readSelections().filterNot { it.channel == route.channel && it.hospitalId == route.hospitalId && it.campusId == route.campusId } + selection
+        // Old tasks keep immutable selection versions, including their original card.
+        val rows = readSelections() + selection
         vault.write("beijing-patient-selections", json.encodeToString(rows))
         return selection
     }
 
-    @Synchronized fun saved(route: HospitalRoute): BeijingPatientSelection? = readSelections().singleOrNull {
+    @Synchronized fun saved(route: HospitalRoute): BeijingPatientSelection? = readSelections().lastOrNull {
         it.channel == route.channel && it.hospitalId == route.hospitalId && it.campusId == route.campusId
+    }
+
+    @Synchronized fun load(ref: PatientRef): BeijingPatientSelection = readSelections().singleOrNull { it.reference == ref }
+        ?: throw HospitalException("未找到京通就诊连接，请重新连接并选择就诊人")
+
+    fun binding(ref: PatientRef): ConnectionBinding = HospitalIdentity(vault).beijing(load(ref))
+
+    suspend fun validate(ref: PatientRef): BeijingPatientSelection {
+        val selection = load(ref)
+        refresh(selection.channel)
+        if (!isCurrent(selection)) throw HospitalException("京通账户、就诊人或就诊卡已变化，请重新核验原连接", reconnectRequired = true)
+        return selection
     }
 
     /** Requires a fresh in-process check; saved data alone is never current identity evidence. */

@@ -24,16 +24,20 @@ class GuahaoApplication : Application() {
 }
 val Context.graph: AppGraph get() = (applicationContext as GuahaoApplication).graph
 
-class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
+class AppGraph(val context: Context, val mode: AppMode = AppMode(), beijingSource: cn.guahao.hospital.beijing.BeijingPlatformSource? = null) {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val vault = EncryptedVault(context)
     val store = BookingDatabase(context, vault).apply { recoverProcessOwnership() }
     val sessions = SessionRepository(vault, Mutex())
     init { store.all().asReversed().forEach { sessions.register(it.task.condition.patient) } }
     val hospital = PscClient(sessions) { !store.get(it.id).stopRequested }
-    private val beijingBrowser = cn.guahao.hospital.beijing.BeijingBrowserClient(context)
+    private val beijingBrowser = beijingSource ?: cn.guahao.hospital.beijing.BeijingBrowserClient(context)
     val beijingQueries = cn.guahao.hospital.beijing.BeijingQueryClient(beijingBrowser)
     val beijingConnections = cn.guahao.hospital.beijing.BeijingConnectionRepository(vault, beijingBrowser)
+    val jingtong = cn.guahao.hospital.beijing.JingtongGateway(beijingConnections, beijingQueries, beijingBrowser) {
+        val current = store.get(it.id)
+        !current.stopRequested && current.task.generation == it.generation && current.task.condition == it.condition
+    }
     private val demo by lazy { DemoGateway(store) }
     private fun gatewayBinding(p: PatientRef) = if (p.isDemo) demoBinding(p) else sessions.identities.resolve(p)
         ?: throw HospitalException("连接身份待核对，请重新连接医院")
@@ -43,6 +47,7 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
             return when (gatewayBinding(p).providerId) {
                 "demo-a", "demo-b" -> demo
                 "psc-youan" -> hospital
+                "beijing-114-jingtong" -> jingtong
                 else -> throw HospitalException("此医院接入来源尚未支持")
             }
         }
@@ -57,6 +62,8 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
             return forPatient(task.condition.patient).lock(task, candidate)
         }
         override suspend fun querySubmission(patient: PatientRef) = forPatient(patient).querySubmission(patient)
+        override suspend fun querySubmission(task: BookingTask, attempt: SubmissionAttempt, patient: PatientRef) =
+            forPatient(patient).querySubmission(task, attempt, patient)
         override suspend fun insuranceAvailable(patient: PatientRef) = forPatient(patient).insuranceAvailable(patient)
         override suspend fun initializeInsurance(patient: PatientRef, orderNo: String) = forPatient(patient).initializeInsurance(patient, orderNo)
         override suspend fun paymentState(patient: PatientRef, orderNo: String) = forPatient(patient).paymentState(patient, orderNo)
@@ -89,7 +96,12 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         mode.requireAllowed(r.task)
         check(r.phase == TaskPhase.DRAFT && r.attempt == null)
         check(r.task.releaseAt.isAfter(clock.now())) { "放号时间已过，请调整后重新启用" }
-        val sessionValid = r.task.demo || runCatching { sessions.load(r.task.condition.patient) }.isSuccess
+        if (r.task.binding?.providerId == RegistrationChannel.JINGTONG.id && !cn.guahao.hospital.beijing.JingtongCapabilities.automaticBookingVerified)
+            throw HospitalException(cn.guahao.hospital.beijing.JingtongCapabilities.unavailableReason)
+        val sessionValid = r.task.demo || runCatching {
+            if (r.task.binding?.providerId == RegistrationChannel.JINGTONG.id) beijingConnections.load(r.task.condition.patient)
+            else sessions.load(r.task.condition.patient)
+        }.isSuccess
         check(readiness(context, sessionValid).ready) { "请先补齐医院连接、通知、精确定时和后台运行准备" }
         var observation = r.task.initialSchedule
         if (!r.task.demo) {
@@ -125,12 +137,12 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
         val attempt = r.attempt ?: return@withLock
         if (r.order != null || r.manuallyResolved) return@withLock
         val patient = r.reconciliationPatient ?: r.task.condition.patient
-        val number = attempt.orderNo ?: (gateway.querySubmission(patient) as? AsyncReply.OrderFound)?.orderNo
+        val number = attempt.orderNo ?: (gateway.querySubmission(r.task, attempt, patient) as? AsyncReply.OrderFound)?.orderNo
         val matches = gateway.orders(patient, r.task.condition.visitDate, r.task.condition.visitDate)
             .filter { it.patient == patient }.map { it.copy(patient = r.task.condition.patient) }
             .filter { it.orderNo !in attempt.baselineOrderNos && matches(it, r.task, attempt.candidate) }
         val found = matches.singleOrNull()?.takeIf { it.orderNo == number }
-            ?: throw HospitalException("未找到可唯一关联的订单，请在微信服务号人工核对。列表为空不代表提交失败。")
+            ?: throw HospitalException("未找到可唯一关联的订单，请在原挂号渠道人工核对。列表为空不代表提交失败。")
         store.update(id) { it.copy(order = found.copy(insuranceSupported = attempt.paymentContext?.insuranceSupported,
             specialPaymentCondition = found.specialPaymentCondition || attempt.paymentContext?.requiresUserChoice == true),
             phase = TaskPhase.AWAITING_PAYMENT, note = "已找到同一订单，请刷新付款结果", lastEventAt = clock.now()) }

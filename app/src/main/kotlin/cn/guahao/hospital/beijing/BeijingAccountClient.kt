@@ -8,7 +8,7 @@ import kotlinx.serialization.json.*
 @Serializable class BeijingAccountSnapshot internal constructor(
     val channel: RegistrationChannel,
     internal val accountId: String,
-    val patients: List<BeijingPatient>
+    val patients: List<BeijingPatient>, val realNameVerified: Boolean = false
 ) {
     override fun toString() = "BeijingAccountSnapshot(redacted)"
 }
@@ -22,18 +22,21 @@ internal class BeijingAccountClient(private val transport: BeijingQueryTransport
     private val intervalMillis: Long = 1000) : BeijingAccountSource {
     override suspend fun loadAccount(channel: RegistrationChannel): BeijingAccountSnapshot {
         require(channel.requestSource != null)
-        val before = accountId(channel)
+        val before = account(channel)
         delay(intervalMillis)
         val patients = BeijingPatientParser.parse(read(channel, "auth/patient/list"))
         delay(intervalMillis)
-        if (before != accountId(channel)) throw BeijingQueryException(BeijingFailureKind.RECONNECT)
-        return BeijingAccountSnapshot(channel, before, patients)
+        val after = account(channel)
+        if (before != after) throw BeijingQueryException(BeijingFailureKind.RECONNECT)
+        return BeijingAccountSnapshot(channel, before.first, patients, before.second)
     }
 
-    private suspend fun accountId(channel: RegistrationChannel): String {
+    private suspend fun account(channel: RegistrationChannel): Pair<String, Boolean> {
         val data = read(channel, "auth/user/get", buildJsonObject {}) as? JsonObject ?: invalid()
-        return (data["userId"] as? JsonPrimitive)?.takeIf { it.isString }?.content
+        val verified = (data["authStatus"] as? JsonPrimitive)?.intOrNull == 1
+        val id = (data["userId"] as? JsonPrimitive)?.takeIf { it.isString }?.content
             ?.takeIf { it.isNotBlank() } ?: invalid()
+        return id to verified
     }
 
     private suspend fun read(channel: RegistrationChannel, path: String, body: JsonObject? = null): JsonElement {

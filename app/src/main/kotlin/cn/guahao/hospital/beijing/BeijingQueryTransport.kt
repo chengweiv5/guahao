@@ -5,7 +5,7 @@ import kotlinx.serialization.json.*
 
 data class BeijingQueryRequest(
     val channel: RegistrationChannel, val path: String, val body: JsonObject? = null, val suffix: String? = null
-)
+) { override fun toString() = "BeijingQueryRequest(channel=$channel, path=$path, body=redacted)" }
 data class BeijingQueryReply(val code: Int, val type: String, val body: String) {
     override fun toString() = "BeijingQueryReply(code=$code, body=redacted)"
 }
@@ -40,11 +40,25 @@ internal object BeijingReadPolicy {
         when (request.path) {
             "auth/user/get" -> require(request.suffix == null && request.body != null && request.body.isEmpty())
             "auth/patient/list" -> require(request.suffix == null && request.body == null)
+            "auth/order/getOrderListV2" -> {
+                require(request.suffix == null && request.channel == RegistrationChannel.JINGTONG)
+                val body = requireNotNull(request.body)
+                require(body.keys == setOf("pageNo", "pageSize", "idCardNo", "idCardType", "hosCode", "orderStatus", "sortTimeType", "startTime", "endTime"))
+                require(body["pageSize"]?.jsonPrimitive?.intOrNull == 20 && body["orderStatus"]?.jsonPrimitive?.content == "ALL")
+                require(body["sortTimeType"]?.jsonPrimitive?.intOrNull == 1)
+            }
+            "auth/order/detail" -> require(request.channel == RegistrationChannel.JINGTONG && request.suffix == null &&
+                request.body?.keys == setOf("orderId", "patientId"))
+            "auth/patient/face_verify/hos_switch", "auth/patient/nation/hos_switch", "auth/patient/virtual_phone/hos_switch" ->
+                require(request.channel == RegistrationChannel.JINGTONG && request.body == null && request.suffix?.matches(Regex("[A-Za-z0-9_-]{1,128}")) == true)
             else -> BeijingQueryPolicy.validate(request)
         }
     }
     fun browserScript(request: BeijingQueryRequest, operationId: String): String {
         validate(request)
+        return script(request, operationId)
+    }
+    internal fun script(request: BeijingQueryRequest, operationId: String): String {
         require(operationId.matches(Regex("[a-f0-9]{32}")))
         val path = request.path + (request.suffix?.let { "/$it" } ?: "")
         val config = buildJsonObject {

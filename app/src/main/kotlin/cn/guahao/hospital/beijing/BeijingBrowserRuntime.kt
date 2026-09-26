@@ -8,6 +8,9 @@ import android.os.Build
 import android.webkit.*
 import androidx.core.net.toUri
 import cn.guahao.core.RegistrationChannel
+import cn.guahao.core.*
+import cn.guahao.storage.EncryptedVault
+import java.time.LocalDate
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -15,6 +18,7 @@ import kotlinx.coroutines.sync.withLock
 /** One channel and one WebView per private process; no credentials cross the process boundary. */
 @SuppressLint("SetJavaScriptEnabled")
 internal class BeijingBrowserRuntime private constructor(context: Context, val channel: RegistrationChannel) {
+    private val appContext = context.applicationContext
     val webView = WebView(context.applicationContext)
     private val transport = BeijingWebQueryTransport(channel, webView)
     val queries = BeijingQueryClient(transport)
@@ -92,6 +96,38 @@ internal class BeijingBrowserRuntime private constructor(context: Context, val c
     suspend fun loadAccount(): BeijingAccountSnapshot = queryGate.withLock {
         prepare()
         BeijingAccountClient(transport).loadAccount(channel)
+    }
+
+    private suspend fun verifySelection(selection: BeijingPatientSelection): BeijingAccountSnapshot {
+        require(selection.channel == channel)
+        val account = BeijingAccountClient(transport).loadAccount(channel)
+        val person = account.patients.singleOrNull { it.id == selection.patient.id }
+        if (account.accountId != selection.accountId || person == null || person.identityCard != selection.patient.identityCard ||
+            person.identityCardType != selection.patient.identityCardType || person.patientType != selection.patient.patientType ||
+            person.virtualPhone != selection.patient.virtualPhone || person.faceVerification != selection.patient.faceVerification ||
+            person.cards.none { it.number == selection.card.number && it.cardType == selection.card.cardType && it.medicareType == selection.card.medicareType })
+            throw BeijingQueryException(BeijingFailureKind.RECONNECT)
+        return account
+    }
+
+    suspend fun orders(selection: BeijingPatientSelection, from: LocalDate, to: LocalDate): List<OrderSnapshot> = queryGate.withLock {
+        prepare(); verifySelection(selection)
+        val orders = BeijingOrderClient(transport).orders(selection, from, to)
+        verifySelection(selection)
+        orders
+    }
+
+    suspend fun submit(selection: BeijingPatientSelection, task: BookingTask, candidate: Candidate, maySend: suspend () -> Boolean): LockReply = queryGate.withLock {
+        if (!JingtongCapabilities.automaticBookingVerified) throw HospitalException(JingtongCapabilities.unavailableReason)
+        prepare()
+        val account = verifySelection(selection)
+        BeijingSubmission(transport, transport, EncryptedVault(appContext)).submit(selection, account, task, candidate, maySend)
+    }
+
+    suspend fun receipt(selection: BeijingPatientSelection, task: BookingTask, candidate: Candidate): AsyncReply = queryGate.withLock {
+        require(selection.channel == channel && selection.reference == task.condition.patient)
+        // Local durable evidence needs neither a live WebView nor a repeat submission.
+        BeijingSubmission(transport, transport, EncryptedVault(appContext)).receipt(task, candidate)
     }
 
     companion object {

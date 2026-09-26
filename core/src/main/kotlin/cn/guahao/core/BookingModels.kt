@@ -57,15 +57,21 @@ val PatientRef.isDemo: Boolean get() = sessionId == "demo" || sessionId.startsWi
 @Serializable data class Candidate(
     val department: DepartmentRef, val doctorCode: String, val doctorName: String, val date: LocalDate,
     val half: String, val hour: String, val startMinute: Int, val endMinute: Int,
-    val feeFen: Long, val remaining: Int, val titleType: String, val standby: Boolean
+    val feeFen: Long, val remaining: Int, val titleType: String, val standby: Boolean,
+    val platform: PlatformProduct? = null
 )
-@Serializable enum class OrderPhase { LOCKED, INSURANCE_PENDING, BOOKED, INSURANCE_PAID, OTHER }
+@Serializable data class PlatformProduct(val providerId: String, val hospitalId: String,
+    val productKey: String, val productTimeKey: String)
+@Serializable data class PlatformOrder(val providerId: String, val hospitalId: String,
+    val startMinute: Int, val endMinute: Int, val officialStatus: String,
+    val paymentStatus: String?, val collectionInstructions: String? = null)
+@Serializable enum class OrderPhase { LOCKED, INSURANCE_PENDING, BOOKED, INSURANCE_PAID, OTHER, RESERVED_ONSITE }
 @Serializable data class OrderSnapshot(
     val orderNo: String, val patient: PatientRef, val doctorCode: String?, val departmentCode: String?,
     val doctorName: String, val departmentName: String, val source: String, val visitDate: LocalDate,
     val half: String, val hour: String, val feeFen: Long, val phase: OrderPhase, val rawStatus: String,
     val invalidAt: Instant?, val specialPaymentCondition: Boolean, val insuranceVerified: Boolean = false,
-    val insuranceSupported: Boolean? = null
+    val insuranceSupported: Boolean? = null, val platform: PlatformOrder? = null
 )
 @Serializable data class PaymentContext(val zeroFee: Boolean, val insuranceSupported: Boolean, val requiresUserChoice: Boolean)
 @Serializable data class SubmissionAttempt(
@@ -87,6 +93,7 @@ sealed interface LockReply {
     data object NoStock : LockReply
     data class Rejected(val code: String) : LockReply
     data object OutcomeUnknown : LockReply
+    data class OrderCreated(val orderNo: String) : LockReply
 }
 sealed interface AsyncReply {
     data object Pending : AsyncReply

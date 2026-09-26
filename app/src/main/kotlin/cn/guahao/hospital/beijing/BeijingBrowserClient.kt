@@ -3,6 +3,9 @@ package cn.guahao.hospital.beijing
 import android.content.*
 import android.os.*
 import cn.guahao.core.RegistrationChannel
+import cn.guahao.core.*
+import java.time.LocalDate
+import kotlinx.serialization.encodeToString
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicInteger
@@ -10,7 +13,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /** Binds only for one query. Unbinding or disconnecting never causes a transparent retry. */
-class BeijingBrowserClient(private val context: Context) : BeijingQueryTransport, BeijingAccountSource {
+class BeijingBrowserClient(private val context: Context) : BeijingPlatformSource {
     override suspend fun execute(request: BeijingQueryRequest): BeijingQueryReply {
         BeijingQueryPolicy.validate(request)
         val result = exchange(request.channel, BeijingBrowserService.QUERY, Bundle().apply {
@@ -26,7 +29,30 @@ class BeijingBrowserClient(private val context: Context) : BeijingQueryTransport
         return account
     }
 
-    private suspend fun exchange(channel: RegistrationChannel, operation: Int, input: Bundle): Bundle = withContext(Dispatchers.Main.immediate) {
+    override suspend fun orders(selection: BeijingPatientSelection, from: LocalDate, to: LocalDate): List<OrderSnapshot> {
+        require(!to.isBefore(from) && !to.isAfter(from.plusDays(366)))
+        val result = exchange(selection.channel, BeijingBrowserService.ORDER_QUERY, Bundle().apply {
+            putString("selection", Json.encodeToString(selection)); putString("from", from.toString()); putString("to", to.toString())
+        })
+        return runCatching { Json.decodeFromString<List<OrderSnapshot>>(result.getString("orders") ?: invalid()) }.getOrElse { invalid() }
+    }
+
+    override suspend fun submit(selection: BeijingPatientSelection, task: BookingTask, candidate: Candidate, maySend: () -> Boolean): LockReply {
+        val result = exchange(selection.channel, BeijingBrowserService.SUBMIT, Bundle().apply {
+            putString("selection", Json.encodeToString(selection)); putString("task", Json.encodeToString(task)); putString("candidate", Json.encodeToString(candidate))
+        }, maySend)
+        return if (result.getString("submission") == "created") LockReply.OrderCreated(result.getString("orderId") ?: invalid()) else LockReply.OutcomeUnknown
+    }
+
+    override suspend fun receipt(selection: BeijingPatientSelection, task: BookingTask, candidate: Candidate): AsyncReply {
+        val result = exchange(selection.channel, BeijingBrowserService.RECEIPT, Bundle().apply {
+            putString("selection", Json.encodeToString(selection)); putString("task", Json.encodeToString(task)); putString("candidate", Json.encodeToString(candidate))
+        })
+        return result.getString("orderId")?.takeIf { it.isNotBlank() }?.let { AsyncReply.OrderFound(it) }
+            ?: AsyncReply.Unknown("JINGTONG_RECEIPT_UNKNOWN")
+    }
+
+    private suspend fun exchange(channel: RegistrationChannel, operation: Int, input: Bundle, maySend: () -> Boolean = { false }): Bundle = withContext(Dispatchers.Main.immediate) {
         if (Build.VERSION.SDK_INT < 28) throw BeijingQueryException(BeijingFailureKind.CLIENT_VERIFICATION)
         val service = when (channel) {
             RegistrationChannel.JINGTONG -> JingtongBrowserService::class.java
@@ -38,12 +64,19 @@ class BeijingBrowserClient(private val context: Context) : BeijingQueryTransport
         lateinit var connection: ServiceConnection
         val id = ids.incrementAndGet()
         try {
-            withTimeout(if (operation == BeijingBrowserService.ACCOUNT_QUERY) 120_000 else 45_000) {
+            withTimeout(if (operation != BeijingBrowserService.QUERY) 120_000 else 45_000) {
                 suspendCancellableCoroutine { continuation ->
                     val receiver = Messenger(object : Handler(Looper.getMainLooper()) {
                         override fun handleMessage(message: Message) {
-                            if (message.what != BeijingBrowserService.RESULT || message.arg1 != id || !continuation.isActive) return
+                            if (message.arg1 != id || !continuation.isActive) return
                             if (message.sendingUid != context.applicationInfo.uid) return
+                            if (message.what == BeijingBrowserService.CHECK_SEND && operation == BeijingBrowserService.SUBMIT) {
+                                val permitted = runCatching { maySend() }.getOrDefault(false)
+                                try { remote?.send(Message.obtain(null, BeijingBrowserService.SEND_PERMIT, id, if (permitted) 1 else 0)) }
+                                catch (_: RemoteException) { }
+                                return
+                            }
+                            if (message.what != BeijingBrowserService.RESULT) return
                             val bundle = message.data
                             val failure = bundle.getString("failure")
                             if (failure != null) continuation.resumeWithException(BeijingQueryException(

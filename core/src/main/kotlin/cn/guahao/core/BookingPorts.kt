@@ -12,6 +12,8 @@ interface BookingGateway {
     suspend fun orders(patient: PatientRef, from: LocalDate, to: LocalDate): List<OrderSnapshot>
     suspend fun lock(task: BookingTask, candidate: Candidate): LockReply
     suspend fun querySubmission(patient: PatientRef): AsyncReply
+    /** Providers with a local receipt must correlate it to this immutable task and candidate. */
+    suspend fun querySubmission(task: BookingTask, attempt: SubmissionAttempt, patient: PatientRef): AsyncReply = querySubmission(patient)
     suspend fun insuranceAvailable(patient: PatientRef): Boolean
     suspend fun initializeInsurance(patient: PatientRef, orderNo: String): InsuranceReply
     suspend fun paymentState(patient: PatientRef, orderNo: String): InsuranceReply

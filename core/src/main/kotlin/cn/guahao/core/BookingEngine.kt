@@ -84,6 +84,11 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
                             catch (e: CancellationException) { throw e }
                             catch (_: Exception) { LockReply.OutcomeUnknown }
                         when (reply) {
+                            is LockReply.OrderCreated -> {
+                                attempt = attempt.copy(orderNo = reply.orderNo)
+                                store.update(t.id) { it.copy(attempt = attempt) }
+                                if (reconcile(t, attempt)) return
+                            }
                             LockReply.NoStock -> store.update(t.id) { it.copy(attempt = null) }
                             is LockReply.Rejected -> { phase(t.id, TaskPhase.NEEDS_ATTENTION, "医院未确认锁号（${reply.code}），请核对官方结果"); return }
                             else -> { if (reconcile(t, attempt)) return }
@@ -116,7 +121,7 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
             var retryAfter = 5000L
             try {
                 if (orderNo == null && polls++ < 30) {
-                    when (val reply = gateway.querySubmission(queryPatient)) {
+                    when (val reply = gateway.querySubmission(t, attempt, queryPatient)) {
                         is AsyncReply.OrderFound -> {
                             orderNo = reply.orderNo
                             paymentContext = reply.paymentContext
@@ -134,8 +139,8 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
                         specialPaymentCondition = it.specialPaymentCondition || paymentContext?.requiresUserChoice == true || paymentContext?.zeroFee == true)
                 }
                 if (order != null) {
-                    store.update(t.id) { it.copy(order = order, phase = if (order.phase == OrderPhase.BOOKED) TaskPhase.BOOKED else TaskPhase.AWAITING_PAYMENT,
-                        note = if (order.phase == OrderPhase.BOOKED) "挂号已完成" else "锁号成功，待付款", lastEventAt = clock.now()) }
+                    store.update(t.id) { it.copy(order = order, phase = if (order.phase in setOf(OrderPhase.BOOKED, OrderPhase.RESERVED_ONSITE)) TaskPhase.BOOKED else TaskPhase.AWAITING_PAYMENT,
+                        note = when(order.phase) { OrderPhase.BOOKED -> "挂号已完成"; OrderPhase.RESERVED_ONSITE -> "预约成功，请按医院要求到院取号或缴费"; else -> "锁号成功，待付款" }, lastEventAt = clock.now()) }
                     return true
                 }
             } catch (e: CancellationException) { throw e }
@@ -143,7 +148,7 @@ class BookingEngine(private val gateway: BookingGateway, private val store: Task
             catch (_: Exception) { /* Preserve attempt; parse errors never mean no order. */ }
             clock.delayMillis(minOf(retryAfter, java.time.Duration.between(clock.now(), limit).toMillis().coerceAtLeast(1)))
         }
-        phase(t.id, TaskPhase.NEEDS_ATTENTION, "结果待人工核对；请打开服务号挂号结果查询，确认前不会再次提交")
+        phase(t.id, TaskPhase.NEEDS_ATTENTION, "结果待人工核对；请打开原挂号渠道的订单记录，确认前不会再次提交")
         return true
     }
 }

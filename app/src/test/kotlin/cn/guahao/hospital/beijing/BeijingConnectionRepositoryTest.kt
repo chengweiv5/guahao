@@ -85,4 +85,24 @@ class BeijingConnectionRepositoryTest {
         started.await(); repo.invalidate(jt); release.complete(Unit)
         assertEquals(BeijingFailureKind.RECONNECT, (result.await().exceptionOrNull() as BeijingQueryException).kind)
     }
+
+    @Test fun immutableVersionsRetainOldCardAndSameAccountSharesSubmissionScopeAcrossHospitals() = runBlocking {
+        var current = account()
+        val repo = BeijingConnectionRepository(MemorySecrets(), BeijingAccountSource { current })
+        val first = save(repo, repo.refresh(jt))
+        current = account(number = "new-card")
+        val second = save(repo, repo.refresh(jt))
+        assertNotEquals(first.reference, second.reference)
+        assertEquals("synthetic-card", repo.load(first.reference).card.number)
+        assertEquals("new-card", repo.load(second.reference).card.number)
+        assertEquals(second.id, repo.saved(route)!!.id)
+        val otherHospital = save(repo, repo.refresh(jt), HospitalRoute("hospital-b", jt))
+        assertEquals(repo.binding(first.reference).submissionScope, repo.binding(otherHospital.reference).submissionScope)
+        assertFalse(repo.binding(first.reference).samePrincipal(repo.binding(otherHospital.reference)))
+        assertTrue(repo.binding(first.reference).samePrincipal(repo.binding(second.reference)))
+        current = account(user = "different-user")
+        val otherAccount = save(repo, repo.refresh(jt))
+        assertNotEquals(repo.binding(first.reference).submissionScope, repo.binding(otherAccount.reference).submissionScope)
+        assertFalse(repo.binding(first.reference).accountKey.contains("synthetic"))
+    }
 }

@@ -16,19 +16,26 @@ import kotlin.coroutines.resume
 internal class BeijingWebQueryTransport(
     private val channel: RegistrationChannel,
     private val webView: WebView
-) : BeijingQueryTransport {
+) : BeijingQueryTransport, BeijingMutationTransport {
     private val gate = Mutex()
     private var closed = false
 
-    override suspend fun execute(request: BeijingQueryRequest): BeijingQueryReply = gate.withLock {
-        require(request.channel == channel) { "Browser channel mismatch" }
+    override suspend fun execute(request: BeijingQueryRequest): BeijingQueryReply {
         BeijingReadPolicy.validate(request)
+        return executeInternal(request)
+    }
+    override suspend fun executeMutation(request: BeijingQueryRequest): BeijingQueryReply {
+        BeijingMutationPolicy.validate(request)
+        return executeInternal(request)
+    }
+    private suspend fun executeInternal(request: BeijingQueryRequest): BeijingQueryReply = gate.withLock {
+        require(request.channel == channel) { "Browser channel mismatch" }
         val id = UUID.randomUUID().toString().replace("-", "")
         try {
             withTimeout(30_000) {
                 withContext(Dispatchers.Main.immediate) {
                     if (closed) throw BeijingQueryException(BeijingFailureKind.RECONNECT)
-                    if (evaluate(BeijingReadPolicy.browserScript(request, id)) != "true")
+                    if (evaluate(BeijingReadPolicy.script(request, id)) != "true")
                         throw BeijingQueryException(BeijingFailureKind.RECONNECT)
                     var result: JsonObject? = null
                     while (result == null) {

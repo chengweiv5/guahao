@@ -50,7 +50,6 @@ import kotlinx.coroutines.launch
     var search by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    var connectionVersion by remember { mutableIntStateOf(0) }
     fun fetch(next: Int) {
         if (loading) return
         loading = true; error = null
@@ -59,7 +58,6 @@ import kotlinx.coroutines.launch
                 val result = load(channel, next)
                 hospitals = (if (next == 1) result.hospitals else hospitals + result.hospitals).distinctBy { it.code }
                 page = next; total = result.total
-                if (next == 1 && selected != null && hospitals.none { it.code == selected.code }) onSelect(null)
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { error = (e as? BeijingQueryException)?.message ?: "医院目录暂不可用，请稍后重试" }
             finally { loading = false }
@@ -67,7 +65,7 @@ import kotlinx.coroutines.launch
     }
     Text("${channel.title}的连接和订单单独管理。", color = Muted)
     OutlinedButton(onClick = {
-        connections.invalidate(channel); connectionVersion++
+        connections.invalidate(channel)
         val target = if (channel == RegistrationChannel.JINGTONG) JingtongConnectActivity::class.java else Official114ConnectActivity::class.java
         context.startActivity(android.content.Intent(context, target))
     }, enabled = !loading && android.os.Build.VERSION.SDK_INT >= 28,
@@ -96,10 +94,5 @@ import kotlinx.coroutines.launch
         if (hospitals.size < total) OutlinedButton(onClick = { fetch(page + 1) }, enabled = !loading,
             modifier = Modifier.fillMaxWidth()) { Text("加载更多医院 · 已加载 ${hospitals.size} 家") }
     }
-    if (selected != null) {
-        key(selected.code, connectionVersion) {
-            BeijingPatientPicker(cn.guahao.core.HospitalRoute(selected.code, channel), selected.name, connections)
-        }
-        Text("已选 ${selected.name}。自动预约与订单核对仍在接入，暂不能创建此渠道的自动挂号任务。", color = Muted)
-    }
+    if (selected != null) Text("已选 ${selected.name}，下一步核验就诊人并选择科室与医生。", color = Muted)
 }

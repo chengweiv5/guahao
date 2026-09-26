@@ -35,7 +35,7 @@ import cn.guahao.core.*
         Text(task.hospitalName, fontWeight = FontWeight.SemiBold)
         Text(listOfNotNull(task.binding?.campusName, task.binding?.providerName ?: if (task.demo) "本机演示" else "微信服务号").joinToString(" · "),
             color = Muted, style = MaterialTheme.typography.bodySmall)
-        Badge((if (task.demo) "演示 · " else "") + phaseLabel(record.phase),
+        Badge((if (task.demo) "演示 · " else "") + (if (record.order?.phase == OrderPhase.RESERVED_ONSITE) "预约成功，按医院要求取号" else phaseLabel(record.phase)),
             record.phase in setOf(TaskPhase.AWAITING_PAYMENT, TaskPhase.NEEDS_ATTENTION, TaskPhase.RECONCILING))
         Text("${task.condition.department.name} · ${task.condition.doctorName}",
             style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
