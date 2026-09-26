@@ -84,8 +84,14 @@ internal class BeijingBrowserRuntime private constructor(context: Context, val c
         }
     }
     suspend fun execute(query: BeijingQueryRequest): BeijingQueryReply = queryGate.withLock {
+        BeijingQueryPolicy.validate(query)
         prepare()
         transport.execute(query)
+    }
+
+    suspend fun loadAccount(): BeijingAccountSnapshot = queryGate.withLock {
+        prepare()
+        BeijingAccountClient(transport).loadAccount(channel)
     }
 
     companion object {

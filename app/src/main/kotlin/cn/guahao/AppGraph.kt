@@ -31,7 +31,9 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
     val sessions = SessionRepository(vault, Mutex())
     init { store.all().asReversed().forEach { sessions.register(it.task.condition.patient) } }
     val hospital = PscClient(sessions) { !store.get(it.id).stopRequested }
-    val beijingQueries = cn.guahao.hospital.beijing.BeijingQueryClient(cn.guahao.hospital.beijing.BeijingBrowserClient(context))
+    private val beijingBrowser = cn.guahao.hospital.beijing.BeijingBrowserClient(context)
+    val beijingQueries = cn.guahao.hospital.beijing.BeijingQueryClient(beijingBrowser)
+    val beijingConnections = cn.guahao.hospital.beijing.BeijingConnectionRepository(vault, beijingBrowser)
     private val demo by lazy { DemoGateway(store) }
     private fun gatewayBinding(p: PatientRef) = if (p.isDemo) demoBinding(p) else sessions.identities.resolve(p)
         ?: throw HospitalException("连接身份待核对，请重新连接医院")

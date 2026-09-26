@@ -6,7 +6,9 @@ import kotlinx.serialization.json.*
 data class BeijingQueryRequest(
     val channel: RegistrationChannel, val path: String, val body: JsonObject? = null, val suffix: String? = null
 )
-data class BeijingQueryReply(val code: Int, val type: String, val body: String)
+data class BeijingQueryReply(val code: Int, val type: String, val body: String) {
+    override fun toString() = "BeijingQueryReply(code=$code, body=redacted)"
+}
 fun interface BeijingQueryTransport {
     suspend fun execute(request: BeijingQueryRequest): BeijingQueryReply
 }
@@ -25,6 +27,22 @@ internal object BeijingQueryPolicy {
     }
 
     /** Evaluated only in an App-owned official page, never in a different channel's browser session. */
+    fun browserScript(request: BeijingQueryRequest, operationId: String): String {
+        validate(request)
+        return BeijingReadPolicy.browserScript(request, operationId)
+    }
+}
+
+/** Available only inside the browser process; public IPC still applies BeijingQueryPolicy. */
+internal object BeijingReadPolicy {
+    fun validate(request: BeijingQueryRequest) {
+        require(request.channel.requestSource != null)
+        when (request.path) {
+            "auth/user/get" -> require(request.suffix == null && request.body != null && request.body.isEmpty())
+            "auth/patient/list" -> require(request.suffix == null && request.body == null)
+            else -> BeijingQueryPolicy.validate(request)
+        }
+    }
     fun browserScript(request: BeijingQueryRequest, operationId: String): String {
         validate(request)
         require(operationId.matches(Regex("[a-f0-9]{32}")))

@@ -500,7 +500,7 @@ internal fun periodLabel(start: Int, end: Int) = when(start to end) { 0 to 1440 
                     Choice("演示医院 A", demoPatient == DemoGateway.patient) { demoPatient = DemoGateway.patient }
                     Choice("演示医院 B", demoPatient == DemoGateway.patientB) { demoPatient = DemoGateway.patientB }
                 } else {
-                    HospitalChannelPicker(channel, selectedHospital, graph.beijingQueries::hospitals,
+                    HospitalChannelPicker(channel, selectedHospital, graph.beijingQueries::hospitals, graph.beijingConnections,
                         onChannel = { channel = it; chosenRef = null; department = DepartmentRef("", "", "", "请选择科室", "") },
                         onHospital = { selectedHospital = it })
                 }

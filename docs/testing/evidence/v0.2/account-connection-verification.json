@@ -1,0 +1,93 @@
+{
+  "date": "2026-09-26",
+  "status": "account_and_patient_selection_verified_booking_incomplete",
+  "live_result": {
+    "passed": true,
+    "authenticated": true,
+    "patientCount": 1,
+    "cardCount": 2,
+    "channelMatches": true,
+    "accountToStringRedacted": true
+  },
+  "live_result_epoch": 1790385588,
+  "runtime": "Mate 60 Pro API31; isolated cn.guahao.platformprobe; App-owned JINGTONG WebView",
+  "production_sources_copied": true,
+  "probe_runtime_difference": "Retain existing isolated_JT_WECHAT directory in temporary package only; no cookie export or copy",
+  "privacy": {
+    "identity_values_saved_to_host": false,
+    "live_selection_written_to_production_app": false,
+    "patient_storage_ui_fixtures": "synthetic only",
+    "booking_requests": false,
+    "confirm_requests": false,
+    "payment_requests": false
+  },
+  "live_regression_found": {
+    "previous_card_uniqueness": [
+      "cardType",
+      "cardNo"
+    ],
+    "corrected_card_uniqueness": [
+      "cardType",
+      "cardNo",
+      "medicareType"
+    ],
+    "exact_duplicate_rejected": true
+  },
+  "tests": {
+    "debug": {
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "release": {
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "ui": {
+    "360dp": {
+      "passed": 4
+    },
+    "412dp_font1.3": {
+      "passed": 8
+    },
+    "final_apk_412dp_font1.3": {
+      "passed": 8
+    }
+  },
+  "builds": {
+    "debug": "passed",
+    "release": "passed",
+    "androidTest": "passed"
+  },
+  "lint": {
+    "errors": 0,
+    "existing_warnings_each": 13
+  },
+  "remaining": [
+    "nonempty order/detail samples",
+    "114 independent authorization",
+    "submit and same-order reconciliation implementation",
+    "background/locked-screen/process-death validation",
+    "wechat inspector close user confirmation"
+  ],
+  "push_performed": false,
+  "v03_started": false,
+  "sha256": {
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingAccountClient.kt": "f5799d2293233ee278b1bda43fb9c9ab19ff071facb1a3d8e6f9fcb0ad94f281",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBrowserService.kt": "2edef4ba11f82a2ae0cb38d13b3485f2e774c582286d6cad31e0c9afc54caf1c",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingDoctorSchedule.kt": "9969ed16286a5898d03b625cd1270137f0c4617abbaab14e691a72b1d4d1fd1a",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingWebQueryTransport.kt": "48659a2c158870273a51be93af14e304bd4d00e917bc4d55b71f36c485a8d11c",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBrowserClient.kt": "af7697bed8a5206219e8c572508e1715a91da78f00b9f21bf7072fb27bcdb42c",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingConnectionRepository.kt": "ff9d02dbdb837b9e705a78fb03e51c772fc17a634258948d323631397f63f36c",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingBrowserRuntime.kt": "5e0367b862d31b3f59c372a96017cf39ec567f23279b850c797662ba321f0abb",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingPatients.kt": "3136763fc570d41828db1032308ca915f50e96168e5985651f82e5503e1cdd44",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingQueryClient.kt": "a73ba9aa43f4ba3b4e2462ee2ed68f5ab4df37e2f821ad5abf89645c489f9e00",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingQueryTransport.kt": "d8dfab65e391b41f6cd05c124e2f96162e2c8bd3a38e59e36da45038796ccadb",
+    "app/src/main/kotlin/cn/guahao/hospital/beijing/BeijingConnectActivity.kt": "c427fd65ec99d716d3813c0749dd11c0948be336434f4dd23557c84ac9c78199",
+    "app/src/main/kotlin/cn/guahao/ui/BeijingPatientPicker.kt": "5c4e73fe4df9c955bac91369d224601aac4618c7af48516a1877619872bf31d2"
+  }
+}

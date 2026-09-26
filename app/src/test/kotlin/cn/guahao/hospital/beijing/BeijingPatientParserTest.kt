@@ -23,6 +23,18 @@ class BeijingPatientParserTest {
         try { parse(buildJsonObject { put("patientList", JsonArray(listOf(patient, patient))) }.toString()); fail() }
         catch (e: BeijingQueryException) { assertEquals(BeijingFailureKind.INVALID_RESPONSE, e.kind) }
     }
+    @Test fun oneCardCanHaveDifferentPaymentTypesButExactDuplicatesAreRejected() {
+        val root = Json.parseToJsonElement(fixture).jsonObject
+        val patient = root["patientList"]!!.jsonArray.single().jsonObject
+        val card = patient["cardList"]!!.jsonArray.single().jsonObject
+        val otherPayment = JsonObject(card + ("medicareType" to JsonPrimitive(1)))
+        fun payload(other: JsonObject) = JsonObject(root + ("patientList" to JsonArray(listOf(
+            JsonObject(patient + ("cardList" to JsonArray(listOf(card, other))))
+        )))).toString()
+        assertEquals(listOf(3, 1), parse(payload(otherPayment)).single().cards.map { it.medicareType })
+        try { parse(payload(card)); fail() }
+        catch (e: BeijingQueryException) { assertEquals(BeijingFailureKind.INVALID_RESPONSE, e.kind) }
+    }
     @Test fun missingIdentityOrCardsFailsClosedButEmptyAuthenticatedListIsValid() {
         for (raw in listOf(fixture.replace("synthetic-id", ""), fixture.replace("\"virtualPhone\":false", "\"virtualPhone\":null"), """{"patientList":null}""")) {
             try { parse(raw); fail() }

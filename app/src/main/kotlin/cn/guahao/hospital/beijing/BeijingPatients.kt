@@ -1,16 +1,17 @@
 package cn.guahao.hospital.beijing
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.Serializable
 
 /** Private identity stays in app memory/encrypted storage; toString never exposes it. */
-class BeijingPatient internal constructor(
+@Serializable class BeijingPatient internal constructor(
     val id: String, val displayName: String, internal val identityCard: String, val identityCardType: Int,
     val patientType: Int, val faceVerification: String?, val virtualPhone: Boolean,
     val cards: List<BeijingPatientCard>
 ) {
     override fun toString() = "BeijingPatient(redacted)"
 }
-class BeijingPatientCard internal constructor(
+@Serializable class BeijingPatientCard internal constructor(
     internal val number: String, val displayNumber: String, val cardType: Int,
     val medicareType: Int, val label: String, val defaultCard: Boolean
 ) {
@@ -27,7 +28,8 @@ internal object BeijingPatientParser {
                 BeijingPatientCard(card.text("cardNo"), card.text("cardNoConfound"), card.int("cardType"),
                     card.int("medicareType"), card.text("medicareTypeView"), card.int("default_card") == 1)
             }
-            if (cards.map { it.cardType to it.number }.distinct().size != cards.size) invalid()
+            // The same document/card can represent distinct payment types in the official list.
+            if (cards.map { Triple(it.cardType, it.number, it.medicareType) }.distinct().size != cards.size) invalid()
             BeijingPatient(item.text("patientId"), item.text("patientNameConfound"), item.text("idCardNo"),
                 item.int("idCardType"), item.int("patientType"), (item["faceVerifyResult"] as? JsonPrimitive)?.contentOrNull,
                 (item["virtualPhone"] as? JsonPrimitive)?.booleanOrNull ?: invalid(), cards)

@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
     channel: RegistrationChannel,
     selectedHospital: BeijingHospital?,
     load: suspend (RegistrationChannel, Int) -> BeijingHospitalPage,
+    connections: BeijingConnectionRepository,
     onChannel: (RegistrationChannel) -> Unit,
     onHospital: (BeijingHospital?) -> Unit
 ) {
@@ -34,12 +35,13 @@ import kotlinx.coroutines.launch
         Text("北京佑安医院", fontWeight = FontWeight.SemiBold)
         Text("下一步选择已连接的就诊人。", color = Muted)
     } else key(channel) {
-        PlatformHospitalResults(channel, selectedHospital, load, onHospital)
+        PlatformHospitalResults(channel, selectedHospital, load, connections, onHospital)
     }
 }
 
 @Composable private fun PlatformHospitalResults(channel: RegistrationChannel, selected: BeijingHospital?,
-    load: suspend (RegistrationChannel, Int) -> BeijingHospitalPage, onSelect: (BeijingHospital?) -> Unit) {
+    load: suspend (RegistrationChannel, Int) -> BeijingHospitalPage, connections: BeijingConnectionRepository,
+    onSelect: (BeijingHospital?) -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var hospitals by remember { mutableStateOf(emptyList<BeijingHospital>()) }
@@ -48,6 +50,7 @@ import kotlinx.coroutines.launch
     var search by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var connectionVersion by remember { mutableIntStateOf(0) }
     fun fetch(next: Int) {
         if (loading) return
         loading = true; error = null
@@ -64,6 +67,7 @@ import kotlinx.coroutines.launch
     }
     Text("${channel.title}的连接和订单单独管理。", color = Muted)
     OutlinedButton(onClick = {
+        connections.invalidate(channel); connectionVersion++
         val target = if (channel == RegistrationChannel.JINGTONG) JingtongConnectActivity::class.java else Official114ConnectActivity::class.java
         context.startActivity(android.content.Intent(context, target))
     }, enabled = !loading && android.os.Build.VERSION.SDK_INT >= 28,
@@ -92,5 +96,10 @@ import kotlinx.coroutines.launch
         if (hospitals.size < total) OutlinedButton(onClick = { fetch(page + 1) }, enabled = !loading,
             modifier = Modifier.fillMaxWidth()) { Text("加载更多医院 · 已加载 ${hospitals.size} 家") }
     }
-    if (selected != null) Text("已选 ${selected.name}。此渠道尚未完成 App 连接，暂不能创建自动挂号任务。", color = Muted)
+    if (selected != null) {
+        key(selected.code, connectionVersion) {
+            BeijingPatientPicker(cn.guahao.core.HospitalRoute(selected.code, channel), selected.name, connections)
+        }
+        Text("已选 ${selected.name}。自动预约与订单核对仍在接入，暂不能创建此渠道的自动挂号任务。", color = Muted)
+    }
 }

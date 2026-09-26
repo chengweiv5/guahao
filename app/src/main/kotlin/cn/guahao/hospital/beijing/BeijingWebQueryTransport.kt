@@ -10,7 +10,7 @@ import java.util.UUID
 import kotlin.coroutines.resume
 
 /**
- * Public queries in an already initialized, channel-isolated official WebView.
+ * Allowlisted reads in an already initialized, channel-isolated official WebView.
  * The owner controls its visible initialization/login and lifecycle. No Cookie export or JS interface.
  */
 internal class BeijingWebQueryTransport(
@@ -22,13 +22,13 @@ internal class BeijingWebQueryTransport(
 
     override suspend fun execute(request: BeijingQueryRequest): BeijingQueryReply = gate.withLock {
         require(request.channel == channel) { "Browser channel mismatch" }
-        BeijingQueryPolicy.validate(request)
+        BeijingReadPolicy.validate(request)
         val id = UUID.randomUUID().toString().replace("-", "")
         try {
             withTimeout(30_000) {
                 withContext(Dispatchers.Main.immediate) {
                     if (closed) throw BeijingQueryException(BeijingFailureKind.RECONNECT)
-                    if (evaluate(BeijingQueryPolicy.browserScript(request, id)) != "true")
+                    if (evaluate(BeijingReadPolicy.browserScript(request, id)) != "true")
                         throw BeijingQueryException(BeijingFailureKind.RECONNECT)
                     var result: JsonObject? = null
                     while (result == null) {

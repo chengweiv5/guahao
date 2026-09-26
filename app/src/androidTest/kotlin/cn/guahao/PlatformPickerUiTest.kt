@@ -12,6 +12,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import cn.guahao.core.RegistrationChannel
 import cn.guahao.hospital.beijing.*
 import cn.guahao.ui.HospitalChannelPicker
+import cn.guahao.storage.SecretStore
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.*
 import org.junit.Rule
@@ -23,12 +24,16 @@ class PlatformPickerUiTest {
     private val hospital = BeijingHospital("synthetic-hospital", "测试医院（虚构）", "测试级别", null)
 
     private fun show(load: suspend (RegistrationChannel, Int) -> BeijingHospitalPage) {
+        val connections = BeijingConnectionRepository(object : SecretStore {
+            override fun read(name: String): String? = null
+            override fun write(name: String, text: String) = error("Unexpected write")
+        }, BeijingAccountSource { error("Unexpected private query") })
         compose.setContent {
             MaterialTheme {
                 var channel by remember { mutableStateOf(RegistrationChannel.BEIJING_114) }
                 var selection by remember { mutableStateOf<BeijingHospital?>(null) }
                 Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-                    HospitalChannelPicker(channel, selection, load, { channel = it }, { selection = it; selected = it })
+                    HospitalChannelPicker(channel, selection, load, connections, { channel = it }, { selection = it; selected = it })
                 }
             }
         }
