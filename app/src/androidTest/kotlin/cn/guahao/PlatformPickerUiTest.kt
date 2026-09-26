@@ -41,7 +41,7 @@ class PlatformPickerUiTest {
             BeijingHospitalPage(listOf(hospital), 1)
         }
         compose.onNodeWithText("查询医院目录").performScrollTo().performClick()
-        compose.waitUntil(5000) { compose.onAllNodesWithText("平台要求完成客户端校验，暂未取得医院数据").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(5000) { compose.onAllNodesWithText("请先打开此渠道的官方连接页，完成登录或校验后重试").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(hospital.name).assertDoesNotExist()
         fail = false
         compose.onNodeWithText("查询医院目录").performScrollTo().performClick()

@@ -1,0 +1,6 @@
+<resources>
+    <string name="beijing_connection_intro">%1$s · 官方连接\nwww.114yygh.com\n在官方页面完成登录后返回。连接仅用于此渠道。</string>
+    <string name="beijing_requires_android9">此渠道连接需要 Android 9 或更高版本。</string>
+    <string name="beijing_return_to_app">返回挂号 App</string>
+    <string name="beijing_official_login">打开官方登录页</string>
+</resources>

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cn.guahao.core.RegistrationChannel
@@ -40,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable private fun PlatformHospitalResults(channel: RegistrationChannel, selected: BeijingHospital?,
     load: suspend (RegistrationChannel, Int) -> BeijingHospitalPage, onSelect: (BeijingHospital?) -> Unit) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var hospitals by remember { mutableStateOf(emptyList<BeijingHospital>()) }
     var page by remember { mutableIntStateOf(0) }
     var total by remember { mutableIntStateOf(0) }
@@ -61,6 +63,12 @@ import kotlinx.coroutines.launch
         }
     }
     Text("${channel.title}的连接和订单单独管理。", color = Muted)
+    OutlinedButton(onClick = {
+        val target = if (channel == RegistrationChannel.JINGTONG) JingtongConnectActivity::class.java else Official114ConnectActivity::class.java
+        context.startActivity(android.content.Intent(context, target))
+    }, enabled = !loading && android.os.Build.VERSION.SDK_INT >= 28,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("在官方页面连接${channel.title}") }
+    if (android.os.Build.VERSION.SDK_INT < 28) Text("此渠道连接需要 Android 9 或更高版本。", color = Muted)
     OutlinedButton(onClick = { fetch(1) }, enabled = !loading,
         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
         Text(if (loading) "正在查询医院…" else if (page > 0) "刷新医院目录" else "查询医院目录")

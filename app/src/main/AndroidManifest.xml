@@ -16,6 +16,10 @@
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
         </activity>
+        <activity android:name=".hospital.beijing.JingtongConnectActivity" android:exported="false" android:process=":beijing_jt" />
+        <activity android:name=".hospital.beijing.Official114ConnectActivity" android:exported="false" android:process=":beijing_114" />
+        <service android:name=".hospital.beijing.JingtongBrowserService" android:exported="false" android:process=":beijing_jt" />
+        <service android:name=".hospital.beijing.Official114BrowserService" android:exported="false" android:process=":beijing_114" />
         <service android:name=".runtime.BookingService" android:exported="false" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Execute a user-scheduled hospital booking task during a bounded release window" />

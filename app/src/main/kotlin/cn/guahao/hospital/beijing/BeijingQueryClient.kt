@@ -22,7 +22,7 @@ data class BeijingCalendarDay(val date: LocalDate, val availability: DateAvailab
 
 enum class BeijingFailureKind { CLIENT_VERIFICATION, RECONNECT, RATE_LIMITED, INVALID_RESPONSE, BUSINESS, NETWORK }
 class BeijingQueryException(val kind: BeijingFailureKind) : Exception(when (kind) {
-    BeijingFailureKind.CLIENT_VERIFICATION -> "平台要求完成客户端校验，暂未取得医院数据"
+    BeijingFailureKind.CLIENT_VERIFICATION -> "请先打开此渠道的官方连接页，完成登录或校验后重试"
     BeijingFailureKind.RECONNECT -> "此渠道需要重新登录，请在原渠道核对"
     BeijingFailureKind.RATE_LIMITED -> "平台请求繁忙，请稍后再试"
     BeijingFailureKind.INVALID_RESPONSE -> "平台返回的数据暂不可确认，请稍后重试"
@@ -34,9 +34,12 @@ class BeijingQueryException(val kind: BeijingFailureKind) : Exception(when (kind
 class BeijingQueryClient internal constructor(
     private val baseUrl: HttpUrl,
     client: OkHttpClient,
-    private val intervalMillis: Long
+    private val intervalMillis: Long,
+    private val transport: BeijingQueryTransport? = null
 ) {
     constructor() : this("https://www.114yygh.com/jtjk/mobile-service/".toHttpUrl(), OkHttpClient(), 1000)
+    constructor(transport: BeijingQueryTransport) : this(
+        "https://www.114yygh.com/jtjk/mobile-service/".toHttpUrl(), OkHttpClient(), 1000, transport)
 
     private val client = client.newBuilder().retryOnConnectionFailure(false).followRedirects(false)
         .followSslRedirects(false).cookieJar(CookieJar.NO_COOKIES).callTimeout(java.time.Duration.ofSeconds(25)).build()
@@ -100,17 +103,29 @@ class BeijingQueryClient internal constructor(
         return days
     }
 
+    suspend fun doctors(channel: RegistrationChannel, hospital: String, department: DepartmentRef,
+        date: LocalDate): BeijingDoctorSchedule {
+        require(hospital.isNotBlank() && department.parentCode.isNotBlank() && department.code.isNotBlank())
+        val data = request(channel, "product/doctor/detail", buildJsonObject {
+            put("hosCode", hospital); put("firstDeptCode", department.parentCode); put("secondDeptCode", department.code)
+            put("dutyDate", date.format(DateTimeFormatter.BASIC_ISO_DATE)); put("type", ""); put("dutyCode", "")
+        })
+        return BeijingDoctorParser.parse(data, department, date)
+    }
+
     private suspend fun request(channel: RegistrationChannel, path: String, body: JsonObject? = null, suffix: String? = null): JsonElement = gate.withLock {
+        val query = BeijingQueryRequest(channel, path, body, suffix)
+        BeijingQueryPolicy.validate(query)
         val source = requireNotNull(channel.requestSource) { "北京平台查询不接受其他渠道" }
         budget.awaitTurn()
         val url = baseUrl.newBuilder().addPathSegments(path).apply { suffix?.let(::addPathSegment) }
             .addQueryParameter("_time", System.currentTimeMillis().toString()).build()
         val request = Request.Builder().url(url).header("Accept", "application/json").header("Request-Source", source)
             .apply { body?.let { post(it.toString().toRequestBody("application/json;charset=UTF-8".toMediaType())) } }.build()
-        val reply = execute(request)
+        val reply = transport?.execute(query) ?: execute(request)
         if (reply.code == 429) { budget.defer(30_000); throw BeijingQueryException(BeijingFailureKind.RATE_LIMITED) }
         if (reply.code == 401) throw BeijingQueryException(BeijingFailureKind.RECONNECT)
-        if (reply.type.contains("text/html", true) || reply.code == 202) throw BeijingQueryException(BeijingFailureKind.CLIENT_VERIFICATION)
+        if (reply.type.contains("text/html", true) || reply.code in setOf(202, 467)) throw BeijingQueryException(BeijingFailureKind.CLIENT_VERIFICATION)
         if (reply.code != 200 || !reply.type.contains("application/json", true)) invalid()
         val root = runCatching { json.parseToJsonElement(reply.body).objectValue() }.getOrElse { invalid() }
         when (root.requiredString("code")) {
@@ -121,8 +136,7 @@ class BeijingQueryClient internal constructor(
         }
     }
 
-    private data class Reply(val code: Int, val type: String, val body: String)
-    private suspend fun execute(request: Request): Reply = suspendCancellableCoroutine { continuation ->
+    private suspend fun execute(request: Request): BeijingQueryReply = suspendCancellableCoroutine { continuation ->
         val call = client.newCall(request)
         continuation.invokeOnCancellation { call.cancel() }
         call.enqueue(object : Callback {
@@ -136,7 +150,7 @@ class BeijingQueryClient internal constructor(
                         val source = body.source()
                         source.request(1_048_577)
                         if (source.buffer.size > 1_048_576) invalid()
-                        Reply(it.code, it.header("Content-Type").orEmpty(), source.readUtf8())
+                        BeijingQueryReply(it.code, it.header("Content-Type").orEmpty(), source.readUtf8())
                     }
                 }
                 if (continuation.isActive) result.fold(continuation::resume) {

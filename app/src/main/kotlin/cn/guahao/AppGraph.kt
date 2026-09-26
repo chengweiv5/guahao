@@ -15,7 +15,12 @@ import java.time.*
 
 class GuahaoApplication : Application() {
     lateinit var graph: AppGraph
-    override fun onCreate() { super.onCreate(); graph = AppGraph(this) }
+    override fun onCreate() {
+        super.onCreate()
+        // Browser-only processes must not open the task database or recover worker ownership.
+        if (android.os.Build.VERSION.SDK_INT >= 28 && getProcessName() != packageName) return
+        graph = AppGraph(this)
+    }
 }
 val Context.graph: AppGraph get() = (applicationContext as GuahaoApplication).graph
 
@@ -26,7 +31,7 @@ class AppGraph(val context: Context, val mode: AppMode = AppMode()) {
     val sessions = SessionRepository(vault, Mutex())
     init { store.all().asReversed().forEach { sessions.register(it.task.condition.patient) } }
     val hospital = PscClient(sessions) { !store.get(it.id).stopRequested }
-    val beijingQueries = cn.guahao.hospital.beijing.BeijingQueryClient()
+    val beijingQueries = cn.guahao.hospital.beijing.BeijingQueryClient(cn.guahao.hospital.beijing.BeijingBrowserClient(context))
     private val demo by lazy { DemoGateway(store) }
     private fun gatewayBinding(p: PatientRef) = if (p.isDemo) demoBinding(p) else sessions.identities.resolve(p)
         ?: throw HospitalException("连接身份待核对，请重新连接医院")

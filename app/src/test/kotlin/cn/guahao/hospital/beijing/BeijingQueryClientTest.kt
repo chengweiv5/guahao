@@ -48,6 +48,14 @@ class BeijingQueryClientTest {
         assertEquals(1, server.requestCount)
     }
 
+    @Test fun browserVerificationRejectionIsNotAnEmptyDoctorList() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(467))
+        failure(BeijingFailureKind.CLIENT_VERIFICATION) {
+            client.doctors(RegistrationChannel.JINGTONG, "hospital", department, java.time.LocalDate.of(2026, 9, 29))
+        }
+        assertEquals(1, server.requestCount)
+    }
+
     @Test fun successfulHttpStillRequiresExactBusinessCodeAndSchema() = runBlocking {
         reply("""{"code":"0001","message":"secret"}""")
         failure(BeijingFailureKind.RECONNECT) { client.hospitals(channel) }

@@ -1,0 +1,475 @@
+{
+  "date": "2026-09-26",
+  "status": "independent_jingtong_login_and_public_queries_verified",
+  "device": {
+    "model": "Mate 60 Pro / ALN-AL00",
+    "android_api": 31,
+    "webview": "com.huawei.webview 114.0.5.302"
+  },
+  "environment": {
+    "temporary_package": "cn.guahao.platformprobe",
+    "official_app_modified": false,
+    "production_app_modified": false,
+    "wechat_credentials_imported": false,
+    "tls_validation_disabled": false,
+    "proxy_used": false,
+    "ca_used": false,
+    "channel_data_directories_separate": true
+  },
+  "jingtong_public_queries": {
+    "channel": "JT_WECHAT",
+    "results": [
+      {
+        "operation": "hospital/list",
+        "http": 200,
+        "code": "0000",
+        "count": 15
+      },
+      {
+        "hospital": "北京大学人民医院",
+        "hosCode": "H02110002",
+        "departmentHttp": 200,
+        "departmentCode": "0000",
+        "departmentCount": 7,
+        "firstDeptCode": "yygh_NK_4d2b43fd_vir",
+        "secondDeptCode": "1010404",
+        "department": "风湿免疫科门诊",
+        "calendarHttp": 200,
+        "calendarCode": "0000",
+        "dates": [
+          {
+            "date": "20260926",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20260927",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20260928",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20260929",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20260930",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20261001",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20261002",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20261003",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20261004",
+            "status": 6,
+            "label": "即将放号"
+          }
+        ],
+        "selectedDate": "20260926",
+        "doctorHttp": 200,
+        "doctorCode": "0000",
+        "doctorCount": 10,
+        "doctorStatusValues": [
+          "1",
+          "2"
+        ],
+        "doctorFields": [
+          "detail",
+          "doctorAvatar",
+          "doctorCode",
+          "doctorName",
+          "firstDeptCode",
+          "remark",
+          "secondDeptCode",
+          "skill",
+          "titleType",
+          "titleTypeView",
+          "titleView"
+        ],
+        "slotFields": [
+          "alternate",
+          "dutyCode",
+          "dutyCodeView",
+          "fcode",
+          "ncode",
+          "period",
+          "productStatus",
+          "productStatusView",
+          "uniqueProductKey"
+        ],
+        "periodFields": [
+          "create",
+          "dutyTime",
+          "dutyTimeView",
+          "ncode",
+          "nncode",
+          "uniqProductKey"
+        ]
+      },
+      {
+        "hospital": "中国医学科学院肿瘤医院",
+        "hosCode": "H05155001",
+        "departmentHttp": 200,
+        "departmentCode": "0000",
+        "departmentCount": 20,
+        "firstDeptCode": "yygh_TJJNZL_68d99472_vir",
+        "secondDeptCode": "32",
+        "department": "头外门诊",
+        "calendarHttp": 200,
+        "calendarCode": "0000",
+        "dates": [
+          {
+            "date": "20260927",
+            "status": 4,
+            "label": "无号"
+          },
+          {
+            "date": "20260928",
+            "status": 8,
+            "label": "候补"
+          },
+          {
+            "date": "20260929",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20260930",
+            "status": 1,
+            "label": "有号"
+          },
+          {
+            "date": "20261001",
+            "status": 4,
+            "label": "无号"
+          },
+          {
+            "date": "20261002",
+            "status": 4,
+            "label": "无号"
+          },
+          {
+            "date": "20261003",
+            "status": 6,
+            "label": "即将放号"
+          }
+        ],
+        "selectedDate": "20260929",
+        "doctorHttp": 200,
+        "doctorCode": "0000",
+        "doctorCount": 2,
+        "doctorStatusValues": [
+          "8",
+          "1"
+        ],
+        "doctorFields": [
+          "detail",
+          "doctorAvatar",
+          "doctorCode",
+          "doctorName",
+          "firstDeptCode",
+          "remark",
+          "secondDeptCode",
+          "skill",
+          "titleType",
+          "titleTypeView",
+          "titleView"
+        ],
+        "slotFields": [
+          "alternate",
+          "dutyCode",
+          "dutyCodeView",
+          "fcode",
+          "ncode",
+          "period",
+          "productStatus",
+          "productStatusView",
+          "uniqueProductKey"
+        ],
+        "periodFields": []
+      }
+    ]
+  },
+  "beijing_114_fresh_session": {
+    "channel": "WE_CHAT",
+    "results": [
+      {
+        "operation": "hospital/list",
+        "http": 200,
+        "code": "3087",
+        "count": null
+      },
+      {
+        "hospital": "北京大学人民医院",
+        "hosCode": "H02110002",
+        "departmentHttp": 200,
+        "departmentCode": "3087",
+        "departmentCount": null
+      },
+      {
+        "hospital": "中国医学科学院肿瘤医院",
+        "hosCode": "H05155001",
+        "departmentHttp": 200,
+        "departmentCode": "3087",
+        "departmentCount": null
+      }
+    ]
+  },
+  "jingtong_login": {
+    "method": "User completed official phone/SMS login in isolated WebView",
+    "user_confirmed": true,
+    "after_process_restart": true,
+    "server_check": {
+      "operation": "auth/user/get",
+      "http": 200,
+      "code": "0000",
+      "authenticated": true,
+      "identityPresent": true
+    },
+    "identity_values_retained": false
+  },
+  "production_kotlin_live": {
+    "passed": true,
+    "hospitalCount": 15,
+    "results": [
+      {
+        "hospital": "H02110002",
+        "departments": 109,
+        "days": 9,
+        "doctors": 10,
+        "date": "2026-09-26",
+        "pricedSlots": 15,
+        "precisePeriods": 17
+      },
+      {
+        "hospital": "H05155001",
+        "departments": 52,
+        "days": 7,
+        "doctors": 2,
+        "date": "2026-09-29",
+        "pricedSlots": 3,
+        "precisePeriods": 3
+      }
+    ]
+  },
+  "remaining": {
+    "private_patient_and_order_read_approval": "explicitly_authorized_2026-09-26",
+    "private_patient_and_order_queries_performed": true,
+    "booking_requests": false,
+    "payment_requests": false,
+    "production_ui_transport_wired": true,
+    "full_v02_complete": false,
+    "push_performed": false,
+    "v03_started": false,
+    "nonempty_order_detail_verified": false,
+    "patient_connection_selection_wired": false,
+    "automatic_booking_wired": false,
+    "nonempty_order_detail_sample": "waiting_user_reply_about_history",
+    "wechat_inspector_close": "requested_pending_confirmation",
+    "temporary_probe_package": "retained for authorized continuation; all probe processes force-stopped"
+  },
+  "source_hashes": {
+    "BeijingQueryClient.kt": "f0794d8c0eae2f63e31b3cb21722dac3157fbe9a9a3c988b09e8ed897d3845d9",
+    "BeijingDoctorSchedule.kt": "9969ed16286a5898d03b625cd1270137f0c4617abbaab14e691a72b1d4d1fd1a",
+    "BeijingQueryTransport.kt": "3e674ae01b9d7bad3bd9e93b49ba18806286c381983ee852265418b8257e654a",
+    "BeijingWebQueryTransport.kt": "bba31c63ebfcd4595945018d17aaf91cb626d02608232b131300e3a012100c60"
+  },
+  "private_reads": {
+    "privateReadAuthorized": true,
+    "results": [
+      {
+        "operation": "auth/patient/list",
+        "http": 200,
+        "code": "0000",
+        "shape": {
+          "defaultSwitch": "<boolean>",
+          "hisPatientList": {
+            "type": "array",
+            "count": 0,
+            "item": null
+          },
+          "patientList": {
+            "type": "array",
+            "count": 1,
+            "item": {
+              "cardList": {
+                "type": "array",
+                "count": 2,
+                "item": {
+                  "cardNo": "<string>",
+                  "cardNoConfound": "<string>",
+                  "cardType": "<number>",
+                  "cardTypeView": "<string>",
+                  "default_card": "<number>",
+                  "medicareType": "<number>",
+                  "medicareTypeView": "<string>"
+                }
+              },
+              "evaluationBadgeShow": "<boolean>",
+              "faceVerifyResult": "<string>",
+              "idCardNo": "<string>",
+              "idCardNoConfound": "<string>",
+              "idCardType": "<number>",
+              "idCardTypeView": "<string>",
+              "patientId": "<string>",
+              "patientName": "<string>",
+              "patientNameConfound": "<string>",
+              "patientPhone": "<string>",
+              "patientType": "<number>",
+              "patientTypeView": "<string>",
+              "patient_auth_status": "<number>",
+              "saveCount": "<null>",
+              "virtualPhone": "<boolean>"
+            }
+          }
+        }
+      },
+      {
+        "operation": "auth/order/getOrderListV2",
+        "http": 200,
+        "code": "0000",
+        "rangeDays": 30,
+        "pageSize": 20,
+        "shape": {
+          "count": "<number>",
+          "list": {
+            "type": "array",
+            "count": 0,
+            "item": null
+          }
+        },
+        "selectedPatientFromAuthenticatedList": true,
+        "patientIdMatchWhenPresent": null,
+        "identity_match_verified": false,
+        "identity_match_note": "Empty list cannot verify order ownership or matching"
+      }
+    ]
+  },
+  "tests": {
+    "debug": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintWarnings": 13
+    },
+    "release": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintWarnings": 13
+    },
+    "debug_release_assemble": "passed",
+    "debug_release_lint": {
+      "errors": 0,
+      "existing_UseKtx_warnings_each": 13
+    }
+  },
+  "ipc_query_verification": {
+    "isolated_processes": true,
+    "fresh_service_only": "failed: initialization navigation race or doctor HTTP 467",
+    "visible_official_initialization_then_return_to_app": {
+      "passed": true,
+      "hospitalCount": 15,
+      "results": [
+        {
+          "hospital": "H02110002",
+          "departments": 109,
+          "days": 9,
+          "doctors": 10,
+          "date": "2026-09-26",
+          "pricedSlots": 15,
+          "precisePeriods": 16
+        },
+        {
+          "hospital": "H05155001",
+          "departments": 52,
+          "days": 7,
+          "doctors": 2,
+          "date": "2026-09-29",
+          "pricedSlots": 3,
+          "precisePeriods": 3
+        }
+      ]
+    },
+    "extra_per_query_delay": false,
+    "initial_visible_home_seconds": 12,
+    "standard_result_file_epoch": 1790384346,
+    "further_limits": [
+      "No locked screen or process-restart autonomous query validation",
+      "Require visible connection preparation again after browser process death",
+      "No mutation or order-detail validation"
+    ],
+    "login_page_for_existing_session": "did not complete; changed connection entry to official home plus explicit login button",
+    "final_home_first_connection_result": {
+      "passed": true,
+      "hospitalCount": 15,
+      "results": [
+        {
+          "hospital": "H02110002",
+          "departments": 109,
+          "days": 9,
+          "doctors": 10,
+          "date": "2026-09-26",
+          "pricedSlots": 15,
+          "precisePeriods": 17
+        },
+        {
+          "hospital": "H05155001",
+          "departments": 52,
+          "days": 7,
+          "doctors": 2,
+          "date": "2026-09-29",
+          "pricedSlots": 3,
+          "precisePeriods": 12
+        }
+      ]
+    },
+    "final_result_file_epoch": 1790384551
+  },
+  "current_source_hashes": {
+    "BeijingBrowserService.kt": "1a95e434c935ac562af0e43fefb659184278f2f38ca683a95274b8bdbb0987dc",
+    "BeijingDoctorSchedule.kt": "9969ed16286a5898d03b625cd1270137f0c4617abbaab14e691a72b1d4d1fd1a",
+    "BeijingWebQueryTransport.kt": "bba31c63ebfcd4595945018d17aaf91cb626d02608232b131300e3a012100c60",
+    "BeijingBrowserClient.kt": "7af457b572719d7abeeb5e0ae533f31b299a26cada0ff828a8c091360ccff626",
+    "BeijingBrowserRuntime.kt": "cffb3067392725d51a2423cdb462469568cd288dd67686194cd111e45ea24110",
+    "BeijingPatients.kt": "b1e353d891f65a584b558a634f22f290efde917ad2e16ca2526013ae654d4f4e",
+    "BeijingQueryClient.kt": "a73ba9aa43f4ba3b4e2462ee2ed68f5ab4df37e2f821ad5abf89645c489f9e00",
+    "BeijingQueryTransport.kt": "3e674ae01b9d7bad3bd9e93b49ba18806286c381983ee852265418b8257e654a",
+    "BeijingConnectActivity.kt": "c427fd65ec99d716d3813c0749dd11c0948be336434f4dd23557c84ac9c78199"
+  },
+  "cleanup": {
+    "forward": "",
+    "reverse": "",
+    "proxy": {
+      "http_proxy": "null",
+      "global_http_proxy_host": "null",
+      "global_http_proxy_port": "null",
+      "global_http_proxy_exclusion_list": "null",
+      "global_proxy_pac_url": "null"
+    },
+    "webview_debug_socket_count": 2,
+    "probe_process_running": false,
+    "probe_browser_process_running": false,
+    "temporary_package_retained": true
+  }
+}

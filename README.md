@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-v0.2 已在 v0.1.0 基线上开始实现。当前开发版本包含四步任务设置、固定底部操作、紧凑任务卡与医院筛选，以及北京 114／京通的独立渠道选择和医院目录、科室、日历查询客户端。查询客户端已通过模拟响应测试，但真实独立目录请求仍收到 `HTTP 202 + HTML` 校验页；认证、患者、医生排班请求构造、提交与订单核对尚未打通，**不能据此宣称已支持新增医院自动挂号**。当前代码未启用这两个渠道的任务创建，仍需完成真实接入验收。见 [v0.2 实施与验证记录](docs/testing/2026-09-25-v02-implementation.md)。
+v0.2 已在 v0.1.0 基线上开始实现。当前开发版本包含四步任务设置、固定底部操作、紧凑任务卡与医院筛选，以及北京 114／京通的独立渠道选择和医院目录、科室、日历查询客户端。2026-09-26 已在独立 Android WebView 内完成京通官方手机号登录，并用项目实际 Kotlin 代码查询两家医院的科室、日历、医生与时段；患者列表和最近订单列表只读接口也成功（近期订单为空）。114 全新会话仍需微信授权，两个渠道保持隔离。正式 App 已接入官方连接页和公开查询服务；患者选择、提交与非空订单核对仍待完成，**不能据此宣称已支持新增医院自动挂号**，目前未启用这两个渠道的任务创建。见 [v0.2 实施与验证记录](docs/testing/2026-09-25-v02-implementation.md)。
 
 v0.1 Android 工程与调试 APK 已实现：三步设置挂号任务、服务号会话导入、条件查号、提交恢复、精确定时与前台服务、医保准备和微信付款交接。测试包默认演示模式；正式构建直接进入真实挂号流程。服务号为主通路，互联网医院保留为独立研究渠道。
 
@@ -73,7 +73,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [v0.1 需求与实现方向](docs/design/2026-09-24-v0.1-requirements-and-approach.md)。
 - [v0.2 北京通用平台设计](docs/design/v0.2/2026-09-25-beijing-platform-design.md)：设计已确认，已开始 UI 和客户端实现；完整接入待验收。
 - [v0.2 平台调研](docs/research/2026-09-25-beijing-platform-landscape.md) · [架构图](design/v0.2/beijing-platform-architecture.html)：官方覆盖证据、平台适配与独立接入的验证边界。
-- [v0.2 最新查询核验](docs/research/2026-09-25-xweb-read-query-verification.md)：手机微信内置调试已验证 114 两家医院的科室与排班、7 种核心查询端点，并确认京通复用同组查询协议；独立客户端认证、请求构造与预约提交仍待验证。
+- [v0.2 独立 WebView 登录与查询](docs/research/2026-09-26-independent-webview-verification.md)：已验证京通独立会话和实际 Kotlin 跨院查询，记录患者/订单只读结果及剩余边界。
+- [v0.2 微信页面查询核验](docs/research/2026-09-25-xweb-read-query-verification.md)：手机微信内置调试已验证 114 两家医院的科室与排班、7 种核心查询端点，并确认京通复用同组查询协议；独立客户端认证、请求构造与预约提交仍待验证。
 - [v0.2 入口核验](docs/research/2026-09-25-114-mobile-entry-and-web-closure.md) · [京通认证边界](docs/research/2026-09-25-jingtong-entry-verification.md)：网站预约已关闭；京通与 114 的登录态和凭据按入口隔离。
 - [宣武医院接入核验](docs/research/2026-09-25-xuanwu-entry-verification.md)：第二家医院的官方入口、取号与支付区别，以及真实适配的通过条件。
 - [后续开发计划候选](docs/development-candidates.md)：北京通用平台已指定为 v0.2 设计，宣武医院接入核验已开始；抢号性能与策略优化及显著付款提醒等其他任务保持原状态。
