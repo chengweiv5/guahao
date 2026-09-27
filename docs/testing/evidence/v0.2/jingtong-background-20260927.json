@@ -77,8 +77,59 @@
     "prepared": true,
     "apk_built": true,
     "installed_preserving_data": true,
-    "started": false,
-    "blocked_by": "device_security_lock_showing; awaiting user unlock"
+    "started": true,
+    "result": {
+      "epoch": 1790473166,
+      "readOnly": true,
+      "foregroundService": true,
+      "cpuWakeLock": true,
+      "samples": [
+        {
+          "targetMillis": 30000,
+          "elapsedMillis": 30018,
+          "wakeHeldBefore": true,
+          "interactiveBefore": false,
+          "passed": true,
+          "dayCount": 9,
+          "doctorCount": 12,
+          "queryDurationMillis": 1780,
+          "wakeHeldAfter": true,
+          "interactiveAfter": false
+        },
+        {
+          "targetMillis": 120000,
+          "elapsedMillis": 120006,
+          "wakeHeldBefore": true,
+          "interactiveBefore": false,
+          "passed": true,
+          "dayCount": 9,
+          "doctorCount": 12,
+          "queryDurationMillis": 1391,
+          "wakeHeldAfter": true,
+          "interactiveAfter": false
+        }
+      ],
+      "stage": "complete",
+      "nextTargetMillis": 120000,
+      "enteredAtMillis": 120004,
+      "wakeHeld": true,
+      "complete": true
+    },
+    "assertion": {
+      "passed": true,
+      "sample_count": 2,
+      "failures": []
+    },
+    "timing_assertion": {
+      "passed": true,
+      "max_start_delay_millis": 18
+    },
+    "wake_lock": {
+      "acquired": "2026-09-27 09:39:26.002 +08:00",
+      "released": "2026-09-27 09:41:27.407 +08:00",
+      "forced_release_observed": false
+    },
+    "foreground_probe_self_stopped": true
   },
   "temporary_launcher_fix": {
     "previous": "cn.guahao.platformprobe.ProbeActivity",
@@ -103,7 +154,8 @@
     "active_test_wake_lock_absent": true,
     "login_data_preserved": true,
     "screen_awake": true,
-    "security_keyguard_showing": true
+    "security_keyguard_showing": true,
+    "foreground_probe_self_stopped_before_cleanup": true
   },
   "automatic_booking_verified": false,
   "nonempty_order_schema_verified": false,
@@ -112,11 +164,18 @@
   "production_app_or_wechat_modified": false,
   "proxy_or_CA_changes": false,
   "pending": [
-    "user_unlock_for_30_120_second_regression",
     "long_background_and_process_recovery",
     "history_read_range_authorization",
     "nonempty_order_schema",
     "confirm_and_submit_contract"
   ],
-  "interpretation": "One successful locked-screen sample proves short background queries work with this configuration; it does not prove a full booking window, an exclusive cause for the earlier wake-lock failure, or automatic booking."
+  "interpretation": "Both 30/120 second samples completed on time while the screen was off and query wake locks were held; the short-background regression passes. This does not prove the full booking window, an exclusive cause for the earlier wake-lock failure, or automatic booking.",
+  "cleanup_before_30_120_run": {
+    "temporary_package_force_stopped": true,
+    "temporary_processes_and_services_absent": true,
+    "active_test_wake_lock_absent": true,
+    "login_data_preserved": true,
+    "screen_awake": true,
+    "security_keyguard_showing": true
+  }
 }
