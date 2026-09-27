@@ -1,0 +1,122 @@
+{
+  "date": "2026-09-27",
+  "production_commit": "d6891f99dc36c01e0ed3e320fdb4bff400a34e25",
+  "temporary_package": "cn.guahao.platformprobe",
+  "device": "Mate 60 Pro / API 31",
+  "scope": "public calendar and doctor schedule only",
+  "background_options": {
+    "self_start": true,
+    "associated_start": true,
+    "background_activity": true,
+    "source": "user confirmation",
+    "independently_verified_oem_settings": false
+  },
+  "initial_start_failure": {
+    "new_service_started": false,
+    "exception": "WebView data directory used concurrently by old main-process probe and isolated browser process",
+    "temporary_package_only": true,
+    "resolved_by_stopping_temporary_package_preserving_data": true
+  },
+  "short_control": {
+    "epoch": 1790472343,
+    "readOnly": true,
+    "foregroundService": true,
+    "cpuWakeLock": true,
+    "samples": [
+      {
+        "elapsedMillis": 10013,
+        "interactiveBefore": true,
+        "passed": true,
+        "dayCount": 9,
+        "doctorCount": 12,
+        "interactiveAfter": true
+      },
+      {
+        "elapsedMillis": 45027,
+        "interactiveBefore": false,
+        "passed": true,
+        "dayCount": 9,
+        "doctorCount": 12,
+        "interactiveAfter": false
+      }
+    ],
+    "stage": "complete",
+    "nextTargetMillis": 45000,
+    "enteredAtMillis": 45022,
+    "wakeHeld": true,
+    "complete": true
+  },
+  "short_control_assertion": {
+    "passed": false,
+    "failures": [
+      "sample_0_not_locked"
+    ]
+  },
+  "locked_sample": {
+    "sample_index": 1,
+    "passed": true,
+    "targetMillis": 45000,
+    "actualMillis": 45027,
+    "dayCount": 9,
+    "doctorCount": 12,
+    "interactiveBefore": false,
+    "interactiveAfter": false,
+    "wakeHeldAtQueryStart": true
+  },
+  "wake_lock": {
+    "acquired": "2026-09-27 09:25:43.622 +08:00",
+    "released": "2026-09-27 09:26:30.187 +08:00",
+    "forced_release_observed": false,
+    "previous_failure_cause_proven": false
+  },
+  "long_control": {
+    "targetsMillis": [
+      30000,
+      120000
+    ],
+    "prepared": true,
+    "apk_built": true,
+    "installed_preserving_data": true,
+    "started": false,
+    "blocked_by": "device_security_lock_showing; awaiting user unlock"
+  },
+  "temporary_launcher_fix": {
+    "previous": "cn.guahao.platformprobe.ProbeActivity",
+    "current": "cn.guahao.hospital.beijing.JingtongConnectActivity",
+    "resolved_activity_readback_matches": true,
+    "old_probe_exported": false
+  },
+  "source_verification": {
+    "production_file_count": 19,
+    "production_hashes_unchanged": true,
+    "probe_matches_after_documented_namespace_and_data_directory_adjustments": true
+  },
+  "probe_files": {
+    "app/src/main/java/cn/guahao/platformprobe/BackgroundProbeService.kt": "9df05dd98b2aa9faec2a8e1805be2dac88bf3336bc3bb82bdc8697d61cd2aa65",
+    "app/src/main/java/cn/guahao/platformprobe/VisibleRuntimeActivity.kt": "960ae889ed8e5ab6457d7cf78f7d7de46c7c82dc5f940d5102c392d49742e700",
+    "app/src/main/AndroidManifest.xml": "a3408dcf3a6ffa5734640d8668eb929105114bb3341ef6cb27a1fe0797b96ded",
+    "app/build/outputs/apk/debug/app-debug.apk": "9bd3302626184c42dc1ad3a34c624f58f97400e18ec4e56dfe6242f089c0061c"
+  },
+  "cleanup": {
+    "temporary_package_force_stopped": true,
+    "temporary_processes_and_services_absent": true,
+    "active_test_wake_lock_absent": true,
+    "login_data_preserved": true,
+    "screen_awake": true,
+    "security_keyguard_showing": true
+  },
+  "automatic_booking_verified": false,
+  "nonempty_order_schema_verified": false,
+  "confirm_or_submit_sent": false,
+  "patient_or_order_queries_this_run": false,
+  "production_app_or_wechat_modified": false,
+  "proxy_or_CA_changes": false,
+  "pending": [
+    "user_unlock_for_30_120_second_regression",
+    "long_background_and_process_recovery",
+    "history_read_range_authorization",
+    "nonempty_order_schema",
+    "confirm_and_submit_contract"
+  ],
+  "interpretation": "One successful locked-screen sample proves short background queries work with this configuration; it does not prove a full booking window, an exclusive cause for the earlier wake-lock failure, or automatic booking."
+}
